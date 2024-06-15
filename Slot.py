@@ -43,6 +43,7 @@ class Slot(Canvas):
         self.bind_all("<Down>", self.on_down)
         self.bind_all("<Left>", self.on_left)
         self.bind_all("<Right>", self.on_right)
+        self.bind_all("<Key>", self.on_key_press)
         self.__active_drafts = []
 
         # Add a label to the canvas
@@ -195,16 +196,20 @@ class Slot(Canvas):
     def is_hint(self):
         return self.itemcget(self.final_label, 'text') != '' and self.itemcget(self.final_label, 'fill') == 'black'
 
-    def on_up(self, event):
+    @staticmethod
+    def on_up(event):
         Slot.selected_slot.move_selection(-1, 0)
 
-    def on_down(self, event):
+    @staticmethod
+    def on_down(event):
         Slot.selected_slot.move_selection(1, 0)
 
-    def on_left(self, event):
+    @staticmethod
+    def on_left(event):
         Slot.selected_slot.move_selection(0, -1)
 
-    def on_right(self, event):
+    @staticmethod
+    def on_right(event):
         Slot.selected_slot.move_selection(0, 1)
 
     def move_selection(self, dx, dy):
@@ -213,3 +218,12 @@ class Slot(Canvas):
         new_slot = Slot.slots[new_x][new_y]
         if new_slot:
             new_slot.on_press(None)
+
+    def on_key_press(self, event):
+        if event.keysym not in '123456789':
+            return
+        if ModeButton.mode == Mode.FINAL:
+            Slot.selected_slot.write_final(event.keysym)
+        else:
+            Slot.selected_slot.toggle_draft(event.keysym)
+
