@@ -94,6 +94,7 @@ class ModeButton(ToggleButton):
     def on_press(self, event):
         ModeButton.mode = Mode.DRAFT if self.mode == Mode.FINAL else Mode.FINAL
         from Slot import Slot
-        Slot.selected_slot.show_number_buttons()
+        if Slot.selected_slot:
+            Slot.selected_slot.show_number_buttons()
 
         super().on_press(self)

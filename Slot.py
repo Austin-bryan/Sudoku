@@ -4,6 +4,7 @@ from Colors import *
 from SudokuGenerator import SudokuGenerator
 from ToggleButtons import NumberButton, Mode, ModeButton
 
+
 class Slot(Canvas):
     slots = [[None for _ in range(9)] for _ in range(9)]
     selected_slot = None
@@ -226,4 +227,4 @@ class Slot(Canvas):
             Slot.selected_slot.write_final(event.keysym)
         else:
             Slot.selected_slot.toggle_draft(event.keysym)
-
+        Slot.selected_slot.show_number_buttons()
