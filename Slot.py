@@ -45,6 +45,8 @@ class Slot(Canvas):
         self.bind_all("<Left>", self.on_left)
         self.bind_all("<Right>", self.on_right)
         self.bind_all("<Key>", self.on_key_press)
+        self.bind_all("<Delete>", self.clear)
+        self.bind_all("<BackSpace>", self.clear)
         self.__active_drafts = []
 
         # Add a label to the canvas
@@ -220,7 +222,8 @@ class Slot(Canvas):
         if new_slot:
             new_slot.on_press(None)
 
-    def on_key_press(self, event):
+    @staticmethod
+    def on_key_press(event):
         if event.keysym not in '123456789':
             return
         if ModeButton.mode == Mode.FINAL:
@@ -228,3 +231,11 @@ class Slot(Canvas):
         else:
             Slot.selected_slot.toggle_draft(event.keysym)
         Slot.selected_slot.show_number_buttons()
+
+    @staticmethod
+    def clear(event):
+        if Slot.selected_slot.itemcget(Slot.selected_slot.final_label, 'text') != '':
+            Slot.selected_slot.itemconfig(Slot.selected_slot.final_label, text='')
+        else:
+            Slot.selected_slot.clear_drafts()
+
