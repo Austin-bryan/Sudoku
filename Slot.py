@@ -1,11 +1,8 @@
 import tkinter as tk
-from tkinter import *
+from tkinter import Canvas
 from Colors import *
-from SudokuGenerator import *
-from ToggleButtons import NumberButton
-from ToggleButtons import Mode
-from ToggleButtons import ModeButton
-
+from SudokuGenerator import SudokuGenerator
+from ToggleButtons import NumberButton, Mode, ModeButton
 
 class Slot(Canvas):
     slots = [[None for _ in range(9)] for _ in range(9)]
@@ -25,6 +22,15 @@ class Slot(Canvas):
                 if number != 0:
                     Slot.slots[x][y].write_hint(number)
 
+    @staticmethod
+    def update_selected_slot(number):
+        if Slot.selected_slot is not None and not Slot.selected_slot.is_hint():
+            if ModeButton.mode == Mode.FINAL:
+                Slot.selected_slot.write_final(number)
+                Slot.selected_slot.on_press(None)
+            else:
+                Slot.selected_slot.toggle_draft(number)
+
     def __init__(self, parent, x, y, **kwargs):
         super().__init__(parent, bd=0, highlightthickness=0, **kwargs)
         self.x, self.y = x, y
@@ -33,6 +39,10 @@ class Slot(Canvas):
         self.actual_width, self.actual_height = 50, 50
         self.draw_thick_borders()
         self.bind("<ButtonPress-1>", self.on_press)
+        self.bind_all("<Up>", self.on_up)
+        self.bind_all("<Down>", self.on_down)
+        self.bind_all("<Left>", self.on_left)
+        self.bind_all("<Right>", self.on_right)
         self.__active_drafts = []
 
         # Add a label to the canvas
@@ -72,6 +82,7 @@ class Slot(Canvas):
     def on_press(self, event):
         # Set selected slot
         Slot.selected_slot = self
+        self.focus_set()  # Ensure the slot has focus to receive key events
 
         # Clear all highlights
         for row in Slot.slots:
@@ -88,15 +99,6 @@ class Slot(Canvas):
             slot.config(bg=Slot.__Matching_COLOR)
 
         self.show_number_buttons()
-
-    @staticmethod
-    def update_selected_slot(number):
-        if Slot.selected_slot is not None and not Slot.selected_slot.is_hint():
-            if ModeButton.mode == Mode.FINAL:
-                Slot.selected_slot.write_final(number)
-                Slot.selected_slot.on_press(None)
-            else:
-                Slot.selected_slot.toggle_draft(number)
 
     def show_number_buttons(self):
         NumberButton.toggle_all_off()
@@ -135,7 +137,7 @@ class Slot(Canvas):
         self_text = self.itemcget(self.final_label, 'text')
 
         if self_text == '':
-            return ""
+            return []
         slots = []
 
         for layer in Slot.slots:
@@ -174,7 +176,8 @@ class Slot(Canvas):
             self.__active_drafts.remove(number)
 
     def clear_drafts(self):
-        [self.clear_draft(i + 1) for i in range(9)]
+        for i in range(9):
+            self.clear_draft(i + 1)
 
     def has_draft(self, number):
         return number in self.__active_drafts
@@ -191,3 +194,22 @@ class Slot(Canvas):
 
     def is_hint(self):
         return self.itemcget(self.final_label, 'text') != '' and self.itemcget(self.final_label, 'fill') == 'black'
+
+    def on_up(self, event):
+        Slot.selected_slot.move_selection(-1, 0)
+
+    def on_down(self, event):
+        Slot.selected_slot.move_selection(1, 0)
+
+    def on_left(self, event):
+        Slot.selected_slot.move_selection(0, -1)
+
+    def on_right(self, event):
+        Slot.selected_slot.move_selection(0, 1)
+
+    def move_selection(self, dx, dy):
+        new_x = (self.x + dx) % 9
+        new_y = (self.y + dy) % 9
+        new_slot = Slot.slots[new_x][new_y]
+        if new_slot:
+            new_slot.on_press(None)
