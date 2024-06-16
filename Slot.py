@@ -1,7 +1,6 @@
 import tkinter as tk
 from tkinter import Canvas
 from Colors import *
-from SudokuGenerator import SudokuGenerator
 from ToggleButtons import NumberButton, Mode, ModeButton
 
 
@@ -14,28 +13,12 @@ class Slot(Canvas):
     _CONFLICT_COLOR = '#A33'
     _PRESS_COLOR = SELECTION_COLOR
 
-    @classmethod
-    def populate_board(cls):
-        generator = SudokuGenerator()
-        numbers = generator.generate_board()
-
-        for x, layer in enumerate(numbers):
-            for y, number in enumerate(layer):
-                if number != 0:
-                    Slot.slots[x][y].write_hint(number)
-
-    @staticmethod
-    def update_selected_slot(number):
-        if Slot.selected_slot is not None and not Slot.selected_slot.is_hint():
-            if ModeButton.mode == Mode.FINAL:
-                Slot.selected_slot.write_final(number)
-                Slot.selected_slot.on_press(None)
-            else:
-                Slot.selected_slot.toggle_draft(number)
-
+    #
+    # Initialization Methods
+    #
     def __init__(self, parent, x, y, **kwargs):
         super().__init__(parent, bd=0, highlightthickness=0, **kwargs)
-        self.x, self.y, self._in_conflict = x, y, False
+        self.x, self.y, self._in_conflict, self._is_highlighted = x, y, False, False
         self.actual_width, self.actual_height = 50, 50
 
         self.config(width=50, height=50, bg=Slot._DEFAULT_COLOR)
@@ -74,7 +57,8 @@ class Slot(Canvas):
 
         # Draw left border for each 3rd column
         if should_vertical_line:
-            self.create_line(0, 0, 0, 70 if should_horizontal_line else 50, width=thickness_width, fill=BACKGROUND_COLOR)
+            self.create_line(0, 0, 0, 70 if should_horizontal_line else 50, width=thickness_width,
+                             fill=BACKGROUND_COLOR)
             self.actual_width = 50 + thickness_width
             self.config(width=50 + thickness_width / 2)
 
@@ -84,6 +68,9 @@ class Slot(Canvas):
             self.actual_height = 50 + thickness_width
             self.config(height=50 + thickness_width / 2)
 
+    #
+    # Event Handlers
+    #
     def on_press(self, event):
         # Set selected slot
         Slot.selected_slot = self
@@ -94,14 +81,16 @@ class Slot(Canvas):
             for slot in row:
                 if not slot._in_conflict:
                     slot.config(bg=Slot._DEFAULT_COLOR)
+                    slot._is_highlighted = False
                 else:
                     slot.config(bg=self._CONFLICT_COLOR)
         self.config(bg=self._PRESS_COLOR)
 
-        # Highlight this row, column and square
-        for slot in self.get_row() + self.get_column() + self.get_square():
+        # Highlight the entire house, ignoring conflicted slots
+        for slot in self.get_house():
             if not slot._in_conflict:
                 slot.config(bg=Slot._HIGHLIGHT_COLOR)
+            slot._is_highlighted = True
 
         # Highlight matching numbers
         for slot in self.get_matching_number():
@@ -110,6 +99,42 @@ class Slot(Canvas):
 
         self.show_number_buttons()
 
+    @staticmethod
+    def on_up(event):
+        Slot.selected_slot.move_selection(-1, 0)
+
+    @staticmethod
+    def on_down(event):
+        Slot.selected_slot.move_selection(1, 0)
+
+    @staticmethod
+    def on_left(event):
+        Slot.selected_slot.move_selection(0, -1)
+
+    @staticmethod
+    def on_right(event):
+        Slot.selected_slot.move_selection(0, 1)
+
+    @staticmethod
+    def on_key_press(event):
+        if event.keysym not in '123456789':
+            return
+        if ModeButton.mode == Mode.FINAL:
+            Slot.selected_slot.write_final(event.keysym)
+        else:
+            Slot.selected_slot.toggle_draft(event.keysym)
+        Slot.selected_slot.show_number_buttons()
+
+    @staticmethod
+    def clear(event):
+        if Slot.selected_slot._has_final_label():
+            Slot.selected_slot._final_number = ''
+        else:
+            Slot.selected_slot.clear_drafts()
+
+    #
+    # Instance Methods
+    #
     def show_number_buttons(self):
         NumberButton.toggle_all_off()
 
@@ -117,7 +142,7 @@ class Slot(Canvas):
             return
 
         if ModeButton.mode == Mode.FINAL:
-            final_text = self.itemcget(self.final_label, 'text')
+            final_text = self._final_number
 
             if final_text != '':
                 NumberButton.toggle_final_on(final_text)
@@ -184,22 +209,29 @@ class Slot(Canvas):
         self._final_number = number
 
         conflicts = self.find_conflicts()
-        self._show_conflict(conflicts)
-        if conflicts:
-            for slot in conflicts:
-                slot._show_conflict(True)
+        self._show_conflict(bool(conflicts))
+        [slot._show_conflict(True) for slot in conflicts]
+        self._update_house_conflict_status(number)
 
+        self.itemconfig(self.final_label, fill='white')
+
+    def _update_house_conflict_status(self, number=None):
         for slot in self.get_house():
             if slot._has_final_label():
                 if slot._in_conflict:
-                    slot._show_conflict(slot.find_conflicts())
-            else:
+                    slot._show_conflict(bool(slot.find_conflicts()))
+            elif number is not None:
                 slot.clear_draft(number)
-        self.itemconfig(self.final_label, fill='white')
 
-    def _show_conflict(self, is_error):
-        self._in_conflict = is_error
-        self.config(bg=self._CONFLICT_COLOR if is_error else self._DEFAULT_COLOR)
+    def _show_conflict(self, in_conflict):
+        print(in_conflict, self._is_highlighted)
+        self._in_conflict = in_conflict
+        self.config(
+            bg=self._CONFLICT_COLOR if in_conflict else
+            self._HIGHLIGHT_COLOR if self._is_highlighted else
+            self._PRESS_COLOR if Slot.selected_slot is self else
+            self._DEFAULT_COLOR
+        )
 
     def write_hint(self, number):
         self._final_number = number
@@ -213,6 +245,8 @@ class Slot(Canvas):
 
     def clear_final(self):
         self._final_number = ''
+        self._show_conflict(False)
+        self._update_house_conflict_status()
 
     def clear_draft(self, number):
         self.itemconfig(self.draft_labels[int(number) - 1], text='')
@@ -221,7 +255,8 @@ class Slot(Canvas):
             self._active_drafts.remove(number)
 
     def clear_drafts(self):
-        [self.clear_draft(i + 1) for i in range(9)]
+        for i in range(9):
+            self.clear_draft(i + 1)
 
     def has_draft(self, number):
         return number in self._active_drafts
@@ -240,25 +275,7 @@ class Slot(Canvas):
         return self._has_final_label() and self.itemcget(self.final_label, 'fill') == 'black'
 
     def is_incorrect(self):
-        if self.itemcget(self.final_label, 'text') == '':
-            return False
-        return True
-
-    @staticmethod
-    def on_up(event):
-        Slot.selected_slot.move_selection(-1, 0)
-
-    @staticmethod
-    def on_down(event):
-        Slot.selected_slot.move_selection(1, 0)
-
-    @staticmethod
-    def on_left(event):
-        Slot.selected_slot.move_selection(0, -1)
-
-    @staticmethod
-    def on_right(event):
-        Slot.selected_slot.move_selection(0, 1)
+        return bool(self._final_number)
 
     def move_selection(self, dx, dy):
         new_x = (self.x + dx) % 9
@@ -267,19 +284,26 @@ class Slot(Canvas):
         if new_slot:
             new_slot.on_press(None)
 
-    @staticmethod
-    def on_key_press(event):
-        if event.keysym not in '123456789':
-            return
-        if ModeButton.mode == Mode.FINAL:
-            Slot.selected_slot.write_final(event.keysym)
-        else:
-            Slot.selected_slot.toggle_draft(event.keysym)
-        Slot.selected_slot.show_number_buttons()
+    #
+    # Class Methods
+    #
+    @classmethod
+    def populate_board(cls):
+        from SudokuGenerator import SudokuGenerator
+
+        generator = SudokuGenerator()
+        numbers = generator.generate_board()
+
+        for x, layer in enumerate(numbers):
+            for y, number in enumerate(layer):
+                if number != 0:
+                    Slot.slots[x][y].write_hint(number)
 
     @staticmethod
-    def clear(event):
-        if Slot.selected_slot._has_final_label():
-            Slot.selected_slot._final_number = ''
-        else:
-            Slot.selected_slot.clear_drafts()
+    def update_selected_slot(number):
+        if Slot.selected_slot is not None and not Slot.selected_slot.is_hint():
+            if ModeButton.mode == Mode.FINAL:
+                Slot.selected_slot.write_final(number)
+                Slot.selected_slot.on_press(None)
+            else:
+                Slot.selected_slot.toggle_draft(number)
