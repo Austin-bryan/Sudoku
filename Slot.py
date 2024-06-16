@@ -10,7 +10,7 @@ class Slot(Canvas):
     selected_slot = None
     __DEFAULT_COLOR = '#333'
     __HIGHLIGHT_COLOR = '#444'
-    __Matching_COLOR = '#299'
+    __MATCHING_COLOR = '#299'
     __ERROR_COLOR = '#A33'
     __PRESS_COLOR = SELECTION_COLOR
 
@@ -101,7 +101,7 @@ class Slot(Canvas):
 
         # Highlight matching numbers
         for slot in self.get_matching_number():
-            slot.config(bg=Slot.__Matching_COLOR)
+            slot.config(bg=Slot.__MATCHING_COLOR)
 
         self.show_number_buttons()
 
@@ -139,9 +139,7 @@ class Slot(Canvas):
         ]
 
     def get_matching_number(self):
-        self_text = self.itemcget(self.final_label, 'text')
-
-        if self_text == '':
+        if not self.__has_final_label():
             return []
         slots = []
 
@@ -149,20 +147,30 @@ class Slot(Canvas):
             for slot in layer:
                 if slot is self:
                     continue
-                slot_text = slot.itemcget(slot.final_label, 'text')
-                if slot_text == self_text:
+                if slot.__final_label_text == self.__final_label_text:
                     slots.append(slot)
         return slots
+
+    @property
+    def __final_label_text(self):
+        return self.itemcget(self.final_label, 'text')
+
+    @__final_label_text.setter
+    def __final_label_text(self, value):
+        self.itemconfig(self.final_label, text=value)
+
+    def __has_final_label(self):
+        return bool(self.__final_label_text)
 
     def write_final(self, number):
         self.clear_drafts()
         for slot in self.get_row() + self.get_column() + self.get_square():
             slot.clear_draft(number)
-        self.itemconfig(self.final_label, text=str(number))
+        self.__final_label_text = number
         self.itemconfig(self.final_label, fill='white')
 
     def write_hint(self, number):
-        self.itemconfig(self.final_label, text=str(number))
+        self.__final_label_text = number
 
     def write_draft(self, number):
         self.clear_final()
@@ -172,7 +180,7 @@ class Slot(Canvas):
             self.__active_drafts.append(number)
 
     def clear_final(self):
-        self.itemconfig(self.final_label, text='')
+        self.__final_label_text = ''
 
     def clear_draft(self, number):
         self.itemconfig(self.draft_labels[int(number) - 1], text='')
@@ -181,14 +189,13 @@ class Slot(Canvas):
             self.__active_drafts.remove(number)
 
     def clear_drafts(self):
-        for i in range(9):
-            self.clear_draft(i + 1)
+        [self.clear_draft(i + 1) for i in range(9)]
 
     def has_draft(self, number):
         return number in self.__active_drafts
 
     def toggle_draft(self, number):
-        if self.itemcget(self.final_label, 'text') != '':
+        if not self.__has_final_label():
             for active_draft in self.__active_drafts:
                 self.write_draft(active_draft)
 
@@ -198,7 +205,12 @@ class Slot(Canvas):
             self.write_draft(number)
 
     def is_hint(self):
-        return self.itemcget(self.final_label, 'text') != '' and self.itemcget(self.final_label, 'fill') == 'black'
+        return self.__has_final_label() and self.itemcget(self.final_label, 'fill') == 'black'
+
+    def is_incorrect(self):
+        if self.itemcget(self.final_label, 'text') == '':
+            return False
+        return True
 
     @staticmethod
     def on_up(event):
@@ -235,8 +247,7 @@ class Slot(Canvas):
 
     @staticmethod
     def clear(event):
-        if Slot.selected_slot.itemcget(Slot.selected_slot.final_label, 'text') != '':
-            Slot.selected_slot.itemconfig(Slot.selected_slot.final_label, text='')
+        if Slot.selected_slot.__has_final_label():
+            Slot.selected_slot.__final_label_text = ''
         else:
             Slot.selected_slot.clear_drafts()
-
