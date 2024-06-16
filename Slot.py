@@ -11,7 +11,7 @@ class Slot(Canvas):
     _DEFAULT_COLOR = '#333'
     _HIGHLIGHT_COLOR = '#444'
     _MATCHING_COLOR = '#299'
-    _ERROR_COLOR = '#A33'
+    _CONFLICT_COLOR = '#A33'
     _PRESS_COLOR = SELECTION_COLOR
 
     @classmethod
@@ -35,7 +35,7 @@ class Slot(Canvas):
 
     def __init__(self, parent, x, y, **kwargs):
         super().__init__(parent, bd=0, highlightthickness=0, **kwargs)
-        self.x, self.y, self._is_error = x, y, False
+        self.x, self.y, self._in_conflict = x, y, False
         self.actual_width, self.actual_height = 50, 50
 
         self.config(width=50, height=50, bg=Slot._DEFAULT_COLOR)
@@ -92,20 +92,20 @@ class Slot(Canvas):
         # Clear all highlights
         for row in Slot.slots:
             for slot in row:
-                if not slot._is_error:
+                if not slot._in_conflict:
                     slot.config(bg=Slot._DEFAULT_COLOR)
                 else:
-                    slot.config(bg=self._ERROR_COLOR)
+                    slot.config(bg=self._CONFLICT_COLOR)
         self.config(bg=self._PRESS_COLOR)
 
         # Highlight this row, column and square
         for slot in self.get_row() + self.get_column() + self.get_square():
-            if not slot._is_error:
+            if not slot._in_conflict:
                 slot.config(bg=Slot._HIGHLIGHT_COLOR)
 
         # Highlight matching numbers
         for slot in self.get_matching_number():
-            if not slot._is_error:
+            if not slot._in_conflict:
                 slot.config(bg=Slot._MATCHING_COLOR)
 
         self.show_number_buttons()
@@ -143,6 +143,18 @@ class Slot(Canvas):
             if Slot.slots[i][j] is not self
         ]
 
+    def get_house(self):
+        return self.get_row() + self.get_column() + self.get_square()
+
+    def find_conflicts(self) -> list['Slot']:
+        if not self._has_final_label():
+            return []
+        conflicting_slots = []
+        for slot in self.get_house():
+            if slot._final_number == self._final_number:
+                conflicting_slots.append(slot)
+        return conflicting_slots
+
     def get_matching_number(self):
         if not self._has_final_label():
             return []
@@ -170,18 +182,24 @@ class Slot(Canvas):
     def write_final(self, number):
         self.clear_drafts()
         self._final_number = number
-        for slot in self.get_row() + self.get_column() + self.get_square():
+
+        conflicts = self.find_conflicts()
+        self._show_conflict(conflicts)
+        if conflicts:
+            for slot in conflicts:
+                slot._show_conflict(True)
+
+        for slot in self.get_house():
             if slot._has_final_label():
-                if slot._final_number == self._final_number:
-                    slot._mark_error(True)
-                    self._mark_error(True)
+                if slot._in_conflict:
+                    slot._show_conflict(slot.find_conflicts())
             else:
                 slot.clear_draft(number)
         self.itemconfig(self.final_label, fill='white')
 
-    def _mark_error(self, is_error):
-        self._is_error = is_error
-        self.config(bg=self._ERROR_COLOR if is_error else self._DEFAULT_COLOR)
+    def _show_conflict(self, is_error):
+        self._in_conflict = is_error
+        self.config(bg=self._CONFLICT_COLOR if is_error else self._DEFAULT_COLOR)
 
     def write_hint(self, number):
         self._final_number = number
