@@ -11,6 +11,7 @@ class Slot(Canvas):
     __DEFAULT_COLOR = '#333'
     __HIGHLIGHT_COLOR = '#444'
     __Matching_COLOR = '#299'
+    __ERROR_COLOR = '#A33'
     __PRESS_COLOR = SELECTION_COLOR
 
     @classmethod

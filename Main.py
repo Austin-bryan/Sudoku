@@ -35,6 +35,9 @@ class SudokuApp:
         mode_button = ModeButton(bottom_frame, label='M')
         mode_button.grid(row=0, column=9, padx=2, pady=5)
 
+        delete_button = Button(bottom_frame, text='Delete', command=lambda: Slot.clear(None))
+        delete_button.grid(row=0, column=10, padx=2, pady=5)
+
         # Optionally configure row and column weights to control resizing behavior
         for i in range(9):
             grid_frame.columnconfigure(i, weight=1)
