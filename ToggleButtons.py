@@ -71,7 +71,7 @@ class NumberButton(ToggleButton):
         self.number = number
 
     def on_press(self, event):
-        if NumberButton.__selected_button is not None and ModeButton.mode == Mode.FINAL:
+        if NumberButton.__selected_button is not None and ModeButton.mode == Mode.ENTRY:
             NumberButton.__selected_button.toggle_off()
         NumberButton.__selected_button = self
         super().on_press(self)
@@ -81,18 +81,18 @@ class NumberButton(ToggleButton):
 
 
 class Mode(Enum):
-    FINAL = 0
-    DRAFT = 1
+    ENTRY = 0
+    NOTES = 1
 
 
 class ModeButton(ToggleButton):
-    mode = Mode.FINAL
+    mode = Mode.ENTRY
 
     def __init__(self, parent, label, **kwargs):
         super().__init__(parent, label, **kwargs)
 
     def on_press(self, event):
-        ModeButton.mode = Mode.DRAFT if self.mode == Mode.FINAL else Mode.FINAL
+        ModeButton.mode = Mode.NOTES if self.mode == Mode.ENTRY else Mode.ENTRY
         from Cell import Cell
         if Cell.selected_cell:
             Cell.selected_cell.show_number_buttons()

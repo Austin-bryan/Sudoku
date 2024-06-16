@@ -5,13 +5,13 @@ from ToggleButtons import NumberButton, Mode, ModeButton
 
 
 class Cell(Canvas):
-    cells: list[list['Cell']] = [[None for _ in range(9)] for _ in range(9)]
+    board: list[list['Cell']] = [[None for _ in range(9)] for _ in range(9)]
     selected_cell = None
-    _DEFAULT_COLOR = '#333'
-    _HIGHLIGHT_COLOR = '#555'
-    _MATCHING_COLOR = '#299'
-    _CONFLICT_COLOR = '#A33'
-    _PRESS_COLOR = SELECTION_COLOR
+    _DEFAULT_COLOR = '#333'         # Color of a cell in its default state
+    _HIGHLIGHT_COLOR = '#555'       # Cells in the same house are highlighted when another cell is selected
+    _MATCHING_COLOR = '#299'        # Shows all cells with the same number as the selected one
+    _CONFLICT_COLOR = '#A33'        # Turns red if there's a conflict in the house
+    _PRESS_COLOR = SELECTION_COLOR  # Turn blue when the user selects a cell
 
     #
     # Initialization Methods
@@ -19,10 +19,14 @@ class Cell(Canvas):
     def __init__(self, parent, x, y, **kwargs):
         super().__init__(parent, bd=0, highlightthickness=0, **kwargs)
         self.x, self.y, self._in_conflict, self._is_highlighted = x, y, False, False
+
+        # When we later add thick borders at the third mark, it requires adjustments to the width and height of the cell
         self.actual_width, self.actual_height = 50, 50
 
         self.config(width=50, height=50, bg=Cell._DEFAULT_COLOR)
         self.draw_thick_borders()
+
+        # Bind events
         self.bind("<ButtonPress-1>", self.on_press)
         self.bind_all("<Up>", self.on_up)
         self.bind_all("<Down>", self.on_down)
@@ -31,40 +35,48 @@ class Cell(Canvas):
         self.bind_all("<Key>", self.on_key_press)
         self.bind_all("<Delete>", self.clear_selected)
         self.bind_all("<BackSpace>", self.clear_selected)
-        self._active_drafts = []
+        self._active_notes = []
 
         # Add a label to the canvas
-        self.final_label = self.create_text(self.actual_width / 2, self.actual_height / 2,
+        self.entry_label = self.create_text(self.actual_width / 2, self.actual_height / 2,
                                             text='', fill='black', font=("Arial", 30))
-        # Populate draft numbers
-        self.draft_labels = []
+        # Populate notes
+        self.note_labels = []
         label_index = 1
         for row in range(3):
             for col in range(3):
                 x = (col + 1) * self.actual_width / 4
                 y = (row + 1) * self.actual_height / 4
-                self.draft_labels.append(
+                self.note_labels.append(
                     self.create_text(x, y, fill='white', font=("Arial", 9))
                 )
                 label_index += 1
 
-        Cell.cells[self.x][self.y] = self
+        Cell.board[self.x][self.y] = self
 
     def draw_thick_borders(self):
+        """
+        Draws thicker borders for every 3rd row and column to delineate the 3x3 subgrids.
+
+        This method checks if the cell is at the border of a 3x3 subgrid and draws a thicker line accordingly.
+        """
         thickness_width = 14
-        should_vertical_line = self.y % 3 == 0 and self.y != 0
-        should_horizontal_line = self.x % 3 == 0 and self.x != 0
+
+        # Only draw lines at the third mark. Corners require both lines
+        should_draw_vertical_line = self.y % 3 == 0 and self.y != 0
+        should_draw_horizontal_line = self.x % 3 == 0 and self.x != 0
 
         # Draw left border for each 3rd column
-        if should_vertical_line:
-            self.create_line(0, 0, 0, 70 if should_horizontal_line else 50, width=thickness_width,
-                             fill=BACKGROUND_COLOR)
-            self.actual_width = 50 + thickness_width
+        if should_draw_vertical_line:
+            self.create_line(0, 0, 0, 70 if should_draw_horizontal_line
+                                         else 50, width=thickness_width, fill=BACKGROUND_COLOR)
+            self.actual_width = 50 + thickness_width  # The border width needs to be considered for the UI to be aligned
             self.config(width=50 + thickness_width / 2)
 
         # Draw top border for each 3rd row
-        if should_horizontal_line:
-            self.create_line(0, 0, 70 if should_vertical_line else 50, 0, width=thickness_width, fill=BACKGROUND_COLOR)
+        if should_draw_horizontal_line:
+            self.create_line(0, 0, 70 if should_draw_vertical_line
+                                      else 50, 0, width=thickness_width, fill=BACKGROUND_COLOR)
             self.actual_height = 50 + thickness_width
             self.config(height=50 + thickness_width / 2)
 
@@ -72,24 +84,25 @@ class Cell(Canvas):
     # Event Handlers
     #
     def on_press(self, event):
-        # Set selected cell
-        Cell.selected_cell = self
-        self.focus_set()  # Ensure the cell has focus to receive key events
+        Cell.selected_cell = self  # Set selected cell
+        self.focus_set()           # Ensure the cell has focus to receive key events
 
-        # Clear all highlights
-        for row in Cell.cells:
-            for cell in row:
-                if not cell._in_conflict:
-                    cell.config(bg=Cell._DEFAULT_COLOR)
-                    cell._is_highlighted = False
-                else:
-                    cell.config(bg=self._CONFLICT_COLOR)
+        # Clear all highlights from last selected cell
+        for cell in Cell.all_cells():
+            # Reset to either default color, or conflict color if in conflict
+            if not cell._in_conflict:
+                cell.config(bg=Cell._DEFAULT_COLOR)
+                cell._is_highlighted = False
+            else:
+                cell.config(bg=self._CONFLICT_COLOR)
         self.config(bg=self._PRESS_COLOR)
 
         # Highlight the entire house, ignoring conflicted cells
         for cell in self.get_house():
             if not cell._in_conflict:
                 cell.config(bg=Cell._HIGHLIGHT_COLOR)
+            # We need to cache the fact that it is highlight,
+            # in case the user fixes the conflict to highlight properly
             cell._is_highlighted = True
 
         self._highlight_matching_numbers()
@@ -113,39 +126,43 @@ class Cell(Canvas):
 
     @staticmethod
     def on_key_press(event):
+        """ Allows the user to enter in numbers, either notes or entries depending on the mode """
         if event.keysym not in '123456789':
             return
-        if ModeButton.mode == Mode.FINAL:
-            Cell.selected_cell.write_final(event.keysym)
+        if ModeButton.mode == Mode.ENTRY:
+            Cell.selected_cell.write_entry(event.keysym)
         else:
-            Cell.selected_cell.toggle_draft(event.keysym)
+            Cell.selected_cell.toggle_note(event.keysym)
         Cell.selected_cell.show_number_buttons()
 
     #
     # Instance Methods
     #
     def _highlight_matching_numbers(self):
-        [cell.config(bg=self._MATCHING_COLOR) for cell in self.get_matching_number() if not cell._in_conflict]
+        """ Highlights all cells with the same number as the selected cell, provided they aren't in conflict """
+        [cell.config(bg=self._MATCHING_COLOR) for cell in self.get_matching_numbers() if not cell._in_conflict]
 
     def show_number_buttons(self):
+        """
+        Shows which number button is currently selected.
+        In entry mode, this highlights the single entry button, allowing the user to deselect it
+        In notes mode, this highlights all selected numbers, so they can deselect whichever they want
+        """
         NumberButton.toggle_all_off()
 
-        if self.is_hint():
+        if self.is_given():
             return
-
-        if ModeButton.mode == Mode.FINAL:
-            final_text = self._final_number
-
-            if final_text != '':
-                NumberButton.toggle_final_on(final_text)
+        if ModeButton.mode == Mode.ENTRY:
+            if not self._has_entry_number():
+                NumberButton.toggle_final_on(self._entry_number)
         else:
-            NumberButton.toggle_draft_on(self._active_drafts)
+            NumberButton.toggle_draft_on(self._active_notes)
 
     def get_row(self):
-        return [Cell.cells[self.x][y] for y in range(9) if Cell.cells[self.x][y] is not self]
+        return [Cell.board[self.x][y] for y in range(9) if Cell.board[self.x][y] is not self]
 
     def get_column(self):
-        return [Cell.cells[x][self.y] for x in range(9) if Cell.cells[x][self.y] is not self]
+        return [Cell.board[x][self.y] for x in range(9) if Cell.board[x][self.y] is not self]
 
     def get_square(self):
         # Determine the starting coordinates of the 3x3 square
@@ -154,70 +171,89 @@ class Cell(Canvas):
 
         # Collect all cells in the 3x3 square
         return [
-            Cell.cells[i][j]
+            Cell.board[i][j]
             for i in range(start_x, start_x + 3)
             for j in range(start_y, start_y + 3)
-            if Cell.cells[i][j] is not self
+            if Cell.board[i][j] is not self
         ]
 
     def get_house(self):
+        """ Returns all cells in the same house, these cells cannot have the same number as self """
         return self.get_row() + self.get_column() + self.get_square()
 
-    def find_conflicts(self) -> list['Cell']:
-        if not self._has_final_label():
+    def find_conflicts(self):
+        """ Searches the house for conflicts and returns all of them """
+        if not self._has_entry_number():
             return []
         conflicting_cells = []
+
         for cell in self.get_house():
-            if cell._final_number == self._final_number:
+            if cell._entry_number == self._entry_number:
                 conflicting_cells.append(cell)
         return conflicting_cells
 
-    def get_matching_number(self):
-        if not self._has_final_label():
+    def get_matching_numbers(self):
+        """ Returns all cells with the same entry number, even if in a different house """
+        if not self._has_entry_number():
             return []
         cells = []
 
-        for layer in Cell.cells:
-            for cell in layer:
-                if cell is self:
-                    continue
-                if cell._final_number == self._final_number:
-                    cells.append(cell)
+        for cell in Cell.all_cells():
+            if cell is self:
+                continue
+            if cell._entry_number == self._entry_number:
+                cells.append(cell)
         return cells
 
     @property
-    def _final_number(self):
-        return self.itemcget(self.final_label, 'text')
+    def _entry_number(self):
+        return self.itemcget(self.entry_label, 'text')
 
-    @_final_number.setter
-    def _final_number(self, value):
-        self.itemconfig(self.final_label, text=value)
+    @_entry_number.setter
+    def _entry_number(self, value):
+        self.itemconfig(self.entry_label, text=value)
 
-    def _has_final_label(self):
-        return bool(self._final_number)
+    def _has_entry_number(self):
+        return bool(self._entry_number)
 
-    def write_final(self, number):
-        self.clear_drafts()
+    def write_entry(self, number):
+        """
+        Writes an entry number into a cell, replacing all notes in the cell
+        Also toggles off any notes with the same number in the same house
+        """
 
-        if self._final_number is not None:
-            [cell._update_color(cell._in_conflict) for cell in self.get_matching_number()]
-        self._final_number = number
+        self.clear_notes()
 
+        if self._entry_number is not None:
+            [cell._update_color(cell._in_conflict) for cell in self.get_matching_numbers()]
+        self._entry_number = number
+
+        # Check for conflicts and updates house
         conflicts = self.find_conflicts()
         self._update_color(conflicts)
         [cell._update_color(True) for cell in conflicts]
         self._update_house_conflict_status(number)
 
-        self.itemconfig(self.final_label, fill='white')
+        self.itemconfig(self.entry_label, fill='white')
         self._highlight_matching_numbers()
 
     def _update_house_conflict_status(self, number=None):
+        """
+        Updates the conflict status of all cells in the same house (row, column, or 3x3 grid) as the current cell.
+
+        This method checks each cell in the house to see if it has a number (entry). If it does, and the cell is in
+        conflict, it updates the cell's color based on whether there are conflicts. If a number is provided, it clears
+        any notes containing that number.
+
+        Parameters:
+        number (int, optional): The number to be cleared from notes in the house cells. Defaults to None.
+        """
         for cell in self.get_house():
-            if cell._has_final_label():
+            if cell._has_entry_number():
                 if cell._in_conflict:
                     cell._update_color(cell.find_conflicts())
             elif number is not None:
-                cell.clear_draft(number)
+                cell.clear_note(number)
 
     def _update_color(self, in_conflict):
         print(in_conflict, self._is_highlighted)
@@ -229,54 +265,58 @@ class Cell(Canvas):
             self._DEFAULT_COLOR
         )
 
-    def write_hint(self, number):
-        self._final_number = number
+    def write_given(self, number):
+        """ This is a number that's provided as a clue. """
+        self._entry_number = number
 
-    def write_draft(self, number):
-        self.clear_final()
-        self.itemconfig(self.draft_labels[int(number) - 1], text=str(number))
+    def write_note(self, number):
+        """
+        Clears the entry and writes a note. Also shows any active notes that were cached previously.
+        Active notes are cached so if the user decides to remove an entry, all their previous notes are still there
+        """
+        self.clear_entry()
+        self.itemconfig(self.note_labels[int(number) - 1], text=str(number))
 
-        if number not in self._active_drafts:
-            self._active_drafts.append(number)
+        if number not in self._active_notes:
+            self._active_notes.append(number)
 
-    def clear_final(self):
-        self._final_number = ''
-        self._update_color(False)
-        self._update_house_conflict_status()
+    def clear_entry(self):
+        self._entry_number = ''
+        self._update_color(False)  # An empty cell is always not in conflict
+        self._update_house_conflict_status()  # This change may affect house conflict statuses
 
-    def clear_draft(self, number):
-        self.itemconfig(self.draft_labels[int(number) - 1], text='')
+    def clear_note(self, number):
+        self.itemconfig(self.note_labels[int(number) - 1], text='')
 
-        if number in self._active_drafts:
-            self._active_drafts.remove(number)
+        if number in self._active_notes:
+            self._active_notes.remove(number)
 
-    def clear_drafts(self):
+    def clear_notes(self):
         for i in range(9):
-            self.clear_draft(i + 1)
+            self.clear_note(i + 1)
 
-    def has_draft(self, number):
-        return number in self._active_drafts
+    def has_note(self, number):
+        return number in self._active_notes
 
-    def toggle_draft(self, number):
-        if not self._has_final_label():
-            for active_draft in self._active_drafts:
-                self.write_draft(active_draft)
+    def toggle_note(self, number):
+        """ Turns note on or off """
+        if not self._has_entry_number():
+            for active_note in self._active_notes:
+                self.write_note(active_note)
 
-        if self.has_draft(number):
-            self.clear_draft(number)
+        if self.has_note(number):
+            self.clear_note(number)
         else:
-            self.write_draft(number)
+            self.write_note(number)
 
-    def is_hint(self):
-        return self._has_final_label() and self.itemcget(self.final_label, 'fill') == 'black'
-
-    def is_incorrect(self):
-        return bool(self._final_number)
+    def is_given(self):
+        return self._has_entry_number() and self.itemcget(self.entry_label, 'fill') == 'black'
 
     def move_selection(self, dx, dy):
+        """ Move the selection to a new cell based on the delta values """
         new_x = (self.x + dx) % 9
         new_y = (self.y + dy) % 9
-        new_cell = Cell.cells[new_x][new_y]
+        new_cell = Cell.board[new_x][new_y]
         if new_cell:
             new_cell.on_press(None)
 
@@ -293,22 +333,29 @@ class Cell(Canvas):
         for x, layer in enumerate(numbers):
             for y, number in enumerate(layer):
                 if number != 0:
-                    Cell.cells[x][y].write_hint(number)
+                    cls.board[x][y].write_given(number)
 
     @classmethod
     def clear_selected(cls, event):
-        if cls.selected_cell._has_final_label():
-            Cell.selected_cell._final_number = ''
+        """ Clears any cell, whether that means deleting the entry or removing all notes. Updates conflicts. """
+        if cls.selected_cell._has_entry_number():
+            Cell.selected_cell._entry_number = ''
             cls.selected_cell._update_color(False)
             cls.selected_cell._update_house_conflict_status()
         else:
-            cls.selected_cell.clear_drafts()
+            cls.selected_cell.clear_notes()
 
     @classmethod
     def update_selected_cell(cls, number):
-        if Cell.selected_cell is not None and not cls.selected_cell.is_hint():
-            if ModeButton.mode == Mode.FINAL:
-                cls.selected_cell.write_final(number)
+        """ Updates the selected cell with the entered number """
+        if cls.selected_cell is not None and not cls.selected_cell.is_given():
+            if ModeButton.mode == Mode.ENTRY:
+                cls.selected_cell.write_entry(number)
                 cls.selected_cell.on_press(None)
             else:
-                cls.selected_cell.toggle_draft(number)
+                cls.selected_cell.toggle_note(number)
+
+    @classmethod
+    def all_cells(cls):
+        """ Returns a flat list of all cells in the board """
+        return [cell for row in cls.board for cell in row]
