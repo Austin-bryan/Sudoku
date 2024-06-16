@@ -92,11 +92,7 @@ class Slot(Canvas):
                 slot.config(bg=Slot._HIGHLIGHT_COLOR)
             slot._is_highlighted = True
 
-        # Highlight matching numbers
-        for slot in self.get_matching_number():
-            if not slot._in_conflict:
-                slot.config(bg=Slot._MATCHING_COLOR)
-
+        self._highlight_matching_numbers()
         self.show_number_buttons()
 
     @staticmethod
@@ -135,6 +131,9 @@ class Slot(Canvas):
     #
     # Instance Methods
     #
+    def _highlight_matching_numbers(self):
+        [slot.config(bg=self._MATCHING_COLOR) for slot in self.get_matching_number() if not slot._in_conflict]
+
     def show_number_buttons(self):
         NumberButton.toggle_all_off()
 
@@ -206,24 +205,28 @@ class Slot(Canvas):
 
     def write_final(self, number):
         self.clear_drafts()
+
+        if self._final_number is not None:
+            [slot._update_color(slot._in_conflict) for slot in self.get_matching_number()]
         self._final_number = number
 
         conflicts = self.find_conflicts()
-        self._show_conflict(bool(conflicts))
-        [slot._show_conflict(True) for slot in conflicts]
+        self._update_color(conflicts)
+        [slot._update_color(True) for slot in conflicts]
         self._update_house_conflict_status(number)
 
         self.itemconfig(self.final_label, fill='white')
+        self._highlight_matching_numbers()
 
     def _update_house_conflict_status(self, number=None):
         for slot in self.get_house():
             if slot._has_final_label():
                 if slot._in_conflict:
-                    slot._show_conflict(bool(slot.find_conflicts()))
+                    slot._update_color(slot.find_conflicts())
             elif number is not None:
                 slot.clear_draft(number)
 
-    def _show_conflict(self, in_conflict):
+    def _update_color(self, in_conflict):
         print(in_conflict, self._is_highlighted)
         self._in_conflict = in_conflict
         self.config(
@@ -245,7 +248,7 @@ class Slot(Canvas):
 
     def clear_final(self):
         self._final_number = ''
-        self._show_conflict(False)
+        self._update_color(False)
         self._update_house_conflict_status()
 
     def clear_draft(self, number):
