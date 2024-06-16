@@ -6,13 +6,13 @@ from ToggleButtons import NumberButton, Mode, ModeButton
 
 
 class Slot(Canvas):
-    slots = [[None for _ in range(9)] for _ in range(9)]
+    slots: list[list['Slot']] = [[None for _ in range(9)] for _ in range(9)]
     selected_slot = None
-    __DEFAULT_COLOR = '#333'
-    __HIGHLIGHT_COLOR = '#444'
-    __MATCHING_COLOR = '#299'
-    __ERROR_COLOR = '#A33'
-    __PRESS_COLOR = SELECTION_COLOR
+    _DEFAULT_COLOR = '#333'
+    _HIGHLIGHT_COLOR = '#444'
+    _MATCHING_COLOR = '#299'
+    _ERROR_COLOR = '#A33'
+    _PRESS_COLOR = SELECTION_COLOR
 
     @classmethod
     def populate_board(cls):
@@ -35,10 +35,10 @@ class Slot(Canvas):
 
     def __init__(self, parent, x, y, **kwargs):
         super().__init__(parent, bd=0, highlightthickness=0, **kwargs)
-        self.x, self.y = x, y
-
-        self.config(width=50, height=50, bg=Slot.__DEFAULT_COLOR)
+        self.x, self.y, self._is_error = x, y, False
         self.actual_width, self.actual_height = 50, 50
+
+        self.config(width=50, height=50, bg=Slot._DEFAULT_COLOR)
         self.draw_thick_borders()
         self.bind("<ButtonPress-1>", self.on_press)
         self.bind_all("<Up>", self.on_up)
@@ -48,7 +48,7 @@ class Slot(Canvas):
         self.bind_all("<Key>", self.on_key_press)
         self.bind_all("<Delete>", self.clear)
         self.bind_all("<BackSpace>", self.clear)
-        self.__active_drafts = []
+        self._active_drafts = []
 
         # Add a label to the canvas
         self.final_label = self.create_text(self.actual_width / 2, self.actual_height / 2,
@@ -92,16 +92,21 @@ class Slot(Canvas):
         # Clear all highlights
         for row in Slot.slots:
             for slot in row:
-                slot.config(bg=Slot.__DEFAULT_COLOR)
-        self.config(bg=self.__PRESS_COLOR)
+                if not slot._is_error:
+                    slot.config(bg=Slot._DEFAULT_COLOR)
+                else:
+                    slot.config(bg=self._ERROR_COLOR)
+        self.config(bg=self._PRESS_COLOR)
 
         # Highlight this row, column and square
         for slot in self.get_row() + self.get_column() + self.get_square():
-            slot.config(bg=Slot.__HIGHLIGHT_COLOR)
+            if not slot._is_error:
+                slot.config(bg=Slot._HIGHLIGHT_COLOR)
 
         # Highlight matching numbers
         for slot in self.get_matching_number():
-            slot.config(bg=Slot.__MATCHING_COLOR)
+            if not slot._is_error:
+                slot.config(bg=Slot._MATCHING_COLOR)
 
         self.show_number_buttons()
 
@@ -117,7 +122,7 @@ class Slot(Canvas):
             if final_text != '':
                 NumberButton.toggle_final_on(final_text)
         else:
-            NumberButton.toggle_draft_on(self.__active_drafts)
+            NumberButton.toggle_draft_on(self._active_drafts)
 
     def get_row(self):
         return [Slot.slots[self.x][y] for y in range(9) if Slot.slots[self.x][y] is not self]
@@ -139,7 +144,7 @@ class Slot(Canvas):
         ]
 
     def get_matching_number(self):
-        if not self.__has_final_label():
+        if not self._has_final_label():
             return []
         slots = []
 
@@ -147,56 +152,65 @@ class Slot(Canvas):
             for slot in layer:
                 if slot is self:
                     continue
-                if slot.__final_label_text == self.__final_label_text:
+                if slot._final_number == self._final_number:
                     slots.append(slot)
         return slots
 
     @property
-    def __final_label_text(self):
+    def _final_number(self):
         return self.itemcget(self.final_label, 'text')
 
-    @__final_label_text.setter
-    def __final_label_text(self, value):
+    @_final_number.setter
+    def _final_number(self, value):
         self.itemconfig(self.final_label, text=value)
 
-    def __has_final_label(self):
-        return bool(self.__final_label_text)
+    def _has_final_label(self):
+        return bool(self._final_number)
 
     def write_final(self, number):
         self.clear_drafts()
+        self._final_number = number
         for slot in self.get_row() + self.get_column() + self.get_square():
-            slot.clear_draft(number)
-        self.__final_label_text = number
+            if slot._has_final_label():
+                if slot._final_number == self._final_number:
+                    slot._mark_error(True)
+                    self._mark_error(True)
+            else:
+                slot.clear_draft(number)
         self.itemconfig(self.final_label, fill='white')
 
+    def _mark_error(self, is_error):
+        self._is_error = is_error
+        self.config(bg=self._ERROR_COLOR if is_error else self._DEFAULT_COLOR)
+
     def write_hint(self, number):
-        self.__final_label_text = number
+        self._final_number = number
 
     def write_draft(self, number):
         self.clear_final()
         self.itemconfig(self.draft_labels[int(number) - 1], text=str(number))
 
-        if number not in self.__active_drafts:
-            self.__active_drafts.append(number)
+        if number not in self._active_drafts:
+            self._active_drafts.append(number)
 
     def clear_final(self):
-        self.__final_label_text = ''
+        self._final_number = ''
 
     def clear_draft(self, number):
         self.itemconfig(self.draft_labels[int(number) - 1], text='')
 
-        if number in self.__active_drafts:
-            self.__active_drafts.remove(number)
+        if number in self._active_drafts:
+            self._active_drafts.remove(number)
 
     def clear_drafts(self):
         [self.clear_draft(i + 1) for i in range(9)]
 
     def has_draft(self, number):
-        return number in self.__active_drafts
+        return number in self._active_drafts
 
     def toggle_draft(self, number):
-        if not self.__has_final_label():
-            for active_draft in self.__active_drafts:
+        if not self._has_final_label():
+            for active_draft in self._active_drafts:
                 self.write_draft(active_draft)
 
         if self.has_draft(number):
@@ -205,7 +219,7 @@ class Slot(Canvas):
             self.write_draft(number)
 
     def is_hint(self):
-        return self.__has_final_label() and self.itemcget(self.final_label, 'fill') == 'black'
+        return self._has_final_label() and self.itemcget(self.final_label, 'fill') == 'black'
 
     def is_incorrect(self):
         if self.itemcget(self.final_label, 'text') == '':
@@ -247,7 +261,7 @@ class Slot(Canvas):
 
     @staticmethod
     def clear(event):
-        if Slot.selected_slot.__has_final_label():
-            Slot.selected_slot.__final_label_text = ''
+        if Slot.selected_slot._has_final_label():
+            Slot.selected_slot._final_number = ''
         else:
             Slot.selected_slot.clear_drafts()
