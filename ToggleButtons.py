@@ -76,8 +76,8 @@ class NumberButton(ToggleButton):
         NumberButton.__selected_button = self
         super().on_press(self)
 
-        from Slot import Slot
-        Slot.update_selected_slot(self.number)
+        from Cell import Cell
+        Cell.update_selected_cell(self.number)
 
 
 class Mode(Enum):
@@ -93,8 +93,8 @@ class ModeButton(ToggleButton):
 
     def on_press(self, event):
         ModeButton.mode = Mode.DRAFT if self.mode == Mode.FINAL else Mode.FINAL
-        from Slot import Slot
-        if Slot.selected_slot:
-            Slot.selected_slot.show_number_buttons()
+        from Cell import Cell
+        if Cell.selected_cell:
+            Cell.selected_cell.show_number_buttons()
 
         super().on_press(self)

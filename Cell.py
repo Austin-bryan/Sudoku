@@ -4,11 +4,11 @@ from Colors import *
 from ToggleButtons import NumberButton, Mode, ModeButton
 
 
-class Slot(Canvas):
-    slots: list[list['Slot']] = [[None for _ in range(9)] for _ in range(9)]
-    selected_slot = None
+class Cell(Canvas):
+    cells: list[list['Cell']] = [[None for _ in range(9)] for _ in range(9)]
+    selected_cell = None
     _DEFAULT_COLOR = '#333'
-    _HIGHLIGHT_COLOR = '#444'
+    _HIGHLIGHT_COLOR = '#555'
     _MATCHING_COLOR = '#299'
     _CONFLICT_COLOR = '#A33'
     _PRESS_COLOR = SELECTION_COLOR
@@ -21,7 +21,7 @@ class Slot(Canvas):
         self.x, self.y, self._in_conflict, self._is_highlighted = x, y, False, False
         self.actual_width, self.actual_height = 50, 50
 
-        self.config(width=50, height=50, bg=Slot._DEFAULT_COLOR)
+        self.config(width=50, height=50, bg=Cell._DEFAULT_COLOR)
         self.draw_thick_borders()
         self.bind("<ButtonPress-1>", self.on_press)
         self.bind_all("<Up>", self.on_up)
@@ -29,8 +29,8 @@ class Slot(Canvas):
         self.bind_all("<Left>", self.on_left)
         self.bind_all("<Right>", self.on_right)
         self.bind_all("<Key>", self.on_key_press)
-        self.bind_all("<Delete>", self.clear)
-        self.bind_all("<BackSpace>", self.clear)
+        self.bind_all("<Delete>", self.clear_selected)
+        self.bind_all("<BackSpace>", self.clear_selected)
         self._active_drafts = []
 
         # Add a label to the canvas
@@ -48,7 +48,7 @@ class Slot(Canvas):
                 )
                 label_index += 1
 
-        Slot.slots[self.x][self.y] = self
+        Cell.cells[self.x][self.y] = self
 
     def draw_thick_borders(self):
         thickness_width = 14
@@ -72,67 +72,60 @@ class Slot(Canvas):
     # Event Handlers
     #
     def on_press(self, event):
-        # Set selected slot
-        Slot.selected_slot = self
-        self.focus_set()  # Ensure the slot has focus to receive key events
+        # Set selected cell
+        Cell.selected_cell = self
+        self.focus_set()  # Ensure the cell has focus to receive key events
 
         # Clear all highlights
-        for row in Slot.slots:
-            for slot in row:
-                if not slot._in_conflict:
-                    slot.config(bg=Slot._DEFAULT_COLOR)
-                    slot._is_highlighted = False
+        for row in Cell.cells:
+            for cell in row:
+                if not cell._in_conflict:
+                    cell.config(bg=Cell._DEFAULT_COLOR)
+                    cell._is_highlighted = False
                 else:
-                    slot.config(bg=self._CONFLICT_COLOR)
+                    cell.config(bg=self._CONFLICT_COLOR)
         self.config(bg=self._PRESS_COLOR)
 
-        # Highlight the entire house, ignoring conflicted slots
-        for slot in self.get_house():
-            if not slot._in_conflict:
-                slot.config(bg=Slot._HIGHLIGHT_COLOR)
-            slot._is_highlighted = True
+        # Highlight the entire house, ignoring conflicted cells
+        for cell in self.get_house():
+            if not cell._in_conflict:
+                cell.config(bg=Cell._HIGHLIGHT_COLOR)
+            cell._is_highlighted = True
 
         self._highlight_matching_numbers()
         self.show_number_buttons()
 
     @staticmethod
     def on_up(event):
-        Slot.selected_slot.move_selection(-1, 0)
+        Cell.selected_cell.move_selection(-1, 0)
 
     @staticmethod
     def on_down(event):
-        Slot.selected_slot.move_selection(1, 0)
+        Cell.selected_cell.move_selection(1, 0)
 
     @staticmethod
     def on_left(event):
-        Slot.selected_slot.move_selection(0, -1)
+        Cell.selected_cell.move_selection(0, -1)
 
     @staticmethod
     def on_right(event):
-        Slot.selected_slot.move_selection(0, 1)
+        Cell.selected_cell.move_selection(0, 1)
 
     @staticmethod
     def on_key_press(event):
         if event.keysym not in '123456789':
             return
         if ModeButton.mode == Mode.FINAL:
-            Slot.selected_slot.write_final(event.keysym)
+            Cell.selected_cell.write_final(event.keysym)
         else:
-            Slot.selected_slot.toggle_draft(event.keysym)
-        Slot.selected_slot.show_number_buttons()
-
-    @staticmethod
-    def clear(event):
-        if Slot.selected_slot._has_final_label():
-            Slot.selected_slot._final_number = ''
-        else:
-            Slot.selected_slot.clear_drafts()
+            Cell.selected_cell.toggle_draft(event.keysym)
+        Cell.selected_cell.show_number_buttons()
 
     #
     # Instance Methods
     #
     def _highlight_matching_numbers(self):
-        [slot.config(bg=self._MATCHING_COLOR) for slot in self.get_matching_number() if not slot._in_conflict]
+        [cell.config(bg=self._MATCHING_COLOR) for cell in self.get_matching_number() if not cell._in_conflict]
 
     def show_number_buttons(self):
         NumberButton.toggle_all_off()
@@ -149,48 +142,48 @@ class Slot(Canvas):
             NumberButton.toggle_draft_on(self._active_drafts)
 
     def get_row(self):
-        return [Slot.slots[self.x][y] for y in range(9) if Slot.slots[self.x][y] is not self]
+        return [Cell.cells[self.x][y] for y in range(9) if Cell.cells[self.x][y] is not self]
 
     def get_column(self):
-        return [Slot.slots[x][self.y] for x in range(9) if Slot.slots[x][self.y] is not self]
+        return [Cell.cells[x][self.y] for x in range(9) if Cell.cells[x][self.y] is not self]
 
     def get_square(self):
         # Determine the starting coordinates of the 3x3 square
         start_x = (self.x // 3) * 3
         start_y = (self.y // 3) * 3
 
-        # Collect all slots in the 3x3 square
+        # Collect all cells in the 3x3 square
         return [
-            Slot.slots[i][j]
+            Cell.cells[i][j]
             for i in range(start_x, start_x + 3)
             for j in range(start_y, start_y + 3)
-            if Slot.slots[i][j] is not self
+            if Cell.cells[i][j] is not self
         ]
 
     def get_house(self):
         return self.get_row() + self.get_column() + self.get_square()
 
-    def find_conflicts(self) -> list['Slot']:
+    def find_conflicts(self) -> list['Cell']:
         if not self._has_final_label():
             return []
-        conflicting_slots = []
-        for slot in self.get_house():
-            if slot._final_number == self._final_number:
-                conflicting_slots.append(slot)
-        return conflicting_slots
+        conflicting_cells = []
+        for cell in self.get_house():
+            if cell._final_number == self._final_number:
+                conflicting_cells.append(cell)
+        return conflicting_cells
 
     def get_matching_number(self):
         if not self._has_final_label():
             return []
-        slots = []
+        cells = []
 
-        for layer in Slot.slots:
-            for slot in layer:
-                if slot is self:
+        for layer in Cell.cells:
+            for cell in layer:
+                if cell is self:
                     continue
-                if slot._final_number == self._final_number:
-                    slots.append(slot)
-        return slots
+                if cell._final_number == self._final_number:
+                    cells.append(cell)
+        return cells
 
     @property
     def _final_number(self):
@@ -207,24 +200,24 @@ class Slot(Canvas):
         self.clear_drafts()
 
         if self._final_number is not None:
-            [slot._update_color(slot._in_conflict) for slot in self.get_matching_number()]
+            [cell._update_color(cell._in_conflict) for cell in self.get_matching_number()]
         self._final_number = number
 
         conflicts = self.find_conflicts()
         self._update_color(conflicts)
-        [slot._update_color(True) for slot in conflicts]
+        [cell._update_color(True) for cell in conflicts]
         self._update_house_conflict_status(number)
 
         self.itemconfig(self.final_label, fill='white')
         self._highlight_matching_numbers()
 
     def _update_house_conflict_status(self, number=None):
-        for slot in self.get_house():
-            if slot._has_final_label():
-                if slot._in_conflict:
-                    slot._update_color(slot.find_conflicts())
+        for cell in self.get_house():
+            if cell._has_final_label():
+                if cell._in_conflict:
+                    cell._update_color(cell.find_conflicts())
             elif number is not None:
-                slot.clear_draft(number)
+                cell.clear_draft(number)
 
     def _update_color(self, in_conflict):
         print(in_conflict, self._is_highlighted)
@@ -232,7 +225,7 @@ class Slot(Canvas):
         self.config(
             bg=self._CONFLICT_COLOR if in_conflict else
             self._HIGHLIGHT_COLOR if self._is_highlighted else
-            self._PRESS_COLOR if Slot.selected_slot is self else
+            self._PRESS_COLOR if Cell.selected_cell is self else
             self._DEFAULT_COLOR
         )
 
@@ -283,9 +276,9 @@ class Slot(Canvas):
     def move_selection(self, dx, dy):
         new_x = (self.x + dx) % 9
         new_y = (self.y + dy) % 9
-        new_slot = Slot.slots[new_x][new_y]
-        if new_slot:
-            new_slot.on_press(None)
+        new_cell = Cell.cells[new_x][new_y]
+        if new_cell:
+            new_cell.on_press(None)
 
     #
     # Class Methods
@@ -300,13 +293,22 @@ class Slot(Canvas):
         for x, layer in enumerate(numbers):
             for y, number in enumerate(layer):
                 if number != 0:
-                    Slot.slots[x][y].write_hint(number)
+                    Cell.cells[x][y].write_hint(number)
 
-    @staticmethod
-    def update_selected_slot(number):
-        if Slot.selected_slot is not None and not Slot.selected_slot.is_hint():
+    @classmethod
+    def clear_selected(cls, event):
+        if cls.selected_cell._has_final_label():
+            Cell.selected_cell._final_number = ''
+            cls.selected_cell._update_color(False)
+            cls.selected_cell._update_house_conflict_status()
+        else:
+            cls.selected_cell.clear_drafts()
+
+    @classmethod
+    def update_selected_cell(cls, number):
+        if Cell.selected_cell is not None and not cls.selected_cell.is_hint():
             if ModeButton.mode == Mode.FINAL:
-                Slot.selected_slot.write_final(number)
-                Slot.selected_slot.on_press(None)
+                cls.selected_cell.write_final(number)
+                cls.selected_cell.on_press(None)
             else:
-                Slot.selected_slot.toggle_draft(number)
+                cls.selected_cell.toggle_draft(number)
