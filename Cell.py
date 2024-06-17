@@ -110,19 +110,19 @@ class Cell(Canvas):
 
     @staticmethod
     def _on_up(event):
-        Cell.selected_cell.move_selection(-1, 0)
+        Cell.selected_cell._move_selection(-1, 0)
 
     @staticmethod
     def _on_down(event):
-        Cell.selected_cell.move_selection(1, 0)
+        Cell.selected_cell._move_selection(1, 0)
 
     @staticmethod
     def _on_left(event):
-        Cell.selected_cell.move_selection(0, -1)
+        Cell.selected_cell._move_selection(0, -1)
 
     @staticmethod
     def _on_right(event):
-        Cell.selected_cell.move_selection(0, 1)
+        Cell.selected_cell._move_selection(0, 1)
 
     @staticmethod
     def _on_key_press(event):
@@ -132,7 +132,7 @@ class Cell(Canvas):
         if ModeButton.mode == Mode.ENTRY:
             Cell.selected_cell._write_entry(event.keysym)
         else:
-            Cell.selected_cell.toggle_note(event.keysym)
+            Cell.selected_cell._toggle_note(event.keysym)
         Cell.selected_cell._show_number_buttons()
 
     #
@@ -150,7 +150,7 @@ class Cell(Canvas):
         """
         NumberButton.toggle_all_off()
 
-        if self.is_given():
+        if self._is_given():
             return
         if ModeButton.mode == Mode.ENTRY:
             if self._has_entry_number():
@@ -222,7 +222,7 @@ class Cell(Canvas):
         Also toggles off any notes with the same number in the same house
         """
 
-        self.clear_notes()
+        self._clear_notes()
 
         if self._entry_number is not None:
             [cell._update_color(cell._in_conflict) for cell in self._get_matching_numbers()]
@@ -253,7 +253,7 @@ class Cell(Canvas):
                 if cell._in_conflict:
                     cell._update_color(cell._find_conflicts())
             elif number is not None:
-                cell.clear_note(number)
+                cell._clear_note(number)
 
     def _update_color(self, in_conflict):
         self._in_conflict = in_conflict
@@ -264,58 +264,60 @@ class Cell(Canvas):
             self._DEFAULT_COLOR
         )
 
-    def write_given(self, number):
+    def _write_given(self, number):
         """ This is a number that's provided as a clue. """
         self._entry_number = number
 
-    def write_note(self, number):
+    def _write_note(self, number):
         """
         Clears the entry and writes a note. Also shows any active notes that were cached previously.
         Active notes are cached so if the user decides to remove an entry, all their previous notes are still there
         """
-        self.clear_entry()
+        self._clear_entry()
         self.itemconfig(self.note_labels[int(number) - 1], text=str(number))
 
         if number not in self._active_notes:
             self._active_notes.append(number)
 
-    def clear_entry(self):
+    def _clear_entry(self):
         self._entry_number = ''
         self._update_color(False)  # An empty cell is always not in conflict
         self._update_house_conflict_status()  # This change may affect house conflict statuses
 
-    def clear_note(self, number):
+    def _clear_note(self, number):
         self.itemconfig(self.note_labels[int(number) - 1], text='')
 
         if number in self._active_notes:
             self._active_notes.remove(number)
 
-    def clear_notes(self):
+    def _clear_notes(self):
         for i in range(9):
-            self.clear_note(i + 1)
+            self._clear_note(i + 1)
 
-    def has_note(self, number):
+    def _has_note(self, number):
         return number in self._active_notes
 
-    def toggle_note(self, number):
+    def _toggle_note(self, number):
         show_active_notes = False
 
         if self._has_entry_number():
-            self.clear_entry()
+            self._clear_entry()
             show_active_notes = True
-        if self.has_note(number):
-            self.clear_note(number)
+        if self._has_note(number):
+            self._clear_note(number)
         else:
-            self.write_note(number)
+            self._write_note(number)
 
+        # Active notes are notes that are written but may sometimes be hidden by an entry
+        # Since they are preserved even after an entry is made, this restores them for the user
         if show_active_notes:
             for active_note in self._active_notes:
-                self.write_note(active_note)
+                self._write_note(active_note)
 
-    def is_given(self):
+    def _is_given(self):
         return self._has_entry_number() and self.itemcget(self.entry_label, 'fill') == 'black'
 
-    def move_selection(self, dx, dy):
+    def _move_selection(self, dx, dy):
         """ Move the selection to a new cell based on the delta values """
         new_x = (self.x + dx) % 9
         new_y = (self.y + dy) % 9
@@ -336,7 +338,7 @@ class Cell(Canvas):
         for x, layer in enumerate(numbers):
             for y, number in enumerate(layer):
                 if number != 0:
-                    cls.board[x][y].write_given(number)
+                    cls.board[x][y]._write_given(number)
 
     @classmethod
     def clear_selected(cls, event):
@@ -346,17 +348,17 @@ class Cell(Canvas):
             cls.selected_cell._update_color(False)
             cls.selected_cell._update_house_conflict_status()
         else:
-            cls.selected_cell.clear_notes()
+            cls.selected_cell._clear_notes()
 
     @classmethod
     def toggle_selected_cell(cls, number):
         """ Updates the selected cell with the entered number """
-        if cls.selected_cell is not None and not cls.selected_cell.is_given():
+        if cls.selected_cell is not None and not cls.selected_cell._is_given():
             if ModeButton.mode == Mode.ENTRY:
                 cls.selected_cell._write_entry(number)
                 cls.selected_cell._on_press(None)
             else:
-                cls.selected_cell.toggle_note(number)
+                cls.selected_cell._toggle_note(number)
 
     @classmethod
     def all_cells(cls):
