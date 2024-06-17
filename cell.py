@@ -7,11 +7,11 @@ from toggle_buttons import NumberButton, Mode, ModeButton
 class Cell(Canvas):
     board: list[list['Cell']] = [[None for _ in range(9)] for _ in range(9)]
     selected_cell = None
-    _DEFAULT_COLOR = '#333'         # Color of a cell in its default state
-    _HIGHLIGHT_COLOR = '#555'       # Cells in the same house are highlighted when another cell is selected
-    _MATCHING_COLOR = '#299'        # Shows all cells with the same number as the selected one
-    _CONFLICT_COLOR = '#A33'        # Turns red if there's a conflict in the house
-    _PRESS_COLOR = SELECTION_COLOR  # Turn blue when the user selects a cell
+    _DEFAULT_COLOR = '#333'  # Color of a cell in its default state
+    _HIGHLIGHT_COLOR = '#555'  # Cells in the same house are highlighted when another cell is selected
+    _MATCHING_COLOR = '#299'  # Shows all cells with the same number as the selected one
+    _CONFLICT_COLOR = '#A33'  # Turns red if there's a conflict in the house
+    _PRESS_COLOR = SELECTION_COLOR # Turn blue when the user selects a cell
 
     #
     # Initialization Methods
