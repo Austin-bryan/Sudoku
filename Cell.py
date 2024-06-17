@@ -132,7 +132,7 @@ class Cell(Canvas):
         if cls.selected_cell._is_given():
             return
         if ModeButton.mode == Mode.ENTRY:
-            cls.selected_cell._write_entry(event.keysym)
+            cls.selected_cell._toggle_entry(event.keysym)
         else:
             cls.selected_cell._toggle_note(event.keysym)
         cls.selected_cell._show_number_buttons()
@@ -218,27 +218,6 @@ class Cell(Canvas):
     def _has_entry_number(self):
         return self._entry_number != ''
 
-    def _write_entry(self, number):
-        """
-        Writes an entry number into a cell, replacing all notes in the cell
-        Also toggles off any notes with the same number in the same house
-        """
-
-        self._clear_notes()
-
-        if self._entry_number is not None:
-            [cell._update_color(cell._in_conflict) for cell in self._get_matching_numbers()]
-        self._entry_number = number
-
-        # Check for conflicts and updates house
-        conflicts = self._find_conflicts()
-        self._update_color(conflicts)
-        [cell._update_color(True) for cell in conflicts]
-        self._update_house_conflict_status(number)
-
-        self.itemconfig(self.entry_label, fill='white')
-        self._highlight_matching_numbers()
-
     def _update_house_conflict_status(self, number=None):
         """
         Updates the conflict status of all cells in the same house (row, column, or 3x3 grid) as the current cell.
@@ -265,6 +244,27 @@ class Cell(Canvas):
             self._PRESS_COLOR if Cell.selected_cell is self else
             self._DEFAULT_COLOR
         )
+
+    def _write_entry(self, number):
+        """
+        Writes an entry number into a cell, replacing all notes in the cell
+        Also toggles off any notes with the same number in the same house
+        """
+
+        self._clear_notes()
+
+        if self._entry_number is not None:
+            [cell._update_color(cell._in_conflict) for cell in self._get_matching_numbers()]
+        self._entry_number = number
+
+        # Check for conflicts and updates house
+        conflicts = self._find_conflicts()
+        self._update_color(conflicts)
+        [cell._update_color(True) for cell in conflicts]
+        self._update_house_conflict_status(number)
+
+        self.itemconfig(self.entry_label, fill='white')
+        self._highlight_matching_numbers()
 
     def _write_given(self, number):
         """ This is a number that's provided as a clue. """
@@ -299,22 +299,30 @@ class Cell(Canvas):
     def _has_note(self, number):
         return number in self._active_notes
 
-    def _toggle_note(self, number):
+    def _toggle_note(self, number=None):
         show_active_notes = False
 
         if self._has_entry_number():
             self._clear_entry()
             show_active_notes = True
-        if self._has_note(number):
-            self._clear_note(number)
-        else:
-            self._write_note(number)
+
+        if number is not None:
+            if self._has_note(number):
+                self._clear_note(number)
+            else:
+                self._write_note(number)
 
         # Active notes are notes that are written but may sometimes be hidden by an entry
         # Since they are preserved even after an entry is made, this restores them for the user
         if show_active_notes:
             for active_note in self._active_notes:
                 self._write_note(active_note)
+
+    def _toggle_entry(self, number):
+        if self._has_entry_number():
+            self._toggle_note()
+        else:
+            self._write_entry(number)
 
     def _is_given(self):
         return self._has_entry_number() and self.itemcget(self.entry_label, 'fill') == 'black'
@@ -357,7 +365,7 @@ class Cell(Canvas):
         """ Updates the selected cell with the entered number """
         if cls.selected_cell is not None and not cls.selected_cell._is_given():
             if ModeButton.mode == Mode.ENTRY:
-                cls.selected_cell._write_entry(number)
+                cls.selected_cell._toggle_entry(number)
                 cls.selected_cell._on_press(None)
             else:
                 cls.selected_cell._toggle_note(number)
