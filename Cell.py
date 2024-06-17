@@ -256,7 +256,6 @@ class Cell(Canvas):
                 cell.clear_note(number)
 
     def _update_color(self, in_conflict):
-        print(in_conflict, self._is_highlighted)
         self._in_conflict = in_conflict
         self.config(
             bg=self._CONFLICT_COLOR if in_conflict else
@@ -299,15 +298,19 @@ class Cell(Canvas):
         return number in self._active_notes
 
     def toggle_note(self, number):
-        """ Turns note on or off """
-        if not self._has_entry_number():
-            for active_note in self._active_notes:
-                self.write_note(active_note)
+        show_active_notes = False
 
+        if self._has_entry_number():
+            self.clear_entry()
+            show_active_notes = True
         if self.has_note(number):
             self.clear_note(number)
         else:
             self.write_note(number)
+
+        if show_active_notes:
+            for active_note in self._active_notes:
+                self.write_note(active_note)
 
     def is_given(self):
         return self._has_entry_number() and self.itemcget(self.entry_label, 'fill') == 'black'

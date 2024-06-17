@@ -58,7 +58,6 @@ class NumberButton(ToggleButton):
 
     @classmethod
     def toggle_final_on(cls, number):
-        print(f"Toggling '{number}'")
         cls.buttons[number].toggle_on()
 
     @classmethod
