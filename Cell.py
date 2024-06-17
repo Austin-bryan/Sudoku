@@ -238,7 +238,6 @@ class Cell(Canvas):
 
     def _update_color(self, in_conflict):
         self._in_conflict = in_conflict
-        print((Cell.selected_cell.x, Cell.selected_cell.y), (self.x, self.y))
         self.config(
             bg=self._CONFLICT_COLOR if in_conflict else
             self._PRESS_COLOR if Cell.selected_cell is self else
