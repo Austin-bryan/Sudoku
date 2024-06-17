@@ -108,32 +108,34 @@ class Cell(Canvas):
         self._highlight_matching_numbers()
         self._show_number_buttons()
 
-    @staticmethod
-    def _on_up(event):
-        Cell.selected_cell._move_selection(-1, 0)
+    @classmethod
+    def _on_up(cls, event):
+        cls.selected_cell._move_selection(-1, 0)
 
-    @staticmethod
-    def _on_down(event):
-        Cell.selected_cell._move_selection(1, 0)
+    @classmethod
+    def _on_down(cls, event):
+        cls.selected_cell._move_selection(1, 0)
 
-    @staticmethod
-    def _on_left(event):
-        Cell.selected_cell._move_selection(0, -1)
+    @classmethod
+    def _on_left(cls, event):
+        cls.selected_cell._move_selection(0, -1)
 
-    @staticmethod
-    def _on_right(event):
-        Cell.selected_cell._move_selection(0, 1)
+    @classmethod
+    def _on_right(cls, event):
+        cls.selected_cell._move_selection(0, 1)
 
-    @staticmethod
-    def _on_key_press(event):
+    @classmethod
+    def _on_key_press(cls, event):
         """ Allows the user to enter in numbers, either notes or entries depending on the mode """
         if event.keysym not in '123456789':
             return
+        if cls.selected_cell._is_given():
+            return
         if ModeButton.mode == Mode.ENTRY:
-            Cell.selected_cell._write_entry(event.keysym)
+            cls.selected_cell._write_entry(event.keysym)
         else:
-            Cell.selected_cell._toggle_note(event.keysym)
-        Cell.selected_cell._show_number_buttons()
+            cls.selected_cell._toggle_note(event.keysym)
+        cls.selected_cell._show_number_buttons()
 
     #
     # Instance Methods
