@@ -58,6 +58,7 @@ class NumberButton(ToggleButton):
 
     @classmethod
     def toggle_final_on(cls, number):
+        print(f"Toggling '{number}'")
         cls.buttons[number].toggle_on()
 
     @classmethod
@@ -77,7 +78,7 @@ class NumberButton(ToggleButton):
         super().on_press(self)
 
         from Cell import Cell
-        Cell.update_selected_cell(self.number)
+        Cell.toggle_selected_cell(self.number)
 
 
 class Mode(Enum):
@@ -95,6 +96,6 @@ class ModeButton(ToggleButton):
         ModeButton.mode = Mode.NOTES if self.mode == Mode.ENTRY else Mode.ENTRY
         from Cell import Cell
         if Cell.selected_cell:
-            Cell.selected_cell.show_number_buttons()
+            Cell.selected_cell._show_number_buttons()
 
         super().on_press(self)
