@@ -1,5 +1,5 @@
-﻿from ToggleButtons import *
-from Cell import Cell
+﻿from toggle_buttons import *
+from cell import Cell
 
 
 class SudokuApp:

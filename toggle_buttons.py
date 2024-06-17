@@ -1,7 +1,7 @@
 ﻿from tkinter import *
 from abc import ABC
 from enum import Enum
-from Colors import *
+from colors import *
 
 
 class ToggleButton(Canvas, ABC):
@@ -76,7 +76,7 @@ class NumberButton(ToggleButton):
         NumberButton.__selected_button = self
         super().on_press(self)
 
-        from Cell import Cell
+        from cell import Cell
         Cell.toggle_selected_cell(self.number)
 
 
@@ -93,7 +93,7 @@ class ModeButton(ToggleButton):
 
     def on_press(self, event):
         ModeButton.mode = Mode.NOTES if self.mode == Mode.ENTRY else Mode.ENTRY
-        from Cell import Cell
+        from cell import Cell
         if Cell.selected_cell:
             Cell.selected_cell._show_number_buttons()
 

@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import Canvas
-from Colors import *
-from ToggleButtons import NumberButton, Mode, ModeButton
+from colors import *
+from toggle_buttons import NumberButton, Mode, ModeButton
 
 
 class Cell(Canvas):
@@ -340,7 +340,7 @@ class Cell(Canvas):
     #
     @classmethod
     def populate_board(cls):
-        from SudokuGenerator import SudokuGenerator
+        from sudoku_generator import SudokuGenerator
 
         generator = SudokuGenerator()
         numbers = generator.generate_board()
