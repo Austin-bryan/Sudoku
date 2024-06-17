@@ -238,10 +238,11 @@ class Cell(Canvas):
 
     def _update_color(self, in_conflict):
         self._in_conflict = in_conflict
+        print((Cell.selected_cell.x, Cell.selected_cell.y), (self.x, self.y))
         self.config(
             bg=self._CONFLICT_COLOR if in_conflict else
-            self._HIGHLIGHT_COLOR if self._is_highlighted else
             self._PRESS_COLOR if Cell.selected_cell is self else
+            self._HIGHLIGHT_COLOR if self._is_highlighted else
             self._DEFAULT_COLOR
         )
 
@@ -319,7 +320,7 @@ class Cell(Canvas):
                 self._write_note(active_note)
 
     def _toggle_entry(self, number):
-        if self._has_entry_number():
+        if self._has_entry_number() and self._entry_number == number:
             self._toggle_note()
         else:
             self._write_entry(number)
