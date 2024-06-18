@@ -27,7 +27,11 @@ class CellModel:
         if self.value_type == CellValueType.GIVEN:
             return
         self.value = None
-        self.notes[number - 1] = number not in self.notes
+        self.value_type = CellValueType.NOTES
+        self.notes[number - 1] = not self.notes[number - 1]
+
+        print('\n\n\n')
+        [print(i + 1, n) for i, n in enumerate(self.notes)]
 
     def remove_note(self, number):
         if number in self.notes:
