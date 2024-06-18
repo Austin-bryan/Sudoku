@@ -2,6 +2,7 @@
 import tkinter as tk
 from tkinter import Canvas
 from colors import SELECTION_COLOR, BACKGROUND_COLOR
+from models.cell_value_type import CellValueType
 
 
 class CellView(Canvas):
@@ -44,17 +45,21 @@ class CellView(Canvas):
     def update_color(self, color):
         self.config(bg=color)
 
-    def update_hint(self, number):
-        self.itemconfig(self.entry_label, text=number, fill='black')
+    def update_labels(self):
+        match self.model.value_type:
+            case CellValueType.ENTRY:
+                self.itemconfig(self.entry_label, text=self.model.value, fill='white')
+                self.clear_notes()
+            case CellValueType.NOTES:
+                self.clear_entry()
 
-    def update_notes(self, notes):
-        for i, label in enumerate(self.note_labels):
-            number = str(i + 1)
-            self.itemconfig(label, text=number if number in notes else '')
-
-    def set_entry(self, number):
-        self.itemconfig(self.entry_label, text=number, fill='white')
-        self.clear_notes()
+                for i, label in enumerate(self.note_labels):
+                    self.itemconfig(label, text=i if self.model.notes[i] else '')
+            case CellValueType.HINT:
+                self.itemconfig(self.entry_label, text=self.model.value, fill='black')
+            case _:
+                self.clear_entry()
+                self.clear_notes()
 
     def clear_entry(self):
         self.itemconfig(self.entry_label, text='')

@@ -22,7 +22,7 @@ class BoardController:
         for x in range(9):
             for y in range(9):
                 value = self.model.get_cell_value(x, y)
-                self.cell_controllers[x][y].view.update_hint(value)
+                self.cell_controllers[x][y].view.update_labels()
 
     def clear_selected(self):
         if CellController.selected_cell:

@@ -78,8 +78,8 @@ class CellController:
         NumberButton.toggle_all_off()
         if self.model.is_entry():
             NumberButton.toggle_entry_on(self.model.value)
-        else:
-            NumberButton.toggle_draft_on(self.model.notes)
+        elif self.model.is_notes():
+            NumberButton.toggle_note_on(self.model.notes)
 
     def highlight_house(self):
         for cell in self.get_house():
@@ -132,4 +132,4 @@ class CellController:
 
     def toggle_entry(self, keysym):
         self.model.set_entry(int(keysym))
-        self.view.set_entry(int(keysym))
+        self.view.update_labels()

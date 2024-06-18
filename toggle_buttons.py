@@ -61,9 +61,9 @@ class NumberButton(ToggleButton):
         cls.buttons[number].toggle_on()
 
     @classmethod
-    def toggle_draft_on(cls, draft_numbers):
-        for number in draft_numbers:
-            cls.buttons[number].toggle_on()
+    def toggle_note_on(cls, notes):
+        for i, should_toggle_on in enumerate(notes):
+            cls.buttons[i + 1].toggle_on()
 
     def __init__(self, parent, number, **kwargs):
         super().__init__(parent, number, **kwargs)

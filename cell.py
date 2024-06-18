@@ -154,11 +154,12 @@ class Cell(Canvas):
 
         if self._is_given():
             return
-        if ModeButton.mode == Mode.ENTRY:
-            if self._has_entry_number():
-                NumberButton.toggle_entry_on(self._entry_number)
-        else:
-            NumberButton.toggle_draft_on(self._active_notes)
+        # if ModeButton.mode == Mode.ENTRY:
+        #     if self._has_entry_number():
+        #         NumberButton.toggle_entry_on(self._entry_number)
+        # else:
+        #     pass
+            # NumberButton.toggle_note_on(self._active_notes)
 
     def _get_row(self):
         return [Cell.board[self.x][y] for y in range(9) if Cell.board[self.x][y] is not self]
