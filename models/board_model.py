@@ -9,7 +9,7 @@ class BoardModel:
         for x in range(9):
             for y in range(9):
                 if numbers[x][y] != 0:
-                    self.cell_models[x][y].set_hint(numbers[x][y])
+                    self.cell_models[x][y].set_given(numbers[x][y])
 
     def get_cell_value(self, x, y):
         return self.cell_models[x][y].value

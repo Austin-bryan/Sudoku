@@ -56,7 +56,7 @@ class CellController:
     def on_key_press(self, event):
         if event.keysym not in '123456789':
             return
-        if self.model.is_hint():
+        if self.model.is_given():
             return
         if ModeButton.mode == Mode.ENTRY:
             self.toggle_entry(event.keysym)

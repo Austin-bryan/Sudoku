@@ -9,14 +9,14 @@ class CellModel:
         self.value_type = CellValueType.BLANK
 
     def set_entry(self, number):
-        if self.value_type == CellValueType.HINT:
+        if self.value_type == CellValueType.GIVEN:
             return
         self.value = number
         self.value_type = CellValueType.ENTRY
 
-    def set_hint(self, number):
+    def set_given(self, number):
         self.value = number
-        self.value_type = CellValueType.HINT
+        self.value_type = CellValueType.GIVEN
 
     def clear_entry(self):
         self.value = None
@@ -24,7 +24,7 @@ class CellModel:
         self.value_type = CellValueType.BLANK
 
     def toggle_note(self, number):
-        if self.value_type == CellValueType.HINT:
+        if self.value_type == CellValueType.GIVEN:
             return
         self.value = None
         self.notes[number - 1] = number not in self.notes
@@ -42,8 +42,8 @@ class CellModel:
     def is_entry(self):
         return self.value_type == CellValueType.ENTRY
 
-    def is_hint(self):
-        return self.value_type == CellValueType.HINT
+    def is_given(self):
+        return self.value_type == CellValueType.GIVEN
 
     def is_notes(self):
         return self.value_type == CellValueType.NOTES
