@@ -59,9 +59,10 @@ class CellController:
         if self.model.is_given():
             return
         if ModeButton.mode == Mode.ENTRY:
-            self.toggle_entry(event.keysym)
+            self.model.toggle_entry(int(event.keysym))
         else:
-            self.toggle_note(event.keysym)
+            self.model.toggle_note(int(event.keysym))
+        self.view.update_labels()
         self.show_number_buttons()
 
     def highlight_matching_numbers(self):
@@ -129,7 +130,3 @@ class CellController:
                 cls.selected_cell.on_press(None)
             else:
                 cls.selected_cell.toggle_note(number)
-
-    def toggle_entry(self, keysym):
-        self.model.set_entry(int(keysym))
-        self.view.update_labels()

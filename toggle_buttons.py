@@ -58,7 +58,8 @@ class NumberButton(ToggleButton):
 
     @classmethod
     def toggle_entry_on(cls, number):
-        cls.buttons[number].toggle_on()
+        if number:
+            cls.buttons[number].toggle_on()
 
     @classmethod
     def toggle_note_on(cls, notes):

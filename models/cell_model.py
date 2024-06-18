@@ -8,10 +8,10 @@ class CellModel:
         self.in_conflict = False
         self.value_type = CellValueType.BLANK
 
-    def set_entry(self, number):
+    def toggle_entry(self, number):
         if self.value_type == CellValueType.GIVEN:
             return
-        self.value = number
+        self.value = number if self.value != number else None
         self.value_type = CellValueType.ENTRY
 
     def set_given(self, number):

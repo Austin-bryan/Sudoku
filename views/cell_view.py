@@ -48,7 +48,7 @@ class CellView(Canvas):
     def update_labels(self):
         match self.model.value_type:
             case CellValueType.ENTRY:
-                self.itemconfig(self.entry_label, text=self.model.value, fill='white')
+                self.itemconfig(self.entry_label, text=self.model.value if self.model.value is not None else '', fill='white')
                 self.clear_notes()
             case CellValueType.NOTES:
                 self.clear_entry()
