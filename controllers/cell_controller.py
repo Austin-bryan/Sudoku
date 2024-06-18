@@ -1,5 +1,6 @@
 # controller/cell_controller.py
 from models.cell_model import CellModel
+from models.cell_value_type import CellValueType
 from views.cell_view import CellView
 from toggle_buttons import ModeButton, NumberButton, Mode
 
@@ -30,7 +31,6 @@ class CellController:
     def on_press(self, event):
         CellController.selected_cell = self
         self.view.focus_set()
-        print("Cell clicked at:", self.model.x, self.model.y)
         for cell in CellController.all_cells():
             if not cell.model.in_conflict:
                 cell.view.update_color(CellView._DEFAULT_COLOR)
@@ -56,7 +56,7 @@ class CellController:
     def on_key_press(self, event):
         if event.keysym not in '123456789':
             return
-        if self.model.has_entry():
+        if self.model.is_hint():
             return
         if ModeButton.mode == Mode.ENTRY:
             self.toggle_entry(event.keysym)
@@ -66,16 +66,17 @@ class CellController:
 
     def highlight_matching_numbers(self):
         matching_cells = [cell for cell in CellController.all_cells()
-                          if cell.model.entry_number == self.model.entry_number
-                          and cell.model.entry_number is not '']
+                          if cell.model.value == self.model.value
+                          and (cell.model.has_value() or cell.model.value_type == CellValueType.ENTRY)
+                          and cell.model is not self.model]
         for cell in matching_cells:
             if not cell.model.in_conflict:
                 cell.view.update_color(CellView._MATCHING_COLOR)
 
     def show_number_buttons(self):
         NumberButton.toggle_all_off()
-        if self.model.has_entry():
-            NumberButton.toggle_final_on(self.model.entry_number)
+        if self.model.is_entry():
+            NumberButton.toggle_final_on(self.model.value)
         else:
             NumberButton.toggle_draft_on(self.model.notes)
 
@@ -112,8 +113,8 @@ class CellController:
 
     @classmethod
     def clear_selected(cls, event):
-        if cls.selected_cell.model.has_entry():
-            cls.selected_cell.model.remove_entry()
+        if cls.selected_cell.model.is_entry():
+            cls.selected_cell.model.clear_entry()
             cls.selected_cell.view.update_color(False)
             cls.selected_cell.update_house_conflict_status()
         else:
@@ -127,3 +128,7 @@ class CellController:
                 cls.selected_cell.on_press(None)
             else:
                 cls.selected_cell.toggle_note(number)
+
+    def toggle_entry(self, keysym):
+        self.model.set_entry(keysym)
+        self.view.set_entry(keysym)

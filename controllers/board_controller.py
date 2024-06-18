@@ -21,14 +21,14 @@ class BoardController:
         self.model.populate_board(numbers)
         for x in range(9):
             for y in range(9):
-                number = self.model.get_cell_number(x, y)
-                self.cell_controllers[x][y].view.update_entry(number)
+                value = self.model.get_cell_value(x, y)
+                self.cell_controllers[x][y].view.update_hint(value)
 
     def clear_selected(self):
         if CellController.selected_cell:
             selected_cell = CellController.selected_cell
-            if selected_cell.model.has_entry():
-                selected_cell.model.remove_entry()
+            if selected_cell.model.is_entry():
+                selected_cell.model.clear_entry()
             else:
                 selected_cell.model.clear_notes()
             selected_cell.view.update_color(CellView._DEFAULT_COLOR)

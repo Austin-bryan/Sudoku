@@ -1,32 +1,51 @@
-﻿class CellModel:
+﻿from models.cell_value_type import CellValueType
+
+
+class CellModel:
     def __init__(self, x, y):
-        self.x = x
-        self.y = y
-        self.entry_number = ''
-        self.notes = []
+        self.x, self.y = x, y
+        self.value, self.notes = '', []
         self.in_conflict = False
+        self.value_type = CellValueType.BLANK
 
-    def add_entry(self, number):
-        self.entry_number = number
-        self.notes.clear()
+    def set_entry(self, number):
+        if self.value_type == CellValueType.HINT:
+            return
+        self.value = number
+        self.value_type = CellValueType.ENTRY
 
-    def remove_entry(self):
-        self.entry_number = ''
+    def set_hint(self, number):
+        self.value = number
+        self.value_type = CellValueType.HINT
+
+    def clear_entry(self):
+        self.value = ''
         self.in_conflict = False
+        self.value_type = CellValueType.BLANK
 
-    def add_note(self, number):
-        if number not in self.notes:
+    def toggle_note(self, number):
+        if self.value_type == CellValueType.HINT:
+            return
+        if number in self.notes:
+            self.notes.remove(number)
+        else:
             self.notes.append(number)
 
     def remove_note(self, number):
         if number in self.notes:
             self.notes.remove(number)
 
-    def has_entry(self):
-        return self.entry_number != ''
-
     def set_conflict(self, state):
         self.in_conflict = state
 
     def clear_notes(self):
         self.notes.clear()
+
+    def is_entry(self):
+        return self.value_type == CellValueType.ENTRY
+
+    def is_hint(self):
+        return self.value_type == CellValueType.HINT
+
+    def has_value(self):
+        return self.value != ''

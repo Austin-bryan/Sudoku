@@ -58,7 +58,7 @@ class NumberButton(ToggleButton):
 
     @classmethod
     def toggle_final_on(cls, number):
-        cls.buttons[number].toggle_on()
+        cls.buttons[str(number)].toggle_on()
 
     @classmethod
     def toggle_draft_on(cls, draft_numbers):

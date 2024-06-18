@@ -19,26 +19,12 @@ class CellView(Canvas):
         self.config(width=50, height=50, bg=CellView._DEFAULT_COLOR)
         self._draw_thick_borders()
         self.on_press_event = None
-        self.setup()
-
-        # self.bind("<ButtonPress-1>", self.print)
-        # self.bind("<ButtonPress-1>", self.print2)
 
         self.entry_label = self.create_text(self.actual_width / 2, self.actual_height / 2,
                                             text='', fill='black', font=("Arial", 30))
         self.note_labels = [self.create_text((col + 1) * self.actual_width / 4,
                                              (row + 1) * self.actual_height / 4, fill='white', font=("Arial", 9))
                             for row in range(3) for col in range(3)]
-
-    def setup(self):
-        print("setup")
-        self.bind("<Button-1>", self.print1)
-
-    def print1(self, event):
-        print("dope")
-
-    def print2(self, event):
-        print("fresh")
 
     def _draw_thick_borders(self):
         thickness_width = 8
@@ -58,13 +44,20 @@ class CellView(Canvas):
     def update_color(self, color):
         self.config(bg=color)
 
-    def update_entry(self, number, color='white'):
-        self.itemconfig(self.entry_label, text=number, fill=color)
+    def update_entry(self, number):
+        print("entry")
+
+    def update_hint(self, number):
+        self.itemconfig(self.entry_label, text=number, fill='black')
 
     def update_notes(self, notes):
         for i, label in enumerate(self.note_labels):
             number = str(i + 1)
             self.itemconfig(label, text=number if number in notes else '')
+
+    def set_entry(self, number):
+        self.itemconfig(self.entry_label, text=number, fill='white')
+        self.clear_notes()
 
     def clear_entry(self):
         self.itemconfig(self.entry_label, text='')
