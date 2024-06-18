@@ -65,6 +65,7 @@ class CellController:
         self.show_number_buttons()
 
     def highlight_matching_numbers(self):
+        import time
         matching_cells = [cell for cell in CellController.all_cells()
                           if cell.model.value == self.model.value
                           and (cell.model.has_value() or cell.model.value_type == CellValueType.ENTRY)
@@ -76,7 +77,7 @@ class CellController:
     def show_number_buttons(self):
         NumberButton.toggle_all_off()
         if self.model.is_entry():
-            NumberButton.toggle_final_on(self.model.value)
+            NumberButton.toggle_entry_on(self.model.value)
         else:
             NumberButton.toggle_draft_on(self.model.notes)
 
@@ -130,5 +131,5 @@ class CellController:
                 cls.selected_cell.toggle_note(number)
 
     def toggle_entry(self, keysym):
-        self.model.set_entry(keysym)
-        self.view.set_entry(keysym)
+        self.model.set_entry(int(keysym))
+        self.view.set_entry(int(keysym))

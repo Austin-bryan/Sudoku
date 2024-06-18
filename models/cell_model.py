@@ -4,13 +4,16 @@
 class CellModel:
     def __init__(self, x, y):
         self.x, self.y = x, y
-        self.value, self.notes = '', []
+        self.value, self.notes = None, []
         self.in_conflict = False
         self.value_type = CellValueType.BLANK
 
     def set_entry(self, number):
         if self.value_type == CellValueType.HINT:
+            print("Returning")
             return
+        else:
+            print("Dont return")
         self.value = number
         self.value_type = CellValueType.ENTRY
 
@@ -19,13 +22,14 @@ class CellModel:
         self.value_type = CellValueType.HINT
 
     def clear_entry(self):
-        self.value = ''
+        self.value = None
         self.in_conflict = False
         self.value_type = CellValueType.BLANK
 
     def toggle_note(self, number):
         if self.value_type == CellValueType.HINT:
             return
+        self.value = None
         if number in self.notes:
             self.notes.remove(number)
         else:
@@ -48,4 +52,4 @@ class CellModel:
         return self.value_type == CellValueType.HINT
 
     def has_value(self):
-        return self.value != ''
+        return self.value is not None

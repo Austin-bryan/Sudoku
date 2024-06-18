@@ -44,9 +44,6 @@ class CellView(Canvas):
     def update_color(self, color):
         self.config(bg=color)
 
-    def update_entry(self, number):
-        print("entry")
-
     def update_hint(self, number):
         self.itemconfig(self.entry_label, text=number, fill='black')
 

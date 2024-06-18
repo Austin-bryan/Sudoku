@@ -57,8 +57,8 @@ class NumberButton(ToggleButton):
         [button.toggle_off() for button in cls.buttons.values()]
 
     @classmethod
-    def toggle_final_on(cls, number):
-        cls.buttons[str(number)].toggle_on()
+    def toggle_entry_on(cls, number):
+        cls.buttons[number].toggle_on()
 
     @classmethod
     def toggle_draft_on(cls, draft_numbers):
@@ -67,7 +67,7 @@ class NumberButton(ToggleButton):
 
     def __init__(self, parent, number, **kwargs):
         super().__init__(parent, number, **kwargs)
-        NumberButton.buttons[number] = self
+        NumberButton.buttons[int(number)] = self
         self.number = number
 
     def on_press(self, event):

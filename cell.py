@@ -156,7 +156,7 @@ class Cell(Canvas):
             return
         if ModeButton.mode == Mode.ENTRY:
             if self._has_entry_number():
-                NumberButton.toggle_final_on(self._entry_number)
+                NumberButton.toggle_entry_on(self._entry_number)
         else:
             NumberButton.toggle_draft_on(self._active_notes)
 
