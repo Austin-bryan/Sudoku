@@ -1,5 +1,7 @@
-﻿from toggle_buttons import *
-from cell import Cell
+﻿import tkinter as tk
+from controllers.board_controller import BoardController
+from colors import BACKGROUND_COLOR
+from toggle_buttons import NumberButton, ModeButton
 
 
 class SudokuApp:
@@ -11,21 +13,30 @@ class SudokuApp:
 
     def create_widgets(self):
         # Frame for Sudoku grid
-        grid_frame = Frame(self.root, bg=BACKGROUND_COLOR)  # Set background color
+        grid_frame = tk.Frame(self.root, bg=BACKGROUND_COLOR)  # Set background color
         grid_frame.grid(row=0, column=0, padx=5, pady=50)
 
         # Frame for the bottom row of buttons
-        bottom_frame = Frame(self.root, bg=BACKGROUND_COLOR)  # Set background color
+        bottom_frame = tk.Frame(self.root, bg=BACKGROUND_COLOR)  # Set background color
         bottom_frame.grid(row=1, column=0, pady=(20, 0))  # Add some vertical space above the bottom row
 
-        # Create a 9x9 grid of Cell widgets for the Sudoku board
-        for i in range(9):
-            for j in range(9):
-                cell = Cell(grid_frame, x=i, y=j)  # Set cell background color and remove borders
-                # Set cell background color
-                cell.grid(row=i, column=j, padx=1, pady=1)  # Adjust padding here for compactness
+        # Initialize BoardController
+        self.board_controller = BoardController(grid_frame)
+        self.board_controller.view.grid(row=0, column=0)
 
-        Cell.populate_board()
+        # Populate the board with some initial numbers for testing
+        initial_numbers = [
+            [5, 3, 0, 0, 7, 0, 0, 0, 0],
+            [6, 0, 0, 1, 9, 5, 0, 0, 0],
+            [0, 9, 8, 0, 0, 0, 0, 6, 0],
+            [8, 0, 0, 0, 6, 0, 0, 0, 3],
+            [4, 0, 0, 8, 0, 3, 0, 0, 1],
+            [7, 0, 0, 0, 2, 0, 0, 0, 6],
+            [0, 6, 0, 0, 0, 0, 2, 8, 0],
+            [0, 0, 0, 4, 1, 9, 0, 0, 5],
+            [0, 0, 0, 0, 8, 0, 0, 7, 9]
+        ]
+        self.board_controller.populate_board(initial_numbers)
 
         # Create the bottom row of buttons
         for i in range(9):
@@ -35,7 +46,7 @@ class SudokuApp:
         mode_button = ModeButton(bottom_frame, label='M')
         mode_button.grid(row=0, column=9, padx=2, pady=5)
 
-        delete_button = Button(bottom_frame, text='Delete', command=lambda: Cell.clear_selected(None))
+        delete_button = tk.Button(bottom_frame, text='Delete', command=lambda: self.board_controller.clear_selected())
         delete_button.grid(row=0, column=10, padx=2, pady=5)
 
         # Optionally configure row and column weights to control resizing behavior
@@ -47,6 +58,6 @@ class SudokuApp:
 
 
 if __name__ == "__main__":
-    root = Tk()
+    root = tk.Tk()
     app = SudokuApp(root)
     root.mainloop()
