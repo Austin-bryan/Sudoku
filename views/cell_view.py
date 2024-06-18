@@ -52,7 +52,6 @@ class CellView(Canvas):
                 self.clear_notes()
             case CellValueType.NOTES:
                 self.clear_entry()
-                print("ntoes")
 
                 for i, label in enumerate(self.note_labels):
                     self.itemconfig(label, text=i + 1 if self.model.notes[i] else '')
