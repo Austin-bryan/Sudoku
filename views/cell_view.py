@@ -1,6 +1,4 @@
-﻿# view/cell_view.py
-import tkinter as tk
-from tkinter import Canvas
+﻿from tkinter import Canvas
 from colors import SELECTION_COLOR, BACKGROUND_COLOR
 from models.cell_value_type import CellValueType
 
@@ -11,13 +9,14 @@ class CellView(Canvas):
     _MATCHING_COLOR = '#299'
     _CONFLICT_COLOR = '#A33'
     _PRESS_COLOR = SELECTION_COLOR
+    _CELL_WIDTH = 70
 
     def __init__(self, parent, model, **kwargs):
         super().__init__(parent, bd=0, highlightthickness=0, **kwargs)
         self.model = model
-        self.actual_width = 50
-        self.actual_height = 50
-        self.config(width=50, height=50, bg=CellView._DEFAULT_COLOR)
+        self.actual_width = CellView._CELL_WIDTH
+        self.actual_height = CellView._CELL_WIDTH
+        self.config(width=CellView._CELL_WIDTH, height=CellView._CELL_WIDTH, bg=CellView._DEFAULT_COLOR)
         self._draw_thick_borders()
         self.on_press_event = None
 
@@ -31,16 +30,19 @@ class CellView(Canvas):
         thickness_width = 8
         should_draw_vertical_line = self.model.y % 3 == 0 and self.model.y != 0
         should_draw_horizontal_line = self.model.x % 3 == 0 and self.model.x != 0
+        line_length = CellView._CELL_WIDTH * 1.4
 
         if should_draw_vertical_line:
-            self.create_line(0, 0, 0, 70 if should_draw_horizontal_line else 50, width=thickness_width, fill=BACKGROUND_COLOR)
-            self.actual_width = 50 + thickness_width
-            self.config(width=50 + thickness_width / 2)
+            self.create_line(0, 0, 0, line_length if should_draw_horizontal_line
+                                                  else CellView._CELL_WIDTH, width=thickness_width, fill=BACKGROUND_COLOR)
+            self.actual_width = CellView._CELL_WIDTH + thickness_width
+            self.config(width=CellView._CELL_WIDTH + thickness_width / 2)
 
         if should_draw_horizontal_line:
-            self.create_line(0, 0, 70 if should_draw_vertical_line else 50, 0, width=thickness_width, fill=BACKGROUND_COLOR)
-            self.actual_height = 50 + thickness_width
-            self.config(height=50 + thickness_width / 2)
+            self.create_line(0, 0, line_length if should_draw_vertical_line
+                                               else CellView._CELL_WIDTH, 0, width=thickness_width, fill=BACKGROUND_COLOR)
+            self.actual_height = CellView._CELL_WIDTH + thickness_width
+            self.config(height=CellView._CELL_WIDTH + thickness_width / 2)
 
     def update_color(self, color):
         self.config(bg=color)

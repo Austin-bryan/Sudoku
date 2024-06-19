@@ -38,6 +38,8 @@ class NumberButton(ToggleButton):
     @classmethod
     def show_number_buttons(cls, cell_controller):
         cls.toggle_all_off()
+        from mode_button import ModeButton, Mode
+
         if ModeButton.mode == Mode.ENTRY:
             cls.toggle_entry_on(cell_controller.model.value)
         elif ModeButton.mode == Mode.NOTES:

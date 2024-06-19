@@ -1,7 +1,8 @@
 ﻿import tkinter as tk
 from controllers.board_controller import BoardController
 from colors import BACKGROUND_COLOR
-from number_button import NumberButton, ModeButton
+from number_button import NumberButton
+from mode_button import ModeButton
 
 
 class SudokuApp:

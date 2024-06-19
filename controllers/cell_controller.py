@@ -1,8 +1,8 @@
 # controller/cell_controller.py
 from models.cell_model import CellModel
-from models.cell_value_type import CellValueType
 from views.cell_view import CellView
-from number_button import ModeButton, NumberButton, Mode
+from mode_button import ModeButton, Mode
+from number_button import NumberButton
 
 
 class CellController:
