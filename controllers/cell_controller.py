@@ -2,7 +2,7 @@
 from models.cell_model import CellModel
 from models.cell_value_type import CellValueType
 from views.cell_view import CellView
-from toggle_buttons import ModeButton, NumberButton, Mode
+from number_button import ModeButton, NumberButton, Mode
 
 
 class CellController:
