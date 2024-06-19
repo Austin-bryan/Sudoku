@@ -68,9 +68,10 @@ class NumberButton(ToggleButton):
             if should_toggle_on:
                 cls.buttons[i + 1].toggle_on()
 
-    def __init__(self, parent, number, **kwargs):
+    def __init__(self, parent, board_controller, number, **kwargs):
         super().__init__(parent, number, **kwargs)
         NumberButton.buttons[int(number)] = self
+        self.board_controller = board_controller
         self.number = number
 
     def on_press(self, event):
@@ -79,8 +80,7 @@ class NumberButton(ToggleButton):
         NumberButton.__selected_button = self
         super().on_press(self)
 
-        from controllers.cell_controller import CellController
-        CellController.toggle_selected_cell(self.number)
+        self.board_controller.toggle_selected_cell(self.number)
 
 
 class Mode(Enum):
@@ -91,14 +91,15 @@ class Mode(Enum):
 class ModeButton(ToggleButton):
     mode = Mode.ENTRY
 
-    def __init__(self, parent, label, **kwargs):
+    def __init__(self, parent, board_controller, label, **kwargs):
         super().__init__(parent, label, **kwargs)
+        self.board_controller = board_controller
 
     def on_press(self, event):
         ModeButton.mode = Mode.NOTES if self.mode == Mode.ENTRY else Mode.ENTRY
 
         from controllers.cell_controller import CellController
-        if CellController.selected_cell:
-            CellController.selected_cell.show_number_buttons()
+        if self.board_controller.selected_cell:
+            self.board_controller.selected_cell.show_number_buttons()
 
         super().on_press(self)

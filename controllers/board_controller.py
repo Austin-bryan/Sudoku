@@ -9,7 +9,7 @@ class BoardController:
         self.model = BoardModel()
         self.view = BoardView(parent)
         self.cells = []
-        self.selected_cell: CellController
+        self.selected_cell: CellController = None
 
         for x in range(9):
             row_controllers = []
@@ -33,6 +33,10 @@ class BoardController:
     def clear_selected():
         if CellController.selected_cell:
             CellController.selected_cell.clear()
+
+    def toggle_selected_cell(self, number):
+        if self.selected_cell is not None and not self.selected_cell.model.is_given():
+            self.selected_cell.toggle_number(number)
 
     def get_frame(self):
         return self.view.get_frame()

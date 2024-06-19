@@ -6,9 +6,6 @@ from toggle_buttons import ModeButton, NumberButton, Mode
 
 
 class CellController:
-    # Initialize the board as a class attribute
-    selected_cell = None
-
     def __init__(self, board_controller, board_view, board_model, x, y, **kwargs):
         self.model = CellModel(x, y)
         self.view = CellView(board_view.frame, self.model, **kwargs)
@@ -30,7 +27,7 @@ class CellController:
         board_view.add_cell_view(x, y, self.view)
 
     def on_press(self, event):
-        CellController.selected_cell = self
+        self.board_controller.selected_cell = self
         self.view.focus_set()
 
         for cell in self.board_controller.cells_flat:
@@ -132,8 +129,3 @@ class CellController:
                 for i in range(start_x, start_x + 3)
                 for j in range(start_y, start_y + 3)
                 if self.board_controller.cells[i][j] is not self]
-
-    @classmethod
-    def toggle_selected_cell(cls, number):
-        if cls.selected_cell is not None and not cls.selected_cell.model.is_given():
-            cls.selected_cell.toggle_number(number)

@@ -40,10 +40,10 @@ class SudokuApp:
 
         # Create the bottom row of buttons
         for i in range(9):
-            number_button = NumberButton(bottom_frame, number=str(i + 1))
+            number_button = NumberButton(bottom_frame, self.board_controller, number=str(i + 1))
             number_button.grid(row=0, column=i, padx=2, pady=5)  # Adjust padding here for more spread out buttons
 
-        mode_button = ModeButton(bottom_frame, label='M')
+        mode_button = ModeButton(bottom_frame, self.board_controller, label='M')
         mode_button.grid(row=0, column=9, padx=2, pady=5)
 
         delete_button = tk.Button(bottom_frame, text='Delete', command=lambda: BoardController.clear_selected())
