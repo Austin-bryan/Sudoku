@@ -88,9 +88,9 @@ class CellController:
 
     def show_number_buttons(self):
         NumberButton.toggle_all_off()
-        if self.model.is_entry():
+        if ModeButton.mode == Mode.ENTRY:
             NumberButton.toggle_entry_on(self.model.value)
-        elif self.model.is_notes():
+        elif ModeButton.mode == Mode.NOTES:
             NumberButton.toggle_note_on(self.model.notes)
 
     def highlight_house(self):
