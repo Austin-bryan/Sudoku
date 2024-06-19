@@ -24,15 +24,10 @@ class BoardController:
                 value = self.model.get_cell_value(x, y)
                 self.cell_controllers[x][y].view.update_labels()
 
-    def clear_selected(self):
+    @staticmethod
+    def clear_selected():
         if CellController.selected_cell:
-            selected_cell = CellController.selected_cell
-            if selected_cell.model.is_entry():
-                selected_cell.model.clear_entry()
-            else:
-                selected_cell.model.clear_notes()
-            selected_cell.view.update_color(CellView._DEFAULT_COLOR)
-            selected_cell.update_house_conflict_status()
+            CellController.selected_cell.clear()
 
     def get_frame(self):
         return self.view.get_frame()

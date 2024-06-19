@@ -18,12 +18,6 @@ class CellModel:
             self.value = number
             self.value_type = CellValueType.ENTRY
 
-        def has_any_notes():
-            for note in self.notes:
-                if note:
-                    return True
-            return False
-
     def set_given(self, number):
         self.value = number
         self.value_type = CellValueType.GIVEN
@@ -58,3 +52,6 @@ class CellModel:
 
     def has_value(self):
         return self.value is not None
+
+    def has_note(self, number):
+        return self.notes[number - 1]

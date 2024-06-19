@@ -32,6 +32,7 @@ class CellController:
     def on_press(self, event):
         CellController.selected_cell = self
         self.view.focus_set()
+
         for cell in CellController.all_cells():
             if not cell.model.in_conflict:
                 cell.view.update_color(CellView._DEFAULT_COLOR)
@@ -58,6 +59,7 @@ class CellController:
         if event.keysym not in '123456789':
             return
         self.toggle_number(int(event.keysym))
+        self.highlight_matching_numbers()
 
     def toggle_number(self, number):
         number = int(number)
@@ -65,6 +67,10 @@ class CellController:
             return
         if ModeButton.mode == Mode.ENTRY:
             self.model.toggle_entry(number)
+            for cell in self.get_house():
+                if cell.model.is_notes() and cell.model.has_note(number):
+                    cell.model.toggle_note(number)
+                    cell.view.update_labels()
         else:
             self.model.toggle_note(number)
         self.view.update_labels()
@@ -73,7 +79,7 @@ class CellController:
     def highlight_matching_numbers(self):
         matching_cells = [cell for cell in CellController.all_cells()
                           if cell.model.value == self.model.value
-                          and (cell.model.has_value() or cell.model.value_type == CellValueType.ENTRY)
+                          and cell.model.has_value()
                           and cell.model is not self.model]
         for cell in matching_cells:
             if not cell.model.in_conflict:

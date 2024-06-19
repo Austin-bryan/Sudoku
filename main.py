@@ -46,7 +46,7 @@ class SudokuApp:
         mode_button = ModeButton(bottom_frame, label='M')
         mode_button.grid(row=0, column=9, padx=2, pady=5)
 
-        delete_button = tk.Button(bottom_frame, text='Delete', command=lambda: self.board_controller.clear_selected())
+        delete_button = tk.Button(bottom_frame, text='Delete', command=lambda: BoardController.clear_selected())
         delete_button.grid(row=0, column=10, padx=2, pady=5)
 
         # Optionally configure row and column weights to control resizing behavior
