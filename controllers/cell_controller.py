@@ -7,12 +7,12 @@ from toggle_buttons import ModeButton, NumberButton, Mode
 
 class CellController:
     # Initialize the board as a class attribute
-    board: list[list['CellController']] = [[None for _ in range(9)] for _ in range(9)]
     selected_cell = None
 
-    def __init__(self, board_view, board_model, x, y, **kwargs):
+    def __init__(self, board_controller, board_view, board_model, x, y, **kwargs):
         self.model = CellModel(x, y)
         self.view = CellView(board_view.frame, self.model, **kwargs)
+        self.board_controller = board_controller
         self.view.model = self.model
         self.view.bind("<ButtonPress-1>", self.on_press)
         self.view.bind("<Up>", self.on_up)
@@ -23,7 +23,7 @@ class CellController:
         self.view.bind("<Delete>", self.clear)
         self.view.bind("<BackSpace>", self.clear)
 
-        CellController.board[x][y] = self  # Store reference in the class attribute
+        # board_controller[x][y] = self  # Store reference in the class attribute
 
         # Update the board model and view
         board_model.set_cell(x, y, self.model)
@@ -33,7 +33,7 @@ class CellController:
         CellController.selected_cell = self
         self.view.focus_set()
 
-        for cell in CellController.all_cells():
+        for cell in self.board_controller.cells_flat:
             if not cell.model.in_conflict:
                 cell.view.update_color(CellView._DEFAULT_COLOR)
             else:
@@ -77,7 +77,7 @@ class CellController:
         self.show_number_buttons()
 
     def highlight_matching_numbers(self):
-        matching_cells = [cell for cell in CellController.all_cells()
+        matching_cells = [cell for cell in self.board_controller.cells_flat
                           if cell.model.value == self.model.value
                           and cell.model.has_value()
                           and cell.model is not self.model]
@@ -108,7 +108,7 @@ class CellController:
     def move_selection(self, dx, dy):
         new_x = (self.model.x + dx) % 9
         new_y = (self.model.y + dy) % 9
-        new_cell = CellController.board[new_x][new_y]
+        new_cell = self.board_controller.cells[new_x][new_y]
         if new_cell:
             new_cell.on_press(None)
 
@@ -116,19 +116,22 @@ class CellController:
         return self.get_row() + self.get_column() + self.get_square()
 
     def get_row(self):
-        return [CellController.board[self.model.x][y] for y in range(9) if CellController.board[self.model.x][y] is not self]
+        return [self.board_controller.cells[self.model.x][y]
+                for y in range(9)
+                if self.board_controller.cells[self.model.x][y] is not self]
 
     def get_column(self):
-        return [CellController.board[x][self.model.y] for x in range(9) if CellController.board[x][self.model.y] is not self]
+        return [self.board_controller.cells[x][self.model.y]
+                for x in range(9)
+                if self.board_controller.cells[x][self.model.y] is not self]
 
     def get_square(self):
         start_x = (self.model.x // 3) * 3
         start_y = (self.model.y // 3) * 3
-        return [CellController.board[i][j] for i in range(start_x, start_x + 3) for j in range(start_y, start_y + 3) if CellController.board[i][j] is not self]
-
-    @classmethod
-    def all_cells(cls):
-        return [cell for row in cls.board for cell in row]
+        return [self.board_controller.cells[i][j]
+                for i in range(start_x, start_x + 3)
+                for j in range(start_y, start_y + 3)
+                if self.board_controller.cells[i][j] is not self]
 
     @classmethod
     def toggle_selected_cell(cls, number):

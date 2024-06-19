@@ -8,21 +8,26 @@ class BoardController:
     def __init__(self, parent):
         self.model = BoardModel()
         self.view = BoardView(parent)
-        self.cell_controllers = []
+        self.cells = []
+        self.selected_cell: CellController
 
         for x in range(9):
             row_controllers = []
             for y in range(9):
-                cell_controller = CellController(self.view, self.model, x, y)
+                cell_controller = CellController(self, self.view, self.model, x, y)
                 row_controllers.append(cell_controller)
-            self.cell_controllers.append(row_controllers)
+            self.cells.append(row_controllers)
 
     def populate_board(self, numbers):
         self.model.populate_board(numbers)
         for x in range(9):
             for y in range(9):
                 value = self.model.get_cell_value(x, y)
-                self.cell_controllers[x][y].view.update_labels()
+                self.cells[x][y].view.update_labels()
+
+    @property
+    def cells_flat(self):
+        return [cell for row in self.cells for cell in row]
 
     @staticmethod
     def clear_selected():
