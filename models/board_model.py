@@ -14,5 +14,5 @@ class BoardModel:
     def get_cell_value(self, x, y):
         return self.cell_models[x][y].value
 
-    def set_cell(self, x, y, cell_model):
+    def add_cell_model(self, x, y, cell_model):
         self.cell_models[x][y] = cell_model

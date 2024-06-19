@@ -20,10 +20,8 @@ class CellController:
         self.view.bind("<Delete>", self.clear)
         self.view.bind("<BackSpace>", self.clear)
 
-        # board_controller[x][y] = self  # Store reference in the class attribute
-
         # Update the board model and view
-        board_model.set_cell(x, y, self.model)
+        board_model.add_cell_model(x, y, self.model)
         board_view.add_cell_view(x, y, self.view)
 
     def on_press(self, event):
@@ -38,7 +36,7 @@ class CellController:
         self.view.update_color(CellView._PRESS_COLOR)
         self.highlight_house()
         self.highlight_matching_numbers()
-        self.show_number_buttons()
+        NumberButton.show_number_buttons(self)
 
     def on_up(self, event):
         self.move_selection(-1, 0)
@@ -64,6 +62,8 @@ class CellController:
             return
         if ModeButton.mode == Mode.ENTRY:
             self.model.toggle_entry(number)
+
+            # Remove notes in the same house of the same value as this cell
             for cell in self.get_house():
                 if cell.model.is_notes() and cell.model.has_note(number):
                     cell.model.toggle_note(number)
@@ -71,7 +71,7 @@ class CellController:
         else:
             self.model.toggle_note(number)
         self.view.update_labels()
-        self.show_number_buttons()
+        NumberButton.show_number_buttons(self)
 
     def highlight_matching_numbers(self):
         matching_cells = [cell for cell in self.board_controller.cells_flat
@@ -82,19 +82,13 @@ class CellController:
             if not cell.model.in_conflict:
                 cell.view.update_color(CellView._MATCHING_COLOR)
 
-    def clear(self, event):
+    def clear(self, event=None):
         self.model.clear()
         if self.model.is_entry():
             pass
             # self.update_house_conflict_status()
         self.view.update_labels()
-
-    def show_number_buttons(self):
-        NumberButton.toggle_all_off()
-        if ModeButton.mode == Mode.ENTRY:
-            NumberButton.toggle_entry_on(self.model.value)
-        elif ModeButton.mode == Mode.NOTES:
-            NumberButton.toggle_note_on(self.model.notes)
+        NumberButton.show_number_buttons(self)
 
     def highlight_house(self):
         for cell in self.get_house():

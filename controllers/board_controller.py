@@ -22,17 +22,15 @@ class BoardController:
         self.model.populate_board(numbers)
         for x in range(9):
             for y in range(9):
-                value = self.model.get_cell_value(x, y)
                 self.cells[x][y].view.update_labels()
 
     @property
     def cells_flat(self):
         return [cell for row in self.cells for cell in row]
 
-    @staticmethod
-    def clear_selected():
-        if CellController.selected_cell:
-            CellController.selected_cell.clear()
+    def clear_selected(self):
+        if self.selected_cell:
+            self.selected_cell.clear()
 
     def toggle_selected_cell(self, number):
         if self.selected_cell is not None and not self.selected_cell.model.is_given():

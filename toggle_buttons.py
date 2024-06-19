@@ -82,6 +82,14 @@ class NumberButton(ToggleButton):
 
         self.board_controller.toggle_selected_cell(self.number)
 
+    @classmethod
+    def show_number_buttons(cls, cell_controller):
+        cls.toggle_all_off()
+        if ModeButton.mode == Mode.ENTRY:
+            cls.toggle_entry_on(cell_controller.model.value)
+        elif ModeButton.mode == Mode.NOTES:
+            cls.toggle_note_on(cell_controller.model.notes)
+
 
 class Mode(Enum):
     ENTRY = 0
@@ -100,6 +108,6 @@ class ModeButton(ToggleButton):
 
         from controllers.cell_controller import CellController
         if self.board_controller.selected_cell:
-            self.board_controller.selected_cell.show_number_buttons()
+            NumberButton.show_number_buttons(self.board_controller.selected_cell)
 
         super().on_press(self)
