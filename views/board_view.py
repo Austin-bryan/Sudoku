@@ -1,6 +1,4 @@
 ﻿import tkinter as tk
-from views.cell_view import CellView
-from colors import *
 
 
 class BoardView(tk.Frame):

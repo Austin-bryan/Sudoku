@@ -1,7 +1,4 @@
-﻿from models.cell_model import CellModel
-
-
-class BoardModel:
+﻿class BoardModel:
     def __init__(self):
         self.cell_models = [[None for _ in range(9)] for _ in range(9)]
 
