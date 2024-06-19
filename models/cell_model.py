@@ -9,7 +9,7 @@ class CellModel:
         self.value_type = CellValueType.BLANK
 
     def toggle_entry(self, number):
-        if self.value_type == CellValueType.GIVEN:
+        if self.is_given():
             return
         if self.value == number:
             self.value = None
@@ -23,13 +23,15 @@ class CellModel:
         self.value_type = CellValueType.GIVEN
 
     def clear(self):
+        if self.is_given():
+            return
         self.value = None
         self.in_conflict = False
         self.notes = [False for _ in range(9)]
         self.value_type = CellValueType.BLANK
 
     def toggle_note(self, number):
-        if self.value_type == CellValueType.GIVEN:
+        if self.is_given():
             return
         self.value = None
         self.notes[number - 1] = not self.notes[number - 1]

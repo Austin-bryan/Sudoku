@@ -20,7 +20,7 @@ class CellView(Canvas):
         self._draw_thick_borders()
         self.on_press_event = None
 
-        self.entry_label = self.create_text(self.actual_width / 2, self.actual_height / 2,
+        self.value_label = self.create_text(self.actual_width / 2, self.actual_height / 2,
                                             text='', fill='black', font=("Arial", 30))
         self.note_labels = [self.create_text((col + 1) * self.actual_width / 4,
                                              (row + 1) * self.actual_height / 4, fill='white', font=("Arial", 9))
@@ -50,7 +50,7 @@ class CellView(Canvas):
     def update_labels(self):
         match self.model.value_type:
             case CellValueType.ENTRY:
-                self.itemconfig(self.entry_label,
+                self.itemconfig(self.value_label,
                                 text=self.model.value if self.model.value is not None else '',
                                 fill='white')
                 self.clear_notes()
@@ -60,13 +60,13 @@ class CellView(Canvas):
                 for i, label in enumerate(self.note_labels):
                     self.itemconfig(label, text=i + 1 if self.model.notes[i] else '')
             case CellValueType.GIVEN:
-                self.itemconfig(self.entry_label, text=self.model.value, fill='black')
+                self.itemconfig(self.value_label, text=self.model.value, fill='black')
             case _:
                 self.clear_entry()
                 self.clear_notes()
 
     def clear_entry(self):
-        self.itemconfig(self.entry_label, text='')
+        self.itemconfig(self.value_label, text='')
 
     def clear_notes(self):
         for label in self.note_labels:
