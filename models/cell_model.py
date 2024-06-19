@@ -28,9 +28,10 @@ class CellModel:
         self.value = number
         self.value_type = CellValueType.GIVEN
 
-    def clear_entry(self):
+    def clear(self):
         self.value = None
         self.in_conflict = False
+        self.notes = [False for _ in range(9)]
         self.value_type = CellValueType.BLANK
 
     def toggle_note(self, number):
@@ -40,15 +41,8 @@ class CellModel:
         self.notes[number - 1] = not self.notes[number - 1]
         self.value_type = CellValueType.NOTES if any(self.notes) else CellValueType.BLANK
 
-    def remove_note(self, number):
-        if number in self.notes:
-            self.notes.remove(number)
-
     def set_conflict(self, state):
         self.in_conflict = state
-
-    def clear_notes(self):
-        self.notes.clear()
 
     def is_entry(self):
         return self.value_type == CellValueType.ENTRY

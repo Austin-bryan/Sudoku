@@ -6,8 +6,9 @@ from toggle_buttons import ModeButton, NumberButton, Mode
 
 
 class CellController:
+    # Initialize the board as a class attribute
+    board: list[list['CellController']] = [[None for _ in range(9)] for _ in range(9)]
     selected_cell = None
-    board = [[None for _ in range(9)] for _ in range(9)]  # Initialize the board as a class attribute
 
     def __init__(self, board_view, board_model, x, y, **kwargs):
         self.model = CellModel(x, y)
@@ -19,8 +20,8 @@ class CellController:
         self.view.bind("<Left>", self.on_left)
         self.view.bind("<Right>", self.on_right)
         self.view.bind("<Key>", self.on_key_press)
-        self.view.bind("<Delete>", self.clear_selected)
-        self.view.bind("<BackSpace>", self.clear_selected)
+        self.view.bind("<Delete>", self.clear)
+        self.view.bind("<BackSpace>", self.clear)
 
         CellController.board[x][y] = self  # Store reference in the class attribute
 
@@ -78,6 +79,13 @@ class CellController:
             if not cell.model.in_conflict:
                 cell.view.update_color(CellView._MATCHING_COLOR)
 
+    def clear(self, event):
+        self.model.clear()
+        if self.model.is_entry():
+            pass
+            # self.update_house_conflict_status()
+        self.view.update_labels()
+
     def show_number_buttons(self):
         NumberButton.toggle_all_off()
         if self.model.is_entry():
@@ -115,15 +123,6 @@ class CellController:
     @classmethod
     def all_cells(cls):
         return [cell for row in cls.board for cell in row]
-
-    @classmethod
-    def clear_selected(cls, event):
-        if cls.selected_cell.model.is_entry():
-            cls.selected_cell.model.clear_entry()
-            cls.selected_cell.view.update_color(False)
-            cls.selected_cell.update_house_conflict_status()
-        else:
-            cls.selected_cell.model.clear_notes()
 
     @classmethod
     def toggle_selected_cell(cls, number):
