@@ -11,8 +11,18 @@ class CellModel:
     def toggle_entry(self, number):
         if self.value_type == CellValueType.GIVEN:
             return
-        self.value = number if self.value != number else None
-        self.value_type = CellValueType.ENTRY
+        if self.value == number:
+            self.value = None
+            self.value_type = CellValueType.NOTES if any(self.notes) else CellValueType.BLANK
+        else:
+            self.value = number
+            self.value_type = CellValueType.ENTRY
+
+        def has_any_notes():
+            for note in self.notes:
+                if note:
+                    return True
+            return False
 
     def set_given(self, number):
         self.value = number
@@ -27,11 +37,8 @@ class CellModel:
         if self.value_type == CellValueType.GIVEN:
             return
         self.value = None
-        self.value_type = CellValueType.NOTES
         self.notes[number - 1] = not self.notes[number - 1]
-
-        print('\n\n\n')
-        [print(i + 1, n) for i, n in enumerate(self.notes)]
+        self.value_type = CellValueType.NOTES if any(self.notes) else CellValueType.BLANK
 
     def remove_note(self, number):
         if number in self.notes:

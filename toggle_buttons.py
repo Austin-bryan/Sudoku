@@ -59,6 +59,7 @@ class NumberButton(ToggleButton):
     @classmethod
     def toggle_entry_on(cls, number):
         if number:
+            # print(type(number), number)
             cls.buttons[number].toggle_on()
 
     @classmethod

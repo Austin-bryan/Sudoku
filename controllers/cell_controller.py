@@ -56,17 +56,20 @@ class CellController:
     def on_key_press(self, event):
         if event.keysym not in '123456789':
             return
+        self.toggle_number(int(event.keysym))
+
+    def toggle_number(self, number):
+        number = int(number)
         if self.model.is_given():
             return
         if ModeButton.mode == Mode.ENTRY:
-            self.model.toggle_entry(int(event.keysym))
+            self.model.toggle_entry(number)
         else:
-            self.model.toggle_note(int(event.keysym))
+            self.model.toggle_note(number)
         self.view.update_labels()
         self.show_number_buttons()
 
     def highlight_matching_numbers(self):
-        import time
         matching_cells = [cell for cell in CellController.all_cells()
                           if cell.model.value == self.model.value
                           and (cell.model.has_value() or cell.model.value_type == CellValueType.ENTRY)
@@ -125,8 +128,4 @@ class CellController:
     @classmethod
     def toggle_selected_cell(cls, number):
         if cls.selected_cell is not None and not cls.selected_cell.model.is_given():
-            if ModeButton.mode == Mode.ENTRY:
-                cls.selected_cell.toggle_entry(number)
-                cls.selected_cell.on_press(None)
-            else:
-                cls.selected_cell.toggle_note(number)
+            cls.selected_cell.toggle_number(number)
