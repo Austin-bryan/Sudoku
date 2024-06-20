@@ -1,6 +1,9 @@
-﻿class BoardModel:
+﻿from models.cell_model import CellModel
+
+
+class BoardModel:
     def __init__(self):
-        self.cell_models = [[None for _ in range(9)] for _ in range(9)]
+        self.cell_models: list[list['CellModel']] = [[None for _ in range(9)] for _ in range(9)]
 
     def populate_board(self, numbers):
         for x in range(9):
