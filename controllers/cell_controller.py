@@ -109,12 +109,12 @@ class CellController:
     def get_row(self):
         return [self.board_controller.cells[self.model.x][y]
                 for y in range(9)
-                if self.board_controller.cells[self.model.x][y] is not self]
+                if y != self.model.y]
 
     def get_column(self):
         return [self.board_controller.cells[x][self.model.y]
                 for x in range(9)
-                if self.board_controller.cells[x][self.model.y] is not self]
+                if x != self.model.x]
 
     def get_square(self):
         start_x = (self.model.x // 3) * 3
@@ -122,4 +122,4 @@ class CellController:
         return [self.board_controller.cells[i][j]
                 for i in range(start_x, start_x + 3)
                 for j in range(start_y, start_y + 3)
-                if self.board_controller.cells[i][j] is not self]
+                if (i, j) != (self.model.x, self.model.y)]
