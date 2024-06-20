@@ -1,6 +1,7 @@
 ﻿import tkinter as tk
 from controllers.board_controller import BoardController
 from utils.colors import BACKGROUND_COLOR
+from utils.sudoku_generator import SudokuGenerator
 from views.number_button import NumberButton
 from views.mode_button import ModeButton
 
@@ -26,18 +27,8 @@ class SudokuApp:
         self.board_controller.view.grid(row=0, column=0)
 
         # Populate the board with some initial numbers for testing
-        initial_numbers = [
-            [5, 3, 0, 0, 7, 0, 0, 0, 0],
-            [6, 0, 0, 1, 9, 5, 0, 0, 0],
-            [0, 9, 8, 0, 0, 0, 0, 6, 0],
-            [8, 0, 0, 0, 6, 0, 0, 0, 3],
-            [4, 0, 0, 8, 0, 3, 0, 0, 1],
-            [7, 0, 0, 0, 2, 0, 0, 0, 6],
-            [0, 6, 0, 0, 0, 0, 2, 8, 0],
-            [0, 0, 0, 4, 1, 9, 0, 0, 5],
-            [0, 0, 0, 0, 8, 0, 0, 7, 9]
-        ]
-        self.board_controller.populate_board(initial_numbers)
+        generator = SudokuGenerator()
+        self.board_controller.populate_board(generator.generate_board())
 
         # Create the bottom row of buttons
         for i in range(9):
