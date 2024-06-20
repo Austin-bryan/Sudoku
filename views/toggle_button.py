@@ -5,7 +5,7 @@ from utils.colors import *
 
 class ToggleButton(Canvas, ABC):
     # Colors for different states
-    _DEFAULT_COLOR = BACKGROUND_COLOR
+    _DEFAULT_COLOR = '#333'
     _HOVER_COLOR = '#223'
     _TOGGLE_COLOR = SELECTION_COLOR
 
@@ -26,11 +26,11 @@ class ToggleButton(Canvas, ABC):
 
     def on_enter(self, event):
         if not self.is_toggled:
-            self.itemconfig(self.rect, fill=ToggleButton._HOVER_COLOR)
+            self._set_color(ToggleButton._HOVER_COLOR)
 
     def on_leave(self, event):
         if not self.is_toggled:
-            self.itemconfig(self.rect, fill=ToggleButton._DEFAULT_COLOR)
+            self._set_color(ToggleButton._DEFAULT_COLOR)
 
     def on_press(self, event):
         if self.is_toggled:
@@ -40,8 +40,11 @@ class ToggleButton(Canvas, ABC):
 
     def toggle_on(self):
         self.is_toggled = True
-        self.itemconfig(self.rect, fill=ToggleButton._TOGGLE_COLOR)
+        self._set_color(ToggleButton._TOGGLE_COLOR)
 
     def toggle_off(self):
         self.is_toggled = False
-        self.itemconfig(self.rect, fill=ToggleButton._DEFAULT_COLOR)
+        self._set_color(ToggleButton._DEFAULT_COLOR)
+
+    def _set_color(self, color):
+        self.itemconfig(self.rect, fill=color)

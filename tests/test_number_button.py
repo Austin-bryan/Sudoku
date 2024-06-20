@@ -2,6 +2,7 @@
 from tkinter import Tk
 from unittest.mock import Mock
 
+from models.cell_value_type import CellValueType
 from views.mode_button import ModeButton, Mode
 from views.number_button import NumberButton
 from controllers.board_controller import BoardController
@@ -115,6 +116,15 @@ class TestNumberButton(unittest.TestCase):
             self.assertTrue(NumberButton.buttons[i + 1].is_toggled)
         for i in range(5, 9):
             self.assertFalse(NumberButton.buttons[i + 1].is_toggled)
+
+    def test_no_highlight_givens(self):
+        self.assertFalse(NumberButton.buttons[1].is_toggled)
+
+        self.cell_controller.model.value = 1
+        self.cell_controller.model.value_type = CellValueType.GIVEN
+        NumberButton.show_number_buttons(self.cell_controller)
+
+        self.assertFalse(NumberButton.buttons[1].is_toggled)
 
     @property
     def button_fill(self):

@@ -25,6 +25,8 @@ class CellController:
         board_view.add_cell_view(x, y, self.view)
 
     def on_press(self, event):
+        if self.board_controller.selected_cell is None:
+            NumberButton.enable_all()
         self.board_controller.selected_cell = self
         self.view.focus_set()
 
