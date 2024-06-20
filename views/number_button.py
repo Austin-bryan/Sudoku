@@ -36,11 +36,11 @@ class NumberButton(ToggleButton):
         NumberButton.buttons[number] = self
         self.board_controller = board_controller
         self.number = number
-        self.is_disabled = True
+        self._is_disabled = True
         self.disable()
 
     def on_press(self, event):
-        if self.is_disabled:
+        if self._is_disabled:
             return
         from views.mode_button import ModeButton, Mode
         if NumberButton._selected_button is not None and ModeButton.mode == Mode.ENTRY:
@@ -51,20 +51,21 @@ class NumberButton(ToggleButton):
         self.board_controller.toggle_selected_cell(self.number)
 
     def on_enter(self, event):
-        if not self.is_disabled:
+        if not self._is_disabled:
             super().on_enter(event)
 
     def on_leave(self, event):
-        if not self.is_disabled:
+        if not self._is_disabled:
             super().on_leave(event)
 
     def disable(self):
-        self.is_disabled = True
+        self._is_disabled = True
+        self._is_toggled = False
         self._set_color(NumberButton._DISABLED_FILL)
         self.itemconfig(self.text, fill=NumberButton._DISABLED_TEXT)
 
     def enable(self):
-        self.is_disabled = False
+        self._is_disabled = False
         self._set_color(ToggleButton._DEFAULT_COLOR)
         self.itemconfig(self.text, fill=NumberButton._DEFAULT_TEXT)
 

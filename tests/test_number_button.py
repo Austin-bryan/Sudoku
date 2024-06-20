@@ -25,49 +25,54 @@ class TestNumberButton(unittest.TestCase):
         NumberButton.__selected_button = None
 
     def test_initial_state(self):
-        self.assertFalse(NumberButton.buttons[1].is_toggled)
+        self.assertFalse(NumberButton.buttons[1]._is_toggled)
         self.assertIn(1, NumberButton.buttons)
 
     def test_toggle_on(self):
         """ Tests that toggling on changes state and color. """
         NumberButton.buttons[1].toggle_on()
-        self.assertTrue(NumberButton.buttons[1].is_toggled)
+        self.assertTrue(NumberButton.buttons[1]._is_toggled)
         self.assertEqual(self.button_fill, ToggleButton._TOGGLE_COLOR)
 
     def test_toggle_off(self):
         """ Tests that toggling off changes state and resets color. """
         NumberButton.buttons[1].toggle_on()
         NumberButton.buttons[1].toggle_off()
-        self.assertFalse(NumberButton.buttons[1].is_toggled)
+        self.assertFalse(NumberButton.buttons[1]._is_toggled)
         self.assertEqual(self.button_fill, ToggleButton._DEFAULT_COLOR)
 
     def test_on_press(self):
         """ Tests that toggling on and off works. """
+        self.cell_controller.model.is_given = Mock(return_value=False)
+        NumberButton.buttons[1].enable()
         NumberButton.buttons[1].on_press(None)
-        self.assertTrue(NumberButton.buttons[1].is_toggled)
+
+        self.assertTrue(NumberButton.buttons[1]._is_toggled)
         self.board_controller.toggle_selected_cell.assert_called_with(1)
 
         NumberButton.buttons[1].on_press(None)
-        self.assertFalse(NumberButton.buttons[1].is_toggled)
+        self.assertFalse(NumberButton.buttons[1]._is_toggled)
         self.board_controller.toggle_selected_cell.assert_called_with(1)
 
     def test_entry_mode_turns_on_button(self):
         """ Tests that entering a number will show the correct entry button. """
         ModeButton.mode = Mode.ENTRY
+        self.cell_controller.model.is_given = Mock(return_value=False)
         self.cell_controller.model.value = 1
         NumberButton.show_number_buttons(self.cell_controller)
-        self.assertTrue(NumberButton.buttons[1].is_toggled)
+        self.assertTrue(NumberButton.buttons[1]._is_toggled)
 
     def test_entry_mode_changes_button(self):
         """ Tests that entering a different entry will hide the previous entry button, and show the new one. """
         ModeButton.mode = Mode.ENTRY
+        self.cell_controller.model.is_given = Mock(return_value=False)
         self.cell_controller.model.value = 1
         NumberButton.show_number_buttons(self.cell_controller)
         self.cell_controller.model.value = 2
         NumberButton.show_number_buttons(self.cell_controller)
 
-        self.assertFalse(NumberButton.buttons[1].is_toggled)
-        self.assertTrue(NumberButton.buttons[2].is_toggled)
+        self.assertFalse(NumberButton.buttons[1]._is_toggled)
+        self.assertTrue(NumberButton.buttons[2]._is_toggled)
 
     def test_notes_mode_turns_off_entry_button(self):
         """ Tests that changing to notes mode turns off the previously selected entry. """
@@ -76,19 +81,20 @@ class TestNumberButton(unittest.TestCase):
         NumberButton.show_number_buttons(self.cell_controller)
         ModeButton.mode = Mode.NOTES
         NumberButton.show_number_buttons(self.cell_controller)
-        self.assertFalse(NumberButton.buttons[1].is_toggled)
+        self.assertFalse(NumberButton.buttons[1]._is_toggled)
 
     def test_notes_mode_turns_on_multiple_buttons(self):
         """ Tests that notes are capable of having multiple buttons on at once. """
         self.cell_controller.model.notes = [True] * 4 + [False] * 5
         self.cell_controller.model.value = None
+        self.cell_controller.model.is_given = Mock(return_value=False)
         ModeButton.mode = Mode.NOTES
         NumberButton.show_number_buttons(self.cell_controller)
 
         for i in range(4):
-            self.assertTrue(NumberButton.buttons[i + 1].is_toggled)
+            self.assertTrue(NumberButton.buttons[i + 1]._is_toggled)
         for i in range(5, 9):
-            self.assertFalse(NumberButton.buttons[i + 1].is_toggled)
+            self.assertFalse(NumberButton.buttons[i + 1]._is_toggled)
 
     def test_switching_back_to_entry_turns_off_note_buttons(self):
         ModeButton.mode = Mode.NOTES
@@ -98,11 +104,12 @@ class TestNumberButton(unittest.TestCase):
         NumberButton.show_number_buttons(self.cell_controller)
 
         for i in range(9):
-            self.assertFalse(NumberButton.buttons[i + 1].is_toggled)
+            self.assertFalse(NumberButton.buttons[i + 1]._is_toggled)
 
     def test_switching_back_to_notes_restores_cached_values(self):
         """ Tests that clicking back on the notes button will restore the cached note values. """
         ModeButton.mode = Mode.NOTES
+        self.cell_controller.model.is_given = Mock(return_value=False)
         self.cell_controller.model.notes = [True] * 4 + [False] * 5
         NumberButton.show_number_buttons(self.cell_controller)
 
@@ -113,18 +120,61 @@ class TestNumberButton(unittest.TestCase):
         NumberButton.show_number_buttons(self.cell_controller)
 
         for i in range(4):
-            self.assertTrue(NumberButton.buttons[i + 1].is_toggled)
+            self.assertTrue(NumberButton.buttons[i + 1]._is_toggled)
         for i in range(5, 9):
-            self.assertFalse(NumberButton.buttons[i + 1].is_toggled)
+            self.assertFalse(NumberButton.buttons[i + 1]._is_toggled)
 
     def test_no_highlight_givens(self):
-        self.assertFalse(NumberButton.buttons[1].is_toggled)
+        """ Makes sure tha givens highlight number buttons, as they can't be changed"""
+        self.assertFalse(NumberButton.buttons[1]._is_toggled)
 
         self.cell_controller.model.value = 1
         self.cell_controller.model.value_type = CellValueType.GIVEN
         NumberButton.show_number_buttons(self.cell_controller)
 
-        self.assertFalse(NumberButton.buttons[1].is_toggled)
+        self.assertFalse(NumberButton.buttons[1]._is_toggled)
+
+    def test_all_buttons_disabled_at_start(self):
+        """ Tests that all number buttons are disabled at start. """
+        for button in NumberButton.buttons.values():
+            self.assertTrue(button._is_disabled)
+
+    def test_selecting_any_cell_enables_all_buttons(self):
+        """ Tests that selecting any cell enables all buttons. """
+        self.cell_controller.model.is_given = Mock(return_value=True)
+        self.cell_controller.model.value = 1
+        NumberButton.show_number_buttons(self.cell_controller)
+        for button in NumberButton.buttons.values():
+            self.assertFalse(button._is_disabled)
+
+    def test_selecting_given_disables_all_buttons(self):
+        """ Tests that selecting a given disables all buttons. """
+        self.cell_controller.model.is_given = Mock(return_value=True)
+        NumberButton.show_number_buttons(self.cell_controller)
+        for button in NumberButton.buttons.values():
+            self.assertTrue(button._is_disabled)
+
+    def test_disabled_buttons_cannot_hover(self):
+        """ Tests that disabled buttons do not change color on hover. """
+        button = NumberButton.buttons[1]
+        button.disable()
+        button.on_enter(None)
+        self.assertEqual(self.button_fill, NumberButton._DISABLED_FILL)
+
+    def test_disabled_buttons_cannot_click(self):
+        """ Tests that disabled buttons do not change state or color on click. """
+        button = NumberButton.buttons[1]
+        button.disable()
+        button.on_press(None)
+        self.assertFalse(button._is_toggled)
+        self.assertEqual(self.button_fill, NumberButton._DISABLED_FILL)
+
+    def test_disabled_buttons_cannot_leave(self):
+        """ Tests that disabled buttons do not change color on leave. """
+        button = NumberButton.buttons[1]
+        button.disable()
+        button.on_leave(None)
+        self.assertEqual(self.button_fill, NumberButton._DISABLED_FILL)
 
     @property
     def button_fill(self):
