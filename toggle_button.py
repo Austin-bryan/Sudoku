@@ -6,9 +6,9 @@ from colors import *
 
 class ToggleButton(Canvas, ABC):
     # Colors for different states
-    __DEFAULT_COLOR = BACKGROUND_COLOR
-    __HOVER_COLOR = '#223'
-    __TOGGLE_COLOR = SELECTION_COLOR
+    _DEFAULT_COLOR = BACKGROUND_COLOR
+    _HOVER_COLOR = '#223'
+    _TOGGLE_COLOR = SELECTION_COLOR
 
     def __init__(self, parent, label, **kwargs):
         super().__init__(parent, width=50, height=50, highlightthickness=0, **kwargs)
@@ -17,7 +17,7 @@ class ToggleButton(Canvas, ABC):
         self.label = label
 
         # Draw the button
-        self.rect = self.create_rectangle(0, 0, 50, 50, fill=ToggleButton.__DEFAULT_COLOR, outline="")
+        self.rect = self.create_rectangle(0, 0, 50, 50, fill=ToggleButton._DEFAULT_COLOR, outline="")
         self.text = self.create_text(25, 25, text=self.label, fill="white", font=("Arial", 18))
 
         # Bind mouse events
@@ -27,11 +27,11 @@ class ToggleButton(Canvas, ABC):
 
     def on_enter(self, event):
         if not self.is_toggled:
-            self.itemconfig(self.rect, fill=ToggleButton.__HOVER_COLOR)
+            self.itemconfig(self.rect, fill=ToggleButton._HOVER_COLOR)
 
     def on_leave(self, event):
         if not self.is_toggled:
-            self.itemconfig(self.rect, fill=ToggleButton.__DEFAULT_COLOR)
+            self.itemconfig(self.rect, fill=ToggleButton._DEFAULT_COLOR)
 
     def on_press(self, event):
         if self.is_toggled:
@@ -41,8 +41,8 @@ class ToggleButton(Canvas, ABC):
 
     def toggle_on(self):
         self.is_toggled = True
-        self.itemconfig(self.rect, fill=ToggleButton.__TOGGLE_COLOR)
+        self.itemconfig(self.rect, fill=ToggleButton._TOGGLE_COLOR)
 
     def toggle_off(self):
         self.is_toggled = False
-        self.itemconfig(self.rect, fill=ToggleButton.__DEFAULT_COLOR)
+        self.itemconfig(self.rect, fill=ToggleButton._DEFAULT_COLOR)

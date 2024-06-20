@@ -21,6 +21,7 @@ class TestCellController(unittest.TestCase):
         self.board_controller = BoardController(self.root)
         self.cell_controller = CellController(self.board_controller, self.board_view, self.board_model, 0, 0)
         self.cell_controller.view.update_labels = Mock()
+        self.show_number_buttons = NumberButton.show_number_buttons
         NumberButton.show_number_buttons = Mock()
 
         self.cell_controllers = [
@@ -30,6 +31,7 @@ class TestCellController(unittest.TestCase):
 
     def tearDown(self):
         self.root.destroy()
+        NumberButton.show_number_buttons = self.show_number_buttons
 
     def test_initial_state(self):
         self.assertEqual(self.cell_controller.model.value, None)

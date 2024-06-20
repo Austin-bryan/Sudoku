@@ -3,7 +3,6 @@ from unittest.mock import Mock
 
 from controllers.board_controller import BoardController
 from tkinter import Tk
-
 from number_button import NumberButton
 
 
@@ -11,9 +10,12 @@ class TestBoardController(unittest.TestCase):
     def setUp(self):
         self.root = Tk()
         self.board_controller = BoardController(self.root)
+        self.show_number_buttons = NumberButton.show_number_buttons
+        NumberButton.show_number_buttons = Mock()
 
     def tearDown(self):
         self.root.destroy()
+        NumberButton.show_number_buttons = self.show_number_buttons
 
     def test_initialization(self):
         self.assertEqual(len(self.board_controller.cells), 9)
@@ -32,7 +34,7 @@ class TestBoardController(unittest.TestCase):
         cell_controller = self.board_controller.cells[0][0]
         cell_controller.model.set_given(5)
         self.board_controller.selected_cell = cell_controller
-        NumberButton.show_number_buttons = Mock()
+
         self.board_controller.clear_selected()
         self.assertEqual(cell_controller.model.value, 5)  # Given value should not be cleared
 

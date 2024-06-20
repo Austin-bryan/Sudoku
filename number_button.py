@@ -3,7 +3,7 @@
 
 class NumberButton(ToggleButton):
     buttons = {}
-    __selected_button = None
+    _selected_button = None
 
     @classmethod
     def toggle_all_off(cls):
@@ -23,14 +23,15 @@ class NumberButton(ToggleButton):
 
     def __init__(self, parent, board_controller, number, **kwargs):
         super().__init__(parent, number, **kwargs)
-        NumberButton.buttons[int(number)] = self
+        NumberButton.buttons[number] = self
         self.board_controller = board_controller
         self.number = number
 
     def on_press(self, event):
-        if NumberButton.__selected_button is not None and ModeButton.mode == Mode.ENTRY:
-            NumberButton.__selected_button.toggle_off()
-        NumberButton.__selected_button = self
+        from mode_button import ModeButton, Mode
+        if NumberButton._selected_button is not None and ModeButton.mode == Mode.ENTRY:
+            NumberButton._selected_button.toggle_off()
+        NumberButton._selected_button = self
         super().on_press(self)
 
         self.board_controller.toggle_selected_cell(self.number)
@@ -39,10 +40,7 @@ class NumberButton(ToggleButton):
     def show_number_buttons(cls, cell_controller):
         cls.toggle_all_off()
         from mode_button import ModeButton, Mode
-
         if ModeButton.mode == Mode.ENTRY:
             cls.toggle_entry_on(cell_controller.model.value)
         elif ModeButton.mode == Mode.NOTES:
             cls.toggle_note_on(cell_controller.model.notes)
-
-

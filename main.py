@@ -41,7 +41,7 @@ class SudokuApp:
 
         # Create the bottom row of buttons
         for i in range(9):
-            number_button = NumberButton(bottom_frame, self.board_controller, number=str(i + 1))
+            number_button = NumberButton(bottom_frame, self.board_controller, i + 1)
             number_button.grid(row=0, column=i, padx=2, pady=5)  # Adjust padding here for more spread out buttons
 
         mode_button = ModeButton(bottom_frame, self.board_controller, label='M')
