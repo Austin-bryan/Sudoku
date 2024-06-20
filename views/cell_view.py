@@ -5,7 +5,7 @@ from models.cell_value_type import CellValueType
 
 class CellView(Canvas):
     _DEFAULT_COLOR = '#333'
-    _HIGHLIGHT_COLOR = '#555'
+    _HIGHLIGHT_COLOR = '#4a4a4a'
     _MATCHING_COLOR = '#299'
     _CONFLICT_COLOR = '#A33'
     _PRESS_COLOR = SELECTION_COLOR

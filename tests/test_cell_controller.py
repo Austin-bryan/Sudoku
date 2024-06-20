@@ -90,13 +90,12 @@ class TestCellController(unittest.TestCase):
     def test_get_row(self):
         row = self.cell_controller.get_row()
         expected_row = [self.board_controller.cells[0][i] for i in range(9) if i != 0]
-        self.assertListEqual([(cell.model.x, cell.model.y) for cell in row], [(cell.model.x, cell.model.y) for cell in expected_row])
+        self.assert_matching_cells(row, expected_row)
 
     def test_get_column(self):
         column = self.cell_controller.get_column()
         expected_column = [self.board_controller.cells[i][0] for i in range(9) if i != 0]
-        self.assertListEqual([(cell.model.x, cell.model.y) for cell in column],
-                             [(cell.model.x, cell.model.y) for cell in expected_column])
+        self.assert_matching_cells(column, expected_column)
 
     def test_get_square(self):
         square = self.cell_controller.get_square()
@@ -106,8 +105,61 @@ class TestCellController(unittest.TestCase):
             for j in range(0, 3)
             if (i, j) != (0, 0)
         ]
-        self.assertListEqual([(cell.model.x, cell.model.y) for cell in square],
-                             [(cell.model.x, cell.model.y) for cell in expected_square])
+        self.assert_matching_cells(square, expected_square)
+
+    def test_get_house(self):
+        house = self.cell_controller.get_house()
+        expected_house = [
+            self.board_controller.cells[0][i] for i in range(9) if i != 0] + [
+            self.board_controller.cells[i][0] for i in range(9) if i != 0] + [
+            self.cell_controllers[i][j]
+            for i in range(0, 3)
+            for j in range(0, 3)
+            if (i, j) != (0, 0)]
+        self.assert_matching_cells(house, expected_house)
+
+    def test_on_up(self):
+        with patch.object(self.cell_controller, 'move_selection') as mock_move:
+            self.cell_controller.on_up(Mock())
+            mock_move.assert_called_once_with(-1, 0)
+
+    def test_on_down(self):
+        with patch.object(self.cell_controller, 'move_selection') as mock_move:
+            self.cell_controller.on_down(Mock())
+            mock_move.assert_called_once_with(1, 0)
+
+    def test_on_left(self):
+        with patch.object(self.cell_controller, 'move_selection') as mock_move:
+            self.cell_controller.on_left(Mock())
+            mock_move.assert_called_once_with(0, -1)
+
+    def test_on_right(self):
+        with patch.object(self.cell_controller, 'move_selection') as mock_move:
+            self.cell_controller.on_right(Mock())
+            mock_move.assert_called_once_with(0, 1)
+
+    def test_on_key_press(self):
+        with patch.object(self.cell_controller, 'toggle_number') as mock_toggle:
+            event = Mock()
+            event.keysym = '1'
+            self.cell_controller.on_key_press(event)
+            mock_toggle.assert_called_once_with(1)
+
+        event.keysym = 'a'
+        self.cell_controller.on_key_press(event)
+        mock_toggle.assert_called_once()  # Ensure it was not called again
+
+    def test_highlight_house(self):
+        self.cell_controller.get_house()[0].view.update_color = Mock()
+        self.cell_controller.highlight_house()
+        self.cell_controller.get_house()[0].view.update_color.assert_called_with(CellView._HIGHLIGHT_COLOR)
+
+    #
+    # Helper Methods
+    #
+    def assert_matching_cells(self, a, b):
+        self.assertListEqual([(cell.model.x, cell.model.y) for cell in a],
+                             [(cell.model.x, cell.model.y) for cell in b])
 
 
 if __name__ == '__main__':
