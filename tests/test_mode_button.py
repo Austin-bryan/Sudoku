@@ -1,8 +1,8 @@
 ﻿import unittest
 from tkinter import Tk
-from mode_button import ModeButton, Mode
+from views.mode_button import ModeButton, Mode
 from unittest.mock import patch, Mock
-from number_button import NumberButton
+from views.number_button import NumberButton
 
 
 class TestModeButton(unittest.TestCase):
@@ -28,7 +28,7 @@ class TestModeButton(unittest.TestCase):
         self.mode_button.on_press(None)
         self.assertEqual(ModeButton.mode, Mode.ENTRY)
 
-    @patch('number_button.NumberButton.show_number_buttons')
+    @patch('views.number_button.NumberButton.show_number_buttons')
     def test_show_number_buttons_called_on_press(self, mock_show_number_buttons):
         """ Test that show_number_buttons is called when the button is pressed. """
         self.mode_button.on_press(None)

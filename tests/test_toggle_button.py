@@ -2,7 +2,7 @@
 
 import unittest
 from tkinter import Tk
-from toggle_button import ToggleButton
+from views.toggle_button import ToggleButton
 
 
 class TestToggleButton(unittest.TestCase):

@@ -1,4 +1,4 @@
-﻿from toggle_button import ToggleButton
+﻿from views.toggle_button import ToggleButton
 
 
 class NumberButton(ToggleButton):
@@ -28,7 +28,7 @@ class NumberButton(ToggleButton):
         self.number = number
 
     def on_press(self, event):
-        from mode_button import ModeButton, Mode
+        from views.mode_button import ModeButton, Mode
         if NumberButton._selected_button is not None and ModeButton.mode == Mode.ENTRY:
             NumberButton._selected_button.toggle_off()
         NumberButton._selected_button = self
@@ -39,7 +39,8 @@ class NumberButton(ToggleButton):
     @classmethod
     def show_number_buttons(cls, cell_controller):
         cls.toggle_all_off()
-        from mode_button import ModeButton, Mode
+        from views.mode_button import ModeButton, Mode
+
         if ModeButton.mode == Mode.ENTRY:
             cls.toggle_entry_on(cell_controller.model.value)
         elif ModeButton.mode == Mode.NOTES:

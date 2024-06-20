@@ -1,5 +1,5 @@
 ﻿from tkinter import Canvas
-from colors import SELECTION_COLOR, BACKGROUND_COLOR
+from utils.colors import SELECTION_COLOR, BACKGROUND_COLOR
 from models.cell_value_type import CellValueType
 
 

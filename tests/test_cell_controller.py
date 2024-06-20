@@ -2,15 +2,14 @@
 from unittest.mock import Mock, patch
 from tkinter import Tk
 
-from mode_button import ModeButton, Mode
-from models.cell_model import CellModel
+from views.mode_button import ModeButton, Mode
 from views.cell_view import CellView
 from controllers.cell_controller import CellController
 from models.cell_value_type import CellValueType
 from controllers.board_controller import BoardController
 from views.board_view import BoardView
 from models.board_model import BoardModel
-from number_button import NumberButton
+from views.number_button import NumberButton
 
 
 class TestCellController(unittest.TestCase):

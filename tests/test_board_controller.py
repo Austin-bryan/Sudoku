@@ -3,7 +3,7 @@ from unittest.mock import Mock
 
 from controllers.board_controller import BoardController
 from tkinter import Tk
-from number_button import NumberButton
+from views.number_button import NumberButton
 
 
 class TestBoardController(unittest.TestCase):

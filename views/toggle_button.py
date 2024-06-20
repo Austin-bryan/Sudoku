@@ -1,7 +1,6 @@
 from tkinter import *
 from abc import ABC
-from enum import Enum
-from colors import *
+from utils.colors import *
 
 
 class ToggleButton(Canvas, ABC):

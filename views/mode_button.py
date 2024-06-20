@@ -1,6 +1,6 @@
 ﻿from enum import Enum
-from number_button import NumberButton
-from toggle_button import ToggleButton
+from views.number_button import NumberButton
+from views.toggle_button import ToggleButton
 
 
 class Mode(Enum):

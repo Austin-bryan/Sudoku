@@ -2,11 +2,10 @@
 from tkinter import Tk
 from unittest.mock import Mock
 
-from controllers.cell_controller import CellController
-from mode_button import ModeButton, Mode
-from number_button import NumberButton
+from views.mode_button import ModeButton, Mode
+from views.number_button import NumberButton
 from controllers.board_controller import BoardController
-from toggle_button import ToggleButton
+from views.toggle_button import ToggleButton
 
 
 class TestNumberButton(unittest.TestCase):
