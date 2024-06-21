@@ -36,12 +36,13 @@ class BoardController:
                     logging.error(f"Error initializing cell at ({x}, {y}): {e}")
             self.cells.append(row_controllers)
 
-    def populate_board(self):
-        """ Populates the board with initial numbers and updates the view. """
-        try:
-            generator = SudokuGenerator()
-            numbers = generator.generate_board()
+    def populate_board(self, numbers):
+        """
+        Populates the board with initial numbers and updates the view.
 
+        :param numbers: A 2D list of numbers to be the sudoku board.
+        """
+        try:
             self.model.populate_board(numbers)
             for x in range(BOARD_SIZE):
                 for y in range(BOARD_SIZE):
