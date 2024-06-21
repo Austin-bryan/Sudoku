@@ -97,15 +97,15 @@ class TestCellController(unittest.TestCase):
         expected_column = [self.board_controller.cells[i][0] for i in range(BOARD_SIZE) if i != 0]
         self.assert_matching_cells(column, expected_column)
 
-    def test_get_square(self):
-        square = self.cell_controller.get_subgrid()
-        expected_square = [
+    def test_get_subgrid(self):
+        subgrid = self.cell_controller.get_subgrid()
+        expected_subgrid = [
             self.cell_controllers[i][j]
             for i in range(0, SUBGRID_SIZE)
             for j in range(0, SUBGRID_SIZE)
             if (i, j) != (0, 0)
         ]
-        self.assert_matching_cells(square, expected_square)
+        self.assert_matching_cells(subgrid, expected_subgrid)
 
     def test_get_house(self):
         house = self.cell_controller.get_house()
