@@ -2,6 +2,7 @@
 from unittest.mock import Mock, patch
 from tkinter import Tk
 
+from utils.constants import BOARD_SIZE, SUBGRID_SIZE
 from views.mode_button import ModeButton, Mode
 from views.cell_view import CellView
 from controllers.cell_controller import CellController
@@ -24,8 +25,8 @@ class TestCellController(unittest.TestCase):
         NumberButton.show_number_buttons = Mock()
 
         self.cell_controllers = [
-            [CellController(self.board_controller, self.board_view, self.board_model, x, y) for y in range(9)]
-            for x in range(9)
+            [CellController(self.board_controller, self.board_view, self.board_model, x, y) for y in range(BOARD_SIZE)]
+            for x in range(BOARD_SIZE)
         ]
 
     def tearDown(self):
@@ -36,7 +37,7 @@ class TestCellController(unittest.TestCase):
         self.assertEqual(self.cell_controller.model.value, None)
         self.assertEqual(self.cell_controller.model.value_type, CellValueType.BLANK)
         self.assertFalse(self.cell_controller.model.in_conflict)
-        self.assertListEqual(self.cell_controller.model.notes, [False] * 9)
+        self.assertListEqual(self.cell_controller.model.notes, [False] * BOARD_SIZE)
 
     def test_on_press(self):
         """ Ensures that on_press() properly selects and sets the color. """
@@ -88,20 +89,20 @@ class TestCellController(unittest.TestCase):
 
     def test_get_row(self):
         row = self.cell_controller.get_row()
-        expected_row = [self.board_controller.cells[0][i] for i in range(9) if i != 0]
+        expected_row = [self.board_controller.cells[0][i] for i in range(BOARD_SIZE) if i != 0]
         self.assert_matching_cells(row, expected_row)
 
     def test_get_column(self):
         column = self.cell_controller.get_column()
-        expected_column = [self.board_controller.cells[i][0] for i in range(9) if i != 0]
+        expected_column = [self.board_controller.cells[i][0] for i in range(BOARD_SIZE) if i != 0]
         self.assert_matching_cells(column, expected_column)
 
     def test_get_square(self):
-        square = self.cell_controller.get_square()
+        square = self.cell_controller.get_subgrid()
         expected_square = [
             self.cell_controllers[i][j]
-            for i in range(0, 3)
-            for j in range(0, 3)
+            for i in range(0, SUBGRID_SIZE)
+            for j in range(0, SUBGRID_SIZE)
             if (i, j) != (0, 0)
         ]
         self.assert_matching_cells(square, expected_square)
@@ -109,11 +110,11 @@ class TestCellController(unittest.TestCase):
     def test_get_house(self):
         house = self.cell_controller.get_house()
         expected_house = [
-            self.board_controller.cells[0][i] for i in range(9) if i != 0] + [
-            self.board_controller.cells[i][0] for i in range(9) if i != 0] + [
+            self.board_controller.cells[0][i] for i in range(BOARD_SIZE) if i != 0] + [
+            self.board_controller.cells[i][0] for i in range(BOARD_SIZE) if i != 0] + [
             self.cell_controllers[i][j]
-            for i in range(0, 3)
-            for j in range(0, 3)
+            for i in range(0, SUBGRID_SIZE)
+            for j in range(0, SUBGRID_SIZE)
             if (i, j) != (0, 0)]
         self.assert_matching_cells(house, expected_house)
 

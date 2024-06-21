@@ -1,6 +1,8 @@
 ﻿import unittest
 import random
 from tkinter import Tk
+
+from utils.constants import BOARD_SIZE, SUBGRID_SIZE
 from views.cell_view import CellView
 from models.cell_model import CellModel
 from models.cell_value_type import CellValueType
@@ -29,14 +31,14 @@ class TestCellView(unittest.TestCase):
         """ Test that notes are displayed correctly and updated appropriately."""
         random.seed(42)  # Fix the seed for repeatability
         for _ in range(10):  # Test multiple scenarios
-            notes_on = random.sample(range(9), k=random.randint(1, 9))
-            for i in range(9):
+            notes_on = random.sample(range(BOARD_SIZE), k=random.randint(1, BOARD_SIZE))
+            for i in range(BOARD_SIZE):
                 self.model.notes[i] = i in notes_on
 
             self.model.value_type = CellValueType.NOTES
             self.cell_view.update_labels()
 
-            for i in range(9):
+            for i in range(BOARD_SIZE):
                 expected_text = str(i + 1) if i in notes_on else ''
                 self.assertEqual(self.get_note_label(i), expected_text)
 
@@ -46,7 +48,7 @@ class TestCellView(unittest.TestCase):
 
             self.cell_view.update_labels()
 
-            for i in range(9):
+            for i in range(BOARD_SIZE):
                 expected_text = str(i + 1) if self.model.notes[i] else ''
                 self.assertEqual(self.get_note_label(i), expected_text)
 
@@ -96,14 +98,14 @@ class TestCellView(unittest.TestCase):
         self.model.toggle_entry(2)
         self.cell_view.update_labels()
 
-        for i in range(9):
+        for i in range(BOARD_SIZE):
             self.assertEqual(self.get_note_label(i), '')
 
         # Test that toggling entries off will restore notes
         self.model.toggle_entry(self.model.value)
         self.cell_view.update_labels()
         self.assertEqual(self.value_text, '')
-        for i in range(3):
+        for i in range(SUBGRID_SIZE):
             self.assertEqual(self.get_note_label(i), str(i + 1))
 
         # Test that notes can be deleting when switching from entry back to notes

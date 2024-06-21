@@ -1,9 +1,10 @@
 import random
+from utils.constants import BOARD_SIZE, SUBGRID_SIZE
 
 
 class SudokuGenerator:
     def __init__(self):
-        self.board = [[0 for _ in range(9)] for _ in range(9)]
+        self.board = [[0 for _ in range(BOARD_SIZE)] for _ in range(BOARD_SIZE)]
 
     def generate_board(self):
         self._fill_board()
@@ -12,46 +13,47 @@ class SudokuGenerator:
 
     def _fill_board(self):
         self._fill_diagonal()
-        self._fill_remaining(0, 3)
+        self._fill_remaining(0, SUBGRID_SIZE)
 
     def _fill_diagonal(self):
-        for i in range(0, 9, 3):
+        for i in range(0, BOARD_SIZE, SUBGRID_SIZE):
             self._fill_box(i, i)
 
     def _fill_box(self, row, col):
-        nums = list(range(1, 10))
+        nums = list(range(1, BOARD_SIZE + 1))
         random.shuffle(nums)
-        for i in range(3):
-            for j in range(3):
-                self.board[row + i][col + j] = nums.pop()
+        for i in range(SUBGRID_SIZE):
+            for j in range(SUBGRID_SIZE):
+                # self.board[row + i][col + j] = nums.pop()
+                pass
 
     def _fill_remaining(self, x, y):
-        # If column index 'y' goes beyond the last column and row index 'x' is less than 8,
+        # If column index 'y' goes beyond the last column and row index 'x' is less than BOARD_SIZE - 1,
         # move to the next row and reset 'y' to 0 (start of the row)
-        if y >= 9 and x < 8:
+        if y >= BOARD_SIZE and x < BOARD_SIZE - 1:
             x += 1
             y = 0
 
         # If both row and column indices are beyond the last cell, the board is fully filled
-        if x >= 9 and y >= 9:
+        if x >= BOARD_SIZE and y >= BOARD_SIZE:
             return True
 
         # Skip the cells that belong to the pre-filled blocks
-        if x < 3:
-            if y < 3:
-                y = 3  # Skip the first 3x3 block
-        elif x < 6:
-            if y == (x // 3) * 3:
-                y += 3  # Skip the middle 3x3 block
+        if x < SUBGRID_SIZE:
+            if y < SUBGRID_SIZE:
+                y = SUBGRID_SIZE  # Skip the first SUBGRID_SIZExSUBGRID_SIZE block
+        elif x < 2 * SUBGRID_SIZE:
+            if y == (x // SUBGRID_SIZE) * SUBGRID_SIZE:
+                y += SUBGRID_SIZE  # Skip the middle SUBGRID_SIZExSUBGRID_SIZE block
         else:
-            if y == 6:
+            if y == 2 * SUBGRID_SIZE:
                 x += 1  # Move to the next row if the current block is skipped
                 y = 0
-                if x >= 9:
+                if x >= BOARD_SIZE:
                     return True
 
-        # Try filling the current cell with numbers 1 to 9
-        for num in range(1, 10):
+        # Try filling the current cell with numbers 1 to BOARD_SIZE
+        for num in range(1, BOARD_SIZE + 1):
             if self._is_safe(x, y, num):  # Check if it's safe to place 'num' in cell (x, y)
                 self.board[x][y] = num  # Place 'num' in the cell
                 if self._fill_remaining(x, y + 1):  # Recursively fill the next cell
@@ -64,23 +66,23 @@ class SudokuGenerator:
     def _is_safe(self, i, j, num):
         return (self._is_unused_in_row(i, num) and
                 self._is_unused_in_col(j, num) and
-                self._is_unused_in_box(i - i % 3, j - j % 3, num))
+                self._is_unused_in_box(i - i % SUBGRID_SIZE, j - j % SUBGRID_SIZE, num))
 
     def _is_unused_in_row(self, i, num):
-        for j in range(9):
+        for j in range(BOARD_SIZE):
             if self.board[i][j] == num:
                 return False
         return True
 
     def _is_unused_in_col(self, j, num):
-        for i in range(9):
+        for i in range(BOARD_SIZE):
             if self.board[i][j] == num:
                 return False
         return True
 
     def _is_unused_in_box(self, row_start, col_start, num):
-        for i in range(3):
-            for j in range(3):
+        for i in range(SUBGRID_SIZE):
+            for j in range(SUBGRID_SIZE):
                 if self.board[row_start + i][col_start + j] == num:
                     return False
         return True
@@ -88,10 +90,10 @@ class SudokuGenerator:
     def _remove_numbers(self):
         count = 40  # For difficulty, adjust the count
         while count != 0:
-            i = random.randint(0, 8)
-            j = random.randint(0, 8)
+            i = random.randint(0, BOARD_SIZE - 1)
+            j = random.randint(0, BOARD_SIZE - 1)
             while self.board[i][j] == 0:
-                i = random.randint(0, 8)
-                j = random.randint(0, 8)
+                i = random.randint(0, BOARD_SIZE - 1)
+                j = random.randint(0, BOARD_SIZE - 1)
             self.board[i][j] = 0
             count -= 1

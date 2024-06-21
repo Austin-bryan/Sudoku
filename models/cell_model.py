@@ -1,10 +1,11 @@
 ﻿from models.cell_value_type import CellValueType
+from utils.constants import BOARD_SIZE
 
 
 class CellModel:
     def __init__(self, x, y):
         self.x, self.y = x, y
-        self.value, self.notes = None, [False for _ in range(9)]
+        self.value, self.notes = None, [False for _ in range(BOARD_SIZE)]
         self.in_conflict = False
         self.value_type = CellValueType.BLANK
 
@@ -27,7 +28,7 @@ class CellModel:
             return
         self.value = None
         self.in_conflict = False
-        self.notes = [False for _ in range(9)]
+        self.notes = [False for _ in range(BOARD_SIZE)]
         self.value_type = CellValueType.BLANK
 
     def toggle_note(self, number):

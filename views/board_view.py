@@ -1,4 +1,5 @@
 ﻿import tkinter as tk
+from utils.constants import BOARD_SIZE
 
 
 class BoardView(tk.Frame):
@@ -6,7 +7,7 @@ class BoardView(tk.Frame):
         tk.Frame.__init__(self, parent)
         self.frame = tk.Frame(parent, bg='black')
         self.frame.grid(row=0, column=0, padx=5, pady=50)
-        self.cell_views = [[None for _ in range(9)] for _ in range(9)]
+        self.cell_views = [[None for _ in range(BOARD_SIZE)] for _ in range(BOARD_SIZE)]
 
     def add_cell_view(self, x, y, cell_view):
         self.cell_views[x][y] = cell_view

@@ -1,6 +1,7 @@
 ﻿import unittest
 from models.cell_model import CellModel
 from models.cell_value_type import CellValueType
+from utils.constants import BOARD_SIZE
 
 
 class TestCellModel(unittest.TestCase):
@@ -12,7 +13,7 @@ class TestCellModel(unittest.TestCase):
         self.assertEqual(self.cell_model.x, 0)
         self.assertEqual(self.cell_model.y, 0)
         self.assertIsNone(self.cell_model.value)
-        self.assertEqual(self.cell_model.notes, [False for _ in range(9)])
+        self.assertEqual(self.cell_model.notes, [False for _ in range(BOARD_SIZE)])
         self.assertFalse(self.cell_model.in_conflict)
         self.assertEqual(self.cell_model.value_type, CellValueType.BLANK)
 
@@ -59,7 +60,7 @@ class TestCellModel(unittest.TestCase):
 
         self.assertIsNone(self.cell_model.value)
         self.assertFalse(self.cell_model.in_conflict)
-        self.assertEqual(self.cell_model.notes, [False for _ in range(9)])
+        self.assertEqual(self.cell_model.notes, [False for _ in range(BOARD_SIZE)])
         self.assertEqual(self.cell_model.value_type, CellValueType.BLANK)
 
     def test_clear_given(self):
@@ -120,8 +121,8 @@ class TestCellModel(unittest.TestCase):
 
     def test_note_cache(self):
         """ Tests that note cache is not cleared after toggling on an entry."""
-        self.assertEqual(self.cell_model.notes, [False for _ in range(9)])
+        self.assertEqual(self.cell_model.notes, [False for _ in range(BOARD_SIZE)])
         self.cell_model.toggle_note(1)
         self.cell_model.toggle_entry(5)
-        self.assertEqual(self.cell_model.notes, [True] + [False for _ in range(8)])
+        self.assertEqual(self.cell_model.notes, [True] + [False for _ in range(BOARD_SIZE - 1)])
 

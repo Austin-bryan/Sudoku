@@ -1,6 +1,6 @@
 from tkinter import *
 from abc import ABC
-from utils.colors import *
+from utils.constants import *
 
 
 class ToggleButton(Canvas, ABC):

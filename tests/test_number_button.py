@@ -3,6 +3,7 @@ from tkinter import Tk
 from unittest.mock import Mock
 
 from models.cell_value_type import CellValueType
+from utils.constants import BOARD_SIZE
 from views.mode_button import ModeButton, Mode
 from views.number_button import NumberButton
 from controllers.board_controller import BoardController
@@ -15,9 +16,9 @@ class TestNumberButton(unittest.TestCase):
         self.board_controller = Mock(BoardController)
         self.cell_controller = Mock()
         self.cell_controller.model.value = None
-        self.cell_controller.model.notes = [False] * 9
+        self.cell_controller.model.notes = [False] * BOARD_SIZE
 
-        NumberButton.buttons = {i: NumberButton(self.root, self.board_controller, i) for i in range(1, 10)}
+        NumberButton.buttons = {i: NumberButton(self.root, self.board_controller, i) for i in range(1, BOARD_SIZE + 1)}
 
     def tearDown(self):
         self.root.destroy()
@@ -93,7 +94,7 @@ class TestNumberButton(unittest.TestCase):
 
         for i in range(4):
             self.assertTrue(NumberButton.buttons[i + 1]._is_toggled)
-        for i in range(5, 9):
+        for i in range(5, BOARD_SIZE):
             self.assertFalse(NumberButton.buttons[i + 1]._is_toggled)
 
     def test_switching_back_to_entry_turns_off_note_buttons(self):
@@ -103,7 +104,7 @@ class TestNumberButton(unittest.TestCase):
         ModeButton.mode = Mode.ENTRY
         NumberButton.show_number_buttons(self.cell_controller)
 
-        for i in range(9):
+        for i in range(BOARD_SIZE):
             self.assertFalse(NumberButton.buttons[i + 1]._is_toggled)
 
     def test_switching_back_to_notes_restores_cached_values(self):
@@ -121,7 +122,7 @@ class TestNumberButton(unittest.TestCase):
 
         for i in range(4):
             self.assertTrue(NumberButton.buttons[i + 1]._is_toggled)
-        for i in range(5, 9):
+        for i in range(5, BOARD_SIZE):
             self.assertFalse(NumberButton.buttons[i + 1]._is_toggled)
 
     def test_no_highlight_givens(self):
@@ -141,7 +142,7 @@ class TestNumberButton(unittest.TestCase):
 
     def test_selecting_any_cell_enables_all_buttons(self):
         """ Tests that selecting any cell enables all buttons. """
-        self.cell_controller.model.is_given = Mock(return_value=True)
+        self.cell_controller.model.is_given = Mock(return_value=False)
         self.cell_controller.model.value = 1
         NumberButton.show_number_buttons(self.cell_controller)
         for button in NumberButton.buttons.values():

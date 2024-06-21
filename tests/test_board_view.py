@@ -1,5 +1,7 @@
 ﻿import unittest
 from tkinter import Tk
+
+from utils.constants import BOARD_SIZE
 from views.board_view import BoardView
 from views.cell_view import CellView
 from models.cell_model import CellModel
@@ -14,8 +16,8 @@ class TestBoardView(unittest.TestCase):
         self.root.destroy()
 
     def test_initialization(self):
-        self.assertEqual(len(self.board_view.cell_views), 9)
-        self.assertEqual(len(self.board_view.cell_views[0]), 9)
+        self.assertEqual(len(self.board_view.cell_views), BOARD_SIZE)
+        self.assertEqual(len(self.board_view.cell_views[0]), BOARD_SIZE)
 
     def test_add_cell_view(self):
         cell_model = CellModel(0, 0)

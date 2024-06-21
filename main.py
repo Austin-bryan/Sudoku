@@ -1,6 +1,6 @@
 ﻿import tkinter as tk
 from controllers.board_controller import BoardController
-from utils.colors import BACKGROUND_COLOR
+from utils.constants import BACKGROUND_COLOR, BOARD_SIZE
 from utils.sudoku_generator import SudokuGenerator
 from views.number_button import NumberButton
 from views.mode_button import ModeButton
@@ -31,7 +31,7 @@ class SudokuApp:
         self.board_controller.populate_board(generator.generate_board())
 
         # Create the bottom row of buttons
-        for i in range(9):
+        for i in range(BOARD_SIZE):
             number_button = NumberButton(bottom_frame, self.board_controller, i + 1)
             number_button.grid(row=0, column=i, padx=2, pady=5)  # Adjust padding here for more spread out buttons
 
@@ -42,11 +42,11 @@ class SudokuApp:
         delete_button.grid(row=0, column=10, padx=2, pady=5)
 
         # Optionally configure row and column weights to control resizing behavior
-        for i in range(9):
+        for i in range(BOARD_SIZE):
             grid_frame.columnconfigure(i, weight=1)
             grid_frame.rowconfigure(i, weight=1)
 
-        bottom_frame.columnconfigure(9, weight=1)
+        bottom_frame.columnconfigure(BOARD_SIZE, weight=1)
 
 
 if __name__ == "__main__":

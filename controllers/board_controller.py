@@ -1,5 +1,6 @@
 ﻿# board_controller.py
 from models.board_model import BoardModel
+from utils.constants import BOARD_SIZE
 from views.board_view import BoardView
 from controllers.cell_controller import CellController
 
@@ -11,17 +12,17 @@ class BoardController:
         self.cells = []
         self.selected_cell: CellController = None
 
-        for x in range(9):
+        for x in range(BOARD_SIZE):
             row_controllers = []
-            for y in range(9):
+            for y in range(BOARD_SIZE):
                 cell_controller = CellController(self, self.view, self.model, x, y)
                 row_controllers.append(cell_controller)
             self.cells.append(row_controllers)
 
     def populate_board(self, numbers):
         self.model.populate_board(numbers)
-        for x in range(9):
-            for y in range(9):
+        for x in range(BOARD_SIZE):
+            for y in range(BOARD_SIZE):
                 self.cells[x][y].view.update_labels()
 
     @property

@@ -1,5 +1,6 @@
 # controller/cell_controller.py
 from models.cell_model import CellModel
+from utils.constants import BOARD_SIZE, SUBGRID_SIZE
 from views.cell_view import CellView
 from views.mode_button import ModeButton, Mode
 from views.number_button import NumberButton
@@ -99,29 +100,29 @@ class CellController:
             cell.view._is_highlighted = True
 
     def move_selection(self, dx, dy):
-        new_x = (self.model.x + dx) % 9
-        new_y = (self.model.y + dy) % 9
+        new_x = (self.model.x + dx) % BOARD_SIZE
+        new_y = (self.model.y + dy) % BOARD_SIZE
         new_cell = self.board_controller.cells[new_x][new_y]
         if new_cell:
             new_cell.on_press(None)
 
     def get_house(self):
-        return self.get_row() + self.get_column() + self.get_square()
+        return self.get_row() + self.get_column() + self.get_subgrid()
 
     def get_row(self):
         return [self.board_controller.cells[self.model.x][y]
-                for y in range(9)
+                for y in range(BOARD_SIZE)
                 if y != self.model.y]
 
     def get_column(self):
         return [self.board_controller.cells[x][self.model.y]
-                for x in range(9)
+                for x in range(BOARD_SIZE)
                 if x != self.model.x]
 
-    def get_square(self):
-        start_x = (self.model.x // 3) * 3
-        start_y = (self.model.y // 3) * 3
+    def get_subgrid(self):
+        start_x = (self.model.x // SUBGRID_SIZE) * SUBGRID_SIZE
+        start_y = (self.model.y // SUBGRID_SIZE) * SUBGRID_SIZE
         return [self.board_controller.cells[i][j]
-                for i in range(start_x, start_x + 3)
-                for j in range(start_y, start_y + 3)
+                for i in range(start_x, start_x + SUBGRID_SIZE)
+                for j in range(start_y, start_y + SUBGRID_SIZE)
                 if (i, j) != (self.model.x, self.model.y)]

@@ -1,5 +1,5 @@
 ﻿from tkinter import Canvas
-from utils.colors import SELECTION_COLOR, BACKGROUND_COLOR
+from utils.constants import SELECTION_COLOR, BACKGROUND_COLOR, SUBGRID_SIZE
 from models.cell_value_type import CellValueType
 
 
@@ -24,12 +24,12 @@ class CellView(Canvas):
                                             text='', fill='black', font=("Arial", 30))
         self.note_labels = [self.create_text((col + 1) * self.actual_width / 4,
                                              (row + 1) * self.actual_height / 4, fill='white', font=("Arial", 9))
-                            for row in range(3) for col in range(3)]
+                            for row in range(SUBGRID_SIZE) for col in range(SUBGRID_SIZE)]
 
     def _draw_thick_borders(self):
         thickness_width = 8
-        should_draw_vertical_line = self.model.y % 3 == 0 and self.model.y != 0
-        should_draw_horizontal_line = self.model.x % 3 == 0 and self.model.x != 0
+        should_draw_vertical_line = self.model.y % SUBGRID_SIZE == 0 and self.model.y != 0
+        should_draw_horizontal_line = self.model.x % SUBGRID_SIZE == 0 and self.model.x != 0
         line_length = CellView._CELL_WIDTH * 1.4
 
         if should_draw_vertical_line:
