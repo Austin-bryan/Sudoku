@@ -1,9 +1,11 @@
 ﻿import unittest
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 
 from controllers.board_controller import BoardController
 from tkinter import Tk
 
+from controllers.cell_controller import CellController
+from models.board_model import BoardModel
 from utils.constants import BOARD_SIZE
 from views.number_button import NumberButton
 

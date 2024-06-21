@@ -155,6 +155,7 @@ class CellController:
             self.model.toggle_note(number)
         self.view.update_labels()
         NumberButton.show_number_buttons(self)
+        self.board_controller.model.notify()
 
     def highlight_matching_numbers(self):
         self.highlighter.highlight_matching_numbers()
@@ -163,6 +164,7 @@ class CellController:
         self.model.clear_cell()
         self.view.update_labels()
         NumberButton.show_number_buttons(self)
+        self.board_controller.model.notify()
 
     def highlight_house(self):
         self.highlighter.highlight_house()

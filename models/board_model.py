@@ -1,10 +1,12 @@
 ﻿from models.cell_model import CellModel
+from models.subject import Subject
 from utils.constants import BOARD_SIZE
 from utils.sudoku_generator import SudokuGenerator
 
 
-class BoardModel:
+class BoardModel(Subject):
     def __init__(self):
+        super().__init__()
         self.cell_models: list[list['CellModel']] = [[None for _ in range(BOARD_SIZE)] for _ in range(BOARD_SIZE)]
 
     def populate_board(self, numbers):
