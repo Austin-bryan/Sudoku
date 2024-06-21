@@ -1,4 +1,3 @@
-# controller/cell_controller.py
 from models.cell_model import CellModel
 from utils.constants import BOARD_SIZE, SUBGRID_SIZE
 from views.cell_view import CellView
@@ -8,10 +7,14 @@ from views.number_button import NumberButton
 
 class CellController:
     def __init__(self, board_controller, board_view, board_model, x, y, **kwargs):
+        if not (0 <= x < BOARD_SIZE and 0 <= y < BOARD_SIZE):
+            raise ValueError(f"Invalid cell coordinates: ({x}, {y})")
+
         self.model = CellModel(x, y)
         self.view = CellView(board_view.frame, self.model, **kwargs)
         self.board_controller = board_controller
         self.view.model = self.model
+
         self.view.bind("<ButtonPress-1>", self.on_press)
         self.view.bind("<Up>", self.on_up)
         self.view.bind("<Down>", self.on_down)
@@ -42,31 +45,27 @@ class CellController:
         NumberButton.show_number_buttons(self)
 
     def on_up(self, event):
-        self.move_selection(-1, 0)
+        self._safe_move_selection(-1, 0)
 
     def on_down(self, event):
-        self.move_selection(1, 0)
+        self._safe_move_selection(1, 0)
 
     def on_left(self, event):
-        self.move_selection(0, -1)
+        self._safe_move_selection(0, -1)
 
     def on_right(self, event):
-        self.move_selection(0, 1)
+        self._safe_move_selection(0, 1)
 
     def on_key_press(self, event):
-        if event.keysym not in '123456789':
-            return
-        self.toggle_number(int(event.keysym))
-        self.highlight_matching_numbers()
+        if event.keysym in '123456789':
+            self.toggle_number(int(event.keysym))
+            self.highlight_matching_numbers()
 
     def toggle_number(self, number):
-        number = int(number)
         if self.model.is_given():
             return
         if ModeButton.mode == Mode.ENTRY:
             self.model.toggle_entry(number)
-
-            # Remove notes in the same house of the same value as this cell
             for cell in self.get_house():
                 if cell.model.is_notes() and cell.model.has_note(number):
                     cell.model.toggle_note(number)
@@ -86,10 +85,7 @@ class CellController:
                 cell.view.update_color(CellView._MATCHING_COLOR)
 
     def clear(self, event=None):
-        self.model.clear()
-        if self.model.is_entry():
-            pass
-            # self.update_house_conflict_status()
+        self.model.clear_cell()
         self.view.update_labels()
         NumberButton.show_number_buttons(self)
 
@@ -105,6 +101,12 @@ class CellController:
         new_cell = self.board_controller.cells[new_x][new_y]
         if new_cell:
             new_cell.on_press(None)
+
+    def _safe_move_selection(self, dx, dy):
+        try:
+            self.move_selection(dx, dy)
+        except IndexError as e:
+            print(f"Error during move selection: {e}")
 
     def get_house(self):
         return self.get_row() + self.get_column() + self.get_subgrid()

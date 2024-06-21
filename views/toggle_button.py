@@ -25,10 +25,12 @@ class ToggleButton(Canvas, ABC):
         self.bind("<ButtonPress-1>", self.on_press)
 
     def on_enter(self, event):
+        """ Applies hover effect. """
         if not self._is_toggled:
             self._set_color(ToggleButton._HOVER_COLOR)
 
     def on_leave(self, event):
+        """ Returns to default on mouse leave. """
         if not self._is_toggled:
             self._set_color(ToggleButton._DEFAULT_COLOR)
 

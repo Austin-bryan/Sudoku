@@ -75,7 +75,7 @@ class TestCellView(unittest.TestCase):
         self.cell_view.update_labels()
         self.assertEqual(self.value_text, '7')  # Value should remain 7
 
-        self.model.clear()
+        self.model.clear_cell()
         self.cell_view.update_labels()
         self.assertEqual(self.value_text, '7')  # Value should remain 7
 

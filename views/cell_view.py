@@ -9,14 +9,14 @@ class CellView(Canvas):
     _MATCHING_COLOR = '#299'
     _CONFLICT_COLOR = '#A33'
     _PRESS_COLOR = SELECTION_COLOR
-    _CELL_WIDTH = 70
+    _WIDTH = 70
 
     def __init__(self, parent, model, **kwargs):
         super().__init__(parent, bd=0, highlightthickness=0, **kwargs)
         self.model = model
-        self.actual_width = CellView._CELL_WIDTH
-        self.actual_height = CellView._CELL_WIDTH
-        self.config(width=CellView._CELL_WIDTH, height=CellView._CELL_WIDTH, bg=CellView._DEFAULT_COLOR)
+        self.actual_width = CellView._WIDTH
+        self.actual_height = CellView._WIDTH
+        self.config(width=CellView._WIDTH, height=CellView._WIDTH, bg=CellView._DEFAULT_COLOR)
         self._draw_thick_borders()
         self.on_press_event = None
 
@@ -27,27 +27,36 @@ class CellView(Canvas):
                             for row in range(SUBGRID_SIZE) for col in range(SUBGRID_SIZE)]
 
     def _draw_thick_borders(self):
+        """
+        Draws the thicker lines on cells that are on the edge of a subgrid.
+
+        Because this changes the length of the cell, the cell has to be made even long to accommodate them.
+        """
         thickness_width = 8
         should_draw_vertical_line = self.model.y % SUBGRID_SIZE == 0 and self.model.y != 0
         should_draw_horizontal_line = self.model.x % SUBGRID_SIZE == 0 and self.model.x != 0
-        line_length = CellView._CELL_WIDTH * 1.4
+        line_length = CellView._WIDTH * 1.4
 
         if should_draw_vertical_line:
             self.create_line(0, 0, 0, line_length if should_draw_horizontal_line
-                                                  else CellView._CELL_WIDTH, width=thickness_width, fill=BACKGROUND_COLOR)
-            self.actual_width = CellView._CELL_WIDTH + thickness_width
-            self.config(width=CellView._CELL_WIDTH + thickness_width / 2)
+                                                  else CellView._WIDTH, width=thickness_width, fill=BACKGROUND_COLOR)
+            self.actual_width = CellView._WIDTH + thickness_width
+            self.config(width=CellView._WIDTH + thickness_width / 2)
 
         if should_draw_horizontal_line:
             self.create_line(0, 0, line_length if should_draw_vertical_line
-                                               else CellView._CELL_WIDTH, 0, width=thickness_width, fill=BACKGROUND_COLOR)
-            self.actual_height = CellView._CELL_WIDTH + thickness_width
-            self.config(height=CellView._CELL_WIDTH + thickness_width / 2)
+                                               else CellView._WIDTH, 0, width=thickness_width, fill=BACKGROUND_COLOR)
+            self.actual_height = CellView._WIDTH + thickness_width
+            self.config(height=CellView._WIDTH + thickness_width / 2)
 
     def update_color(self, color):
         self.config(bg=color)
 
     def update_labels(self):
+        """
+        Ensures that labels are set properly depending on the value type of the cell.
+        Makes sures notes and entries cannot be visible at the same time, and the color of the value is also correct.
+        """
         match self.model.value_type:
             case CellValueType.ENTRY:
                 self.itemconfig(self.value_label,

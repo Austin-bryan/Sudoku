@@ -10,6 +10,9 @@ class CellModel:
         self.value_type = CellValueType.BLANK
 
     def toggle_entry(self, number):
+        """
+        Toggles an entry on or off.
+        Notes are not cleared during this process, so that they can be restored again later. """
         if self.is_given():
             return
         if self.value == number:
@@ -20,18 +23,21 @@ class CellModel:
             self.value_type = CellValueType.ENTRY
 
     def set_given(self, number):
+        """ Once a cell is set to given, it can never be changed to another cell value type. """
         self.value = number
         self.value_type = CellValueType.GIVEN
 
-    def clear(self):
+    def clear_cell(self):
+        """ Clears all contents of the cell, both value and all notes. Sets the state back to BLANK. """
         if self.is_given():
             return
         self.value = None
         self.in_conflict = False
-        self.notes = [False for _ in range(BOARD_SIZE)]
+        self.notes = [False] * BOARD_SIZE
         self.value_type = CellValueType.BLANK
 
     def toggle_note(self, number):
+        """ Turns a note on or off. """
         if self.is_given():
             return
         self.value = None
@@ -57,4 +63,5 @@ class CellModel:
         return self.value is not None
 
     def has_note(self, number):
+        """ Returns true if the cell has the note of the specified number active. """
         return self.notes[number - 1]

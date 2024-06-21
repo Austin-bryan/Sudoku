@@ -40,6 +40,7 @@ class NumberButton(ToggleButton):
         self.disable()
 
     def on_press(self, event):
+        """ Depending on the mode, toggles entries or notes, if it's enabled. """
         if self._is_disabled:
             return
         from views.mode_button import ModeButton, Mode
@@ -59,18 +60,27 @@ class NumberButton(ToggleButton):
             super().on_leave(event)
 
     def disable(self):
+        """ Turns appearance dark and makes sure it cant be interacted with. """
         self._is_disabled = True
         self._is_toggled = False
         self._set_color(NumberButton._DISABLED_FILL)
         self.itemconfig(self.text, fill=NumberButton._DISABLED_TEXT)
 
     def enable(self):
+        """ Restores appearance and allows interaction. """
         self._is_disabled = False
         self._set_color(ToggleButton._DEFAULT_COLOR)
         self.itemconfig(self.text, fill=NumberButton._DEFAULT_TEXT)
 
     @classmethod
     def show_number_buttons(cls, cell_controller):
+        """
+        Refreshes all number buttons.
+
+        They are disabled if the selected cell is given, as it can't be changed.
+        Shows the selected entry button if in entry mode and selecting an entry
+        Shows all active notes if in note mode and selecting a cell with one or more notes.
+        """
         cls.toggle_all_off()
         from views.mode_button import ModeButton, Mode
 

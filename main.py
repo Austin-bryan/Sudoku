@@ -27,8 +27,7 @@ class SudokuApp:
         self.board_controller.view.grid(row=0, column=0)
 
         # Populate the board with some initial numbers for testing
-        generator = SudokuGenerator()
-        self.board_controller.populate_board(generator.generate_board())
+        self.board_controller.populate_board()
 
         # Create the bottom row of buttons
         for i in range(BOARD_SIZE):

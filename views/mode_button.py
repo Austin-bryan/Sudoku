@@ -16,6 +16,7 @@ class ModeButton(ToggleButton):
         self.board_controller = board_controller
 
     def on_press(self, event):
+        """ Changes mode and updates number buttons to reflect that. """
         ModeButton.mode = Mode.NOTES if self.mode == Mode.ENTRY else Mode.ENTRY
 
         if self.board_controller.selected_cell:
