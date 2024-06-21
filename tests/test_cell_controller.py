@@ -154,6 +154,18 @@ class TestCellController(unittest.TestCase):
         self.cell_controller.highlight_house()
         self.cell_controller.get_house()[0].view.update_color.assert_called_with(CellView._HIGHLIGHT_COLOR)
 
+    def test_pressed_notify(self):
+        """ Ensures pressing on cell notifies observers of board model. """
+        self.cell_controller.board_controller.model.notify = Mock()
+        self.cell_controller.toggle_number(4)
+        self.cell_controller.board_controller.model.notify.assert_called_once_with()
+
+    def test_clear_notify(self):
+        """ Ensures clear notifies observers of board model. """
+        self.cell_controller.board_controller.model.notify = Mock()
+        self.cell_controller.clear()
+        self.cell_controller.board_controller.model.notify.assert_called_once_with()
+
     #
     # Helper Methods
     #
