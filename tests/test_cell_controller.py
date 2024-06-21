@@ -42,7 +42,7 @@ class TestCellController(unittest.TestCase):
     def test_on_press(self):
         """ Ensures that on_press() properly selects and sets the color. """
         self.cell_controller.view.update_color = Mock()
-        self.cell_controller.on_press(None)
+        self.cell_controller.on_press()
         self.assertEqual(self.board_controller.selected_cell, self.cell_controller)
         self.cell_controller.view.update_color.assert_called_with(CellView._PRESS_COLOR)
 
@@ -119,34 +119,34 @@ class TestCellController(unittest.TestCase):
         self.assert_matching_cells(house, expected_house)
 
     def test_on_up(self):
-        with patch.object(self.cell_controller, 'move_selection') as mock_move:
-            self.cell_controller.on_up(Mock())
+        with patch.object(self.cell_controller.selection_manager, 'move_selection') as mock_move:
+            self.cell_controller.event_handler.on_up(Mock())
             mock_move.assert_called_once_with(-1, 0)
 
     def test_on_down(self):
-        with patch.object(self.cell_controller, 'move_selection') as mock_move:
-            self.cell_controller.on_down(Mock())
+        with patch.object(self.cell_controller.selection_manager, 'move_selection') as mock_move:
+            self.cell_controller.event_handler.on_down(Mock())
             mock_move.assert_called_once_with(1, 0)
 
     def test_on_left(self):
-        with patch.object(self.cell_controller, 'move_selection') as mock_move:
-            self.cell_controller.on_left(Mock())
+        with patch.object(self.cell_controller.selection_manager, 'move_selection') as mock_move:
+            self.cell_controller.event_handler.on_left(Mock())
             mock_move.assert_called_once_with(0, -1)
 
     def test_on_right(self):
-        with patch.object(self.cell_controller, 'move_selection') as mock_move:
-            self.cell_controller.on_right(Mock())
+        with patch.object(self.cell_controller.selection_manager, 'move_selection') as mock_move:
+            self.cell_controller.event_handler.on_right(Mock())
             mock_move.assert_called_once_with(0, 1)
 
     def test_on_key_press(self):
         with patch.object(self.cell_controller, 'toggle_number') as mock_toggle:
             event = Mock()
             event.keysym = '1'
-            self.cell_controller.on_key_press(event)
+            self.cell_controller.event_handler.on_key_press(event)
             mock_toggle.assert_called_once_with(1)
 
         event.keysym = 'a'
-        self.cell_controller.on_key_press(event)
+        self.cell_controller.event_handler.on_key_press(event)
         mock_toggle.assert_called_once()  # Ensure it was not called again
 
     def test_highlight_house(self):
