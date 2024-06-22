@@ -1,4 +1,6 @@
 ﻿from tkinter import Canvas
+
+from house_manager import HouseManager
 from utils.constants import SELECTION_COLOR, BACKGROUND_COLOR, SUBGRID_SIZE
 from models.cell_value_type import CellValueType
 
@@ -20,6 +22,7 @@ class CellView(Canvas):
         self._draw_thick_borders()
         self.on_press_event = None
         self._is_highlighted = False
+        self.house_manager = None
 
         self.value_label = self.create_text(self.actual_width / 2, self.actual_height / 2,
                                             text='', fill='black', font=("Arial", 30))
@@ -89,3 +92,31 @@ class CellView(Canvas):
         self.update_color(CellView._CONFLICT_COLOR if status
                           else CellView._HIGHLIGHT_COLOR if self._is_highlighted
                           else CellView._DEFAULT_COLOR)
+
+    @property
+    def x(self):
+        return self.model.x
+
+    @x.setter
+    def x(self, value):
+        self.model.x = value
+
+    @property
+    def y(self):
+        return self.model.y
+
+    @y.setter
+    def y(self, value):
+        self.model.y = value
+
+    def get_house(self):
+        return self.house_manager.get_house()
+
+    def get_row(self):
+        return self.house_manager.get_row()
+
+    def get_column(self):
+        return self.house_manager.get_column()
+
+    def get_subgrid(self):
+        return self.house_manager.get_subgrid()

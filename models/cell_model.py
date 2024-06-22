@@ -5,14 +5,16 @@ from utils.constants import BOARD_SIZE
 class CellModel:
     def __init__(self, x, y):
         self.x, self.y = x, y
-        self.value, self.notes = None, [False for _ in range(BOARD_SIZE)]
+        self.value, self.notes = None, [False] * BOARD_SIZE
         self.in_conflict = False
         self.value_type = CellValueType.BLANK
+        self.house_manager = None
 
     def toggle_entry(self, number):
         """
         Toggles an entry on or off.
-        Notes are not cleared during this process, so that they can be restored again later. """
+        Notes are not cleared during this process, so that they can be restored again later.
+        """
         if self.is_given():
             return
         if self.value == number:
@@ -65,3 +67,15 @@ class CellModel:
     def has_note(self, number):
         """ Returns true if the cell has the note of the specified number active. """
         return self.notes[number - 1]
+
+    def get_house(self):
+        return self.house_manager.get_house()
+
+    def get_row(self):
+        return self.house_manager.get_row()
+
+    def get_column(self):
+        return self.house_manager.get_column()
+
+    def get_subgrid(self):
+        return self.house_manager.get_subgrid()

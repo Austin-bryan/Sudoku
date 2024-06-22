@@ -1,3 +1,4 @@
+from house_manager import HouseManager
 from models.cell_model import CellModel
 from utils.constants import BOARD_SIZE, SUBGRID_SIZE
 from views.cell_view import CellView
@@ -81,33 +82,6 @@ class SelectionManager:
             print(f"Error during move selection: {e}")
 
 
-class HouseManager:
-    def __init__(self, cell_controller, board):
-        self.cell_controller = cell_controller
-        self.board = board
-
-    def get_house(self):
-        return self.get_row() + self.get_column() + self.get_subgrid()
-
-    def get_row(self):
-        return [self.board.cells[self.cell_controller.model.x][y]
-                for y in range(BOARD_SIZE)
-                if y != self.cell_controller.model.y]
-
-    def get_column(self):
-        return [self.board.cells[x][self.cell_controller.model.y]
-                for x in range(BOARD_SIZE)
-                if x != self.cell_controller.model.x]
-
-    def get_subgrid(self):
-        start_x = (self.cell_controller.model.x // SUBGRID_SIZE) * SUBGRID_SIZE
-        start_y = (self.cell_controller.model.y // SUBGRID_SIZE) * SUBGRID_SIZE
-        return [self.board.cells[i][j]
-                for i in range(start_x, start_x + SUBGRID_SIZE)
-                for j in range(start_y, start_y + SUBGRID_SIZE)
-                if (i, j) != (self.cell_controller.model.x, self.cell_controller.model.y)]
-
-
 class CellController:
     def __init__(self, board_controller, board_view, board_model, x, y, **kwargs):
         if not (0 <= x < BOARD_SIZE and 0 <= y < BOARD_SIZE):
@@ -117,6 +91,8 @@ class CellController:
         self.view = CellView(board_view.frame, self.model, **kwargs)
         self.board_controller = board_controller
         self.view.model = self.model
+        self.model.house_manager = HouseManager(self.model, board_model)
+        self.view.house_manager = HouseManager(self.view, board_view)
 
         self.event_handler = EventHandler(self)
         self.highlighter = Highlighter(self)
@@ -190,3 +166,19 @@ class CellController:
 
     def set_conflict_status(self, status):
         self.view.set_conflict_status(status)
+
+    @property
+    def x(self):
+        return self.model.x
+
+    @x.setter
+    def x(self, value):
+        self.model.x = value
+
+    @property
+    def y(self):
+        return self.model.y
+
+    @y.setter
+    def y(self, value):
+        self.model.y = value
