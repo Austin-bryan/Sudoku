@@ -12,13 +12,16 @@ class ConflictObserver:
     def detect_conflicts(self):
         for x in range(BOARD_SIZE):
             for y in range(BOARD_SIZE):
-                cell_controller = self.board_model.get_cell(x, y)
-                cell_controller.set_conflict_status(self.has_conflict(cell_controller))
+                cell_model = self.board_model.get_cell(x, y)
+                cell_model.set_conflict(self.has_conflict(cell_model))
 
-    def has_conflict(self, cell_controller):
-        return self.has_duplicates(cell_controller.get_house())
+    def has_conflict(self, cell_model):
+        return self.has_duplicates(cell_model, cell_model.get_house())
 
     @staticmethod
-    def has_duplicates(values):
-        nums = [v for v in values if v != 0]
-        return len(nums) != len(set(nums))
+    def has_duplicates(cell_model, house):
+        values = [cell.value for cell in house if cell.value != 0 and cell.value is not None]
+        for value in values:
+            if value == cell_model.value:
+                return True
+        return False
