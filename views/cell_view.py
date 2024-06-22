@@ -19,6 +19,7 @@ class CellView(Canvas):
         self.config(width=CellView._WIDTH, height=CellView._WIDTH, bg=CellView._DEFAULT_COLOR)
         self._draw_thick_borders()
         self.on_press_event = None
+        self._is_highlighted = False
 
         self.value_label = self.create_text(self.actual_width / 2, self.actual_height / 2,
                                             text='', fill='black', font=("Arial", 30))
@@ -75,8 +76,16 @@ class CellView(Canvas):
                 self.clear_notes()
 
     def clear_entry(self):
+        """ Removes the entry label. """
         self.itemconfig(self.value_label, text='')
 
     def clear_notes(self):
+        """ Removes all notes. """
         for label in self.note_labels:
             self.itemconfig(label, text='')
+
+    def set_conflict_status(self, status):
+        self.model.in_conflict = status
+        self.update_color(CellView._CONFLICT_COLOR if status
+                          else CellView._HIGHLIGHT_COLOR if self._is_highlighted
+                          else CellView._DEFAULT_COLOR)

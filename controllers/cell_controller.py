@@ -186,3 +186,6 @@ class CellController:
 
     def get_subgrid(self):
         return self.house_manager.get_subgrid()
+
+    def set_conflict_status(self, status):
+        self.view.set_conflict_status(status)

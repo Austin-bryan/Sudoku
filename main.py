@@ -1,5 +1,6 @@
 ﻿import tkinter as tk
 from controllers.board_controller import BoardController
+from observers.conflict_observer import ConflictObserver
 from utils.constants import BACKGROUND_COLOR, BOARD_SIZE
 from utils.sudoku_generator import SudokuGenerator
 from views.number_button import NumberButton
@@ -47,6 +48,8 @@ class SudokuApp:
             grid_frame.rowconfigure(i, weight=1)
 
         bottom_frame.columnconfigure(BOARD_SIZE, weight=1)
+
+        conflict_observer = ConflictObserver(self.board_controller.model)
 
 
 if __name__ == "__main__":
