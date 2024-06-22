@@ -1,11 +1,12 @@
 ﻿from tkinter import Canvas
 
 from house_manager import HouseManager
+from observers.observer import Observer
 from utils.constants import SELECTION_COLOR, BACKGROUND_COLOR, SUBGRID_SIZE
 from models.cell_value_type import CellValueType
 
 
-class CellView(Canvas):
+class CellView(Canvas, Observer):
     _DEFAULT_COLOR = '#333'
     _HIGHLIGHT_COLOR = '#4a4a4a'
     _MATCHING_COLOR = '#299'
@@ -23,6 +24,7 @@ class CellView(Canvas):
         self.on_press_event = None
         self._is_highlighted = False
         self.house_manager = None
+        self.model.attach(self)
 
         self.value_label = self.create_text(self.actual_width / 2, self.actual_height / 2,
                                             text='', fill='black', font=("Arial", 30))
@@ -86,6 +88,10 @@ class CellView(Canvas):
         """ Removes all notes. """
         for label in self.note_labels:
             self.itemconfig(label, text='')
+
+    def update(self):
+        self.set_conflict_status(self.model.in_conflict)
+        self.update_labels()
 
     def set_conflict_status(self, status):
         self.model.in_conflict = status

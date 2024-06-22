@@ -1,9 +1,11 @@
 ﻿from models.cell_value_type import CellValueType
+from models.subject import Subject
 from utils.constants import BOARD_SIZE
 
 
-class CellModel:
+class CellModel(Subject):
     def __init__(self, x, y):
+        super().__init__()
         self.x, self.y = x, y
         self.value, self.notes = None, [False] * BOARD_SIZE
         self.in_conflict = False
@@ -23,11 +25,13 @@ class CellModel:
         else:
             self.value = number
             self.value_type = CellValueType.ENTRY
+        self.notify()
 
     def set_given(self, number):
         """ Once a cell is set to given, it can never be changed to another cell value type. """
         self.value = number
         self.value_type = CellValueType.GIVEN
+        self.notify()
 
     def clear_cell(self):
         """ Clears all contents of the cell, both value and all notes. Sets the state back to BLANK. """
@@ -37,6 +41,7 @@ class CellModel:
         self.in_conflict = False
         self.notes = [False] * BOARD_SIZE
         self.value_type = CellValueType.BLANK
+        self.notify()
 
     def toggle_note(self, number):
         """ Turns a note on or off. """
@@ -45,9 +50,11 @@ class CellModel:
         self.value = None
         self.notes[number - 1] = not self.notes[number - 1]
         self.value_type = CellValueType.NOTES if any(self.notes) else CellValueType.BLANK
+        self.notify()
 
-    def set_conflict(self, state):
+    def set_conflict_status(self, state):
         self.in_conflict = state
+        self.notify()
 
     def is_entry(self):
         return self.value_type == CellValueType.ENTRY
