@@ -82,26 +82,27 @@ class SelectionManager:
 
 
 class HouseManager:
-    def __init__(self, cell_controller):
+    def __init__(self, cell_controller, board):
         self.cell_controller = cell_controller
+        self.board = board
 
     def get_house(self):
         return self.get_row() + self.get_column() + self.get_subgrid()
 
     def get_row(self):
-        return [self.cell_controller.board_controller.cells[self.cell_controller.model.x][y]
+        return [self.board.cells[self.cell_controller.model.x][y]
                 for y in range(BOARD_SIZE)
                 if y != self.cell_controller.model.y]
 
     def get_column(self):
-        return [self.cell_controller.board_controller.cells[x][self.cell_controller.model.y]
+        return [self.board.cells[x][self.cell_controller.model.y]
                 for x in range(BOARD_SIZE)
                 if x != self.cell_controller.model.x]
 
     def get_subgrid(self):
         start_x = (self.cell_controller.model.x // SUBGRID_SIZE) * SUBGRID_SIZE
         start_y = (self.cell_controller.model.y // SUBGRID_SIZE) * SUBGRID_SIZE
-        return [self.cell_controller.board_controller.cells[i][j]
+        return [self.board.cells[i][j]
                 for i in range(start_x, start_x + SUBGRID_SIZE)
                 for j in range(start_y, start_y + SUBGRID_SIZE)
                 if (i, j) != (self.cell_controller.model.x, self.cell_controller.model.y)]
@@ -120,7 +121,7 @@ class CellController:
         self.event_handler = EventHandler(self)
         self.highlighter = Highlighter(self)
         self.selection_manager = SelectionManager(self)
-        self.house_manager = HouseManager(self)
+        self.house_manager = HouseManager(self, board_controller)
 
         # Update the board model and view
         board_model.add_cell_model(x, y, self.model)

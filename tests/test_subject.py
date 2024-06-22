@@ -28,8 +28,8 @@ class TestSubject(unittest.TestCase):
 
         self.subject.notify()
 
-        self.observer1.notify.assert_called_once()
-        self.observer2.notify.assert_called_once()
+        self.observer1.update.assert_called_once()
+        self.observer2.update.assert_called_once()
 
     def test_notify_with_no_observers(self):
         """ Ensure no exceptions are raised when notifying with no observers attached. """

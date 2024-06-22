@@ -16,14 +16,14 @@ class TestBoardView(unittest.TestCase):
         self.root.destroy()
 
     def test_initialization(self):
-        self.assertEqual(len(self.board_view.cell_views), BOARD_SIZE)
-        self.assertEqual(len(self.board_view.cell_views[0]), BOARD_SIZE)
+        self.assertEqual(len(self.board_view.cells), BOARD_SIZE)
+        self.assertEqual(len(self.board_view.cells[0]), BOARD_SIZE)
 
     def test_add_cell_view(self):
         cell_model = CellModel(0, 0)
         cell_view = CellView(self.board_view, cell_model)
         self.board_view.add_cell_view(0, 0, cell_view)
-        self.assertEqual(self.board_view.cell_views[0][0], cell_view)
+        self.assertEqual(self.board_view.cells[0][0], cell_view)
 
     def test_get_frame(self):
         self.assertIsNotNone(self.board_view.get_frame())

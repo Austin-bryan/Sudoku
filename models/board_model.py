@@ -7,21 +7,21 @@ from utils.sudoku_generator import SudokuGenerator
 class BoardModel(Subject):
     def __init__(self):
         super().__init__()
-        self.cell_models: list[list['CellModel']] = [[None for _ in range(BOARD_SIZE)] for _ in range(BOARD_SIZE)]
+        self.cells: list[list['CellModel']] = [[None for _ in range(BOARD_SIZE)] for _ in range(BOARD_SIZE)]
 
     def populate_board(self, numbers):
         """ Assigns the cell models with the given numbers. """
         for x in range(BOARD_SIZE):
             for y in range(BOARD_SIZE):
                 if numbers[x][y] != 0:
-                    self.cell_models[x][y].set_given(numbers[x][y])
+                    self.cells[x][y].set_given(numbers[x][y])
 
     def get_cell_value(self, x, y):
-        return self.cell_models[x][y].value
+        return self.cells[x][y].value
 
     def get_cell(self, x, y):
-        return self.cell_models[x][y]
+        return self.cells[x][y]
 
     def add_cell_model(self, x, y, cell_model):
         """ Used by cell models when they are created to add themselves to the board. """
-        self.cell_models[x][y] = cell_model
+        self.cells[x][y] = cell_model

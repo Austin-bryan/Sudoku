@@ -74,6 +74,9 @@ class BoardController:
                 self.selected_cell.toggle_number(number)
         except Exception as e:
             logging.error(f"Error toggling number in selected cell: {e}")
+            
+    def get_cell(self, x, y):
+        return self.cells[x][y]
 
     def get_frame(self):
         return self.view.get_frame()
