@@ -1,9 +1,10 @@
 ﻿import unittest
 import random
 from tkinter import Tk
+from unittest.mock import Mock
 
 from utils.constants import BOARD_SIZE, SUBGRID_SIZE
-from views.cell_view import CellView
+from views.cell_view import *
 from models.cell_model import CellModel
 from models.cell_value_type import CellValueType
 
@@ -137,6 +138,130 @@ class TestCellView(unittest.TestCase):
 
     def get_note_label(self, index):
         return self.cell_view.itemcget(self.cell_view.note_labels[index], 'text')
+
+
+class TestCellViewStateMachine(unittest.TestCase):
+    def setUp(self):
+        """
+        Set up the test environment before each test.
+        Initializes the Tkinter root, mock model, CellView, and StateContext.
+        """
+        self.root = Tk()
+        self.model = Mock()
+        self.model.in_conflict = False
+        self.cell_view = CellView(self.root, self.model)
+        self.state_context = self.cell_view._state_context
+
+    def tearDown(self):
+        """Clean up the Tkinter root after each test."""
+        self.root.destroy()
+
+    def test_enter_default(self):
+        """Test entering the default state."""
+        self.state_context.enter_default()
+        self.assertIsInstance(self.state_context.state, DefaultCellViewState)
+        self.assertEqual(self.cell_view.cget("bg"), '#333')
+
+    def test_enter_highlighted(self):
+        """Test entering the highlighted state."""
+        self.state_context.enter_highlighted()
+        self.assertIsInstance(self.state_context.state, HighlightedCellViewState)
+        self.assertEqual(self.cell_view.cget("bg"), '#4a4a4a')
+
+    def test_enter_selected(self):
+        """Test entering the selected state."""
+        self.state_context.enter_selected()
+        self.assertIsInstance(self.state_context.state, SelectedCellViewState)
+        self.assertEqual(self.cell_view.cget("bg"), SELECTION_COLOR)
+
+    def test_enter_matching(self):
+        """Test entering the matching state."""
+        self.state_context.enter_matching()
+        self.assertIsInstance(self.state_context.state, MatchingCellViewState)
+        self.assertEqual(self.cell_view.cget("bg"), '#299')
+
+    def test_enter_conflict(self):
+        """Test entering the conflict state."""
+        self.state_context.enter_conflict()
+        self.assertIsInstance(self.state_context.state, ConflictCellViewState)
+        self.assertEqual(self.cell_view.cget("bg"), '#A33')
+
+    def test_conflict_state_with_fallback(self):
+        """
+        Test entering and exiting the conflict state with a fallback state.
+        Ensures the cell returns to the previous state after resolving the conflict.
+        """
+        self.state_context.enter_highlighted()
+        self.state_context.enter_conflict()
+        self.assertIsInstance(self.state_context.state, ConflictCellViewState)
+        self.assertEqual(self.cell_view.cget("bg"), '#A33')
+
+        self.model.in_conflict = False
+        self.state_context.exit_conflict()
+        self.assertIsInstance(self.state_context.state, HighlightedCellViewState)
+        self.assertEqual(self.cell_view.cget("bg"), '#4a4a4a')
+
+    def test_conflict_state_to_default(self):
+        """
+        Test entering and exiting the conflict state to the default state.
+        Ensures the cell returns to the default state after resolving the conflict.
+        """
+        self.state_context.enter_default()
+        self.state_context.enter_conflict()
+        self.assertIsInstance(self.state_context.state, ConflictCellViewState)
+        self.assertEqual(self.cell_view.cget("bg"), '#A33')
+
+        self.model.in_conflict = False
+        self.state_context.exit_conflict()
+        self.assertIsInstance(self.state_context.state, DefaultCellViewState)
+        self.assertEqual(self.cell_view.cget("bg"), '#333')
+
+    def test_reset_state_from_conflict(self):
+        """
+        Test resetting the state from conflict to default.
+        Ensures the cell returns to the default state after resetting.
+        """
+        self.state_context.enter_selected()
+        self.state_context.enter_conflict()
+        self.assertIsInstance(self.state_context.state, ConflictCellViewState)
+        self.assertEqual(self.cell_view.cget("bg"), '#A33')
+
+        self.state_context.reset_state()
+        self.assertIsInstance(self.state_context.state, DefaultCellViewState)
+        self.assertEqual(self.cell_view.cget("bg"), '#333')
+
+    def test_reset_state_from_non_conflict(self):
+        """
+        Test resetting the state from a non-conflict state to default.
+        Ensures the cell returns to the default state after resetting.
+        """
+        self.state_context.enter_selected()
+        self.state_context.reset_state()
+        self.assertIsInstance(self.state_context.state, DefaultCellViewState)
+        self.assertEqual(self.cell_view.cget("bg"), '#333')
+
+    def test_try_set_state_conflict(self):
+        """
+        Test setting the state to conflict and then trying to set another state.
+        Ensures the conflict state overrides other states.
+        """
+        self.state_context.enter_conflict()
+        self.state_context.enter_highlighted()
+        self.assertIsInstance(self.state_context.state, ConflictCellViewState)
+        self.assertEqual(self.cell_view.cget("bg"), '#A33')
+        self.assertIsInstance(self.state_context.state.get_rollback_state(), HighlightedCellViewState)
+
+    def test_exit_conflict_state_to_selected(self):
+        """
+        Test exiting the conflict state to the selected state.
+        Ensures the cell returns to the selected state after resolving the conflict.
+        """
+        self.state_context.enter_selected()
+        self.state_context.enter_conflict()
+        self.model.in_conflict = False
+        self.state_context.exit_conflict()
+        self.assertIsInstance(self.state_context.state, SelectedCellViewState)
+        self.assertEqual(self.cell_view.cget("bg"), SELECTION_COLOR)
 
 
 if __name__ == '__main__':

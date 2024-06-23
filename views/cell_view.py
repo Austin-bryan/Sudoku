@@ -1,17 +1,21 @@
-﻿from tkinter import Canvas
+﻿from abc import ABC, abstractmethod
+from tkinter import Canvas
+from typing import cast, Optional
 
 from house_manager import HouseManager
 from observers.observer import Observer
 from utils.constants import SELECTION_COLOR, BACKGROUND_COLOR, SUBGRID_SIZE
 from models.cell_value_type import CellValueType
 
+# Cell colors
+_DEFAULT_COLOR = '#333'
+_HIGHLIGHT_COLOR = '#4a4a4a'
+_MATCHING_COLOR = '#299'
+_CONFLICT_COLOR = '#A33'
+_SELECTION_COLOR = SELECTION_COLOR
+
 
 class CellView(Canvas, Observer):
-    _DEFAULT_COLOR = '#333'
-    _HIGHLIGHT_COLOR = '#4a4a4a'
-    _MATCHING_COLOR = '#299'
-    _CONFLICT_COLOR = '#A33'
-    _PRESS_COLOR = SELECTION_COLOR
     _WIDTH = 70
 
     def __init__(self, parent, model, **kwargs):
@@ -19,12 +23,13 @@ class CellView(Canvas, Observer):
         self.model = model
         self.actual_width = CellView._WIDTH
         self.actual_height = CellView._WIDTH
-        self.config(width=CellView._WIDTH, height=CellView._WIDTH, bg=CellView._DEFAULT_COLOR)
+        self.config(width=CellView._WIDTH, height=CellView._WIDTH, bg=_DEFAULT_COLOR)
         self._draw_thick_borders()
         self.on_press_event = None
-        self._is_highlighted = False
+        self.is_highlighted = False
         self.house_manager = None
         self.model.attach(self)
+        self._state_context = StateContext(self)
 
         self.value_label = self.create_text(self.actual_width / 2, self.actual_height / 2,
                                             text='', fill='black', font=("Arial", 30))
@@ -90,14 +95,13 @@ class CellView(Canvas, Observer):
             self.itemconfig(label, text='')
 
     def update(self):
-        self.set_conflict_status(self.model.in_conflict)
+        # self.set_conflict_status(self.model.in_conflict)
+        # self.reset_state()
+        if self.model.in_conflict:
+            self.enter_conflict()
+        else:
+            self._state_context.exit_conflict()
         self.update_labels()
-
-    def set_conflict_status(self, status):
-        self.model.in_conflict = status
-        self.update_color(CellView._CONFLICT_COLOR if status
-                          else CellView._HIGHLIGHT_COLOR if self._is_highlighted
-                          else CellView._DEFAULT_COLOR)
 
     @property
     def x(self):
@@ -126,3 +130,135 @@ class CellView(Canvas, Observer):
 
     def get_subgrid(self):
         return self.house_manager.get_subgrid()
+
+    def enter_default(self):
+        self._state_context.enter_default()
+
+    def enter_highlighted(self):
+        self._state_context.enter_highlighted()
+
+    def enter_selected(self):
+        self._state_context.enter_selected()
+
+    def enter_matching(self):
+        self._state_context.enter_matching()
+
+    def enter_conflict(self):
+        self._state_context.enter_conflict()
+
+    def reset_state(self):
+        """ Resets the state to default or conflicted, depending if a conflict exists. """
+        self._state_context.reset_state()
+
+
+class CellViewState(ABC):
+    priority = 0
+
+    @abstractmethod
+    def enter(self, cell_view):
+        pass
+
+    def get_rollback_state(self) -> Optional["CellViewState"]:
+        return None
+
+
+class DefaultCellViewState(CellViewState):
+    """ The default state with the original color. """
+    priority = 1
+
+    def enter(self, cell_view):
+        cell_view.update_color(_DEFAULT_COLOR)
+
+
+class HighlightedCellViewState(CellViewState):
+    """ Highlights all cells in the same house in the selected cell, unless its in conflict. """
+    priority = 2
+
+    def enter(self, cell_view):
+        cell_view.update_color(_HIGHLIGHT_COLOR)
+
+
+class SelectedCellViewState(CellViewState):
+    """ Shows which cell is selected, unless its in conflict. """
+    priority = 3
+
+    def enter(self, cell_view):
+        cell_view.update_color(_SELECTION_COLOR)
+
+
+class MatchingCellViewState(CellViewState):
+    """ Shows all cells with the same value, unless they are in conflict. """
+    priority = 4
+
+    def enter(self, cell_view):
+        cell_view.update_color(_MATCHING_COLOR)
+
+
+class ConflictCellViewState(CellViewState):
+    """ When two cells in the same house have the same number and the cell turns to conflict color. """
+    priority = 5
+
+    def __init__(self, previous_state):
+        self._rollback_state = previous_state
+
+    def enter(self, cell_view):
+        cell_view.update_color(_CONFLICT_COLOR)
+
+    def get_rollback_state(self):
+        return self._rollback_state
+
+
+class StateContext:
+    def __init__(self, cell_view):
+        self.cell_view = cell_view
+        self.state = DefaultCellViewState()
+
+    def set_state(self, new_state):
+        """ Does a priority check before setting the state to the new state. """
+        if new_state.priority > self.state.priority:
+            self._rollback_state(new_state)
+
+    def _rollback_state(self, new_state):
+        """
+        Allows the changing of a state to a state with a lower priority.
+        This can occur when resetting to default from any state,
+        or default, highlighted, or selected from conflict.
+        """
+        self.state = new_state
+        self.state.enter(self.cell_view)
+
+    def enter_default(self):
+        self.set_state(DefaultCellViewState())
+
+    def enter_highlighted(self):
+        self._try_set_state(HighlightedCellViewState())
+
+    def enter_selected(self):
+        self._try_set_state(SelectedCellViewState())
+
+    def enter_matching(self):
+        self.set_state(MatchingCellViewState())
+
+    def enter_conflict(self):
+        self.set_state(ConflictCellViewState(self.state))
+
+    def exit_conflict(self):
+        """
+        When exiting, checks if the state as a fallback state.
+        This can occur when in the conflict state, with fallbacks being either highlighted or selected.
+        This returns to those states in the event the user fixes the conflict.
+        """
+        if self.state.get_rollback_state():
+            self._rollback_state(self.state.get_rollback_state())
+
+    def reset_state(self):
+        """ Resets the state to default or highlighted depending on the current conditions. """
+        if not self.cell_view.model.in_conflict:
+            self._rollback_state(DefaultCellViewState())
+
+    def _try_set_state(self, new_state):
+        """ Tries to set the state, if in conflict state, simply updates the conflict fallback state. """
+        if not self.cell_view.model.in_conflict:
+            self.set_state(new_state)
+        else:
+            self.state = ConflictCellViewState(new_state)

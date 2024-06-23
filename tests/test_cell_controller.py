@@ -42,9 +42,9 @@ class TestCellController(unittest.TestCase):
     def test_on_press(self):
         """ Ensures that on_press() properly selects and sets the color. """
         self.cell_controller.view.update_color = Mock()
-        self.cell_controller.on_press()
+        self.cell_controller.select()
         self.assertEqual(self.board_controller.selected_cell, self.cell_controller)
-        self.cell_controller.view.update_color.assert_called_with(CellView._PRESS_COLOR)
+        self.cell_controller.view.update_color.assert_called_with(CellView._SELECTED_COLOR)
 
     def test_toggle_entry(self):
         """ Tests that setting the entry via toggle number works. """
