@@ -32,7 +32,7 @@ class NumberButton(ToggleButton):
                 cls.buttons[i + 1].toggle_on()
 
     def __init__(self, parent, board_controller, number, **kwargs):
-        super().__init__(parent, number, **kwargs)
+        super().__init__(parent, number, 100, **kwargs)
         NumberButton.buttons[number] = self
         self.board_controller = board_controller
         self.number = number

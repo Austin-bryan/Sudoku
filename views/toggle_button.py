@@ -9,15 +9,17 @@ class ToggleButton(Canvas, ABC):
     _HOVER_COLOR = '#223'
     _TOGGLE_COLOR = SELECTION_COLOR
 
-    def __init__(self, parent, label, **kwargs):
-        super().__init__(parent, width=50, height=50, highlightthickness=0, **kwargs)
+    def __init__(self, parent, label, width=70, **kwargs):
+        self.WIDTH = width
+
+        super().__init__(parent, width=self.WIDTH, height=self.WIDTH, highlightthickness=0, **kwargs)
 
         self._is_toggled = False  # Toggle state
         self.label = label
 
         # Draw the button
-        self.rect = self.create_rectangle(0, 0, 50, 50, fill=ToggleButton._DEFAULT_COLOR, outline="")
-        self.text = self.create_text(25, 25, text=self.label, fill="white", font=("Arial", 18))
+        self.rect = self.create_rectangle(0, 0, self.WIDTH, self.WIDTH, fill=ToggleButton._DEFAULT_COLOR, outline="")
+        self.text = self.create_text(self.WIDTH / 2, self.WIDTH / 2, text=self.label, fill="white", font=("Arial", 18))
 
         # Bind mouse events
         self.bind("<Enter>", self.on_enter)
