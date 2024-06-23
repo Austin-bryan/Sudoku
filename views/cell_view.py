@@ -95,8 +95,6 @@ class CellView(Canvas, Observer):
             self.itemconfig(label, text='')
 
     def update(self):
-        # self.set_conflict_status(self.model.in_conflict)
-        # self.reset_state()
         if self.model.in_conflict:
             self.enter_conflict()
         else:
@@ -130,9 +128,6 @@ class CellView(Canvas, Observer):
 
     def get_subgrid(self):
         return self.house_manager.get_subgrid()
-
-    def enter_default(self):
-        self._state_context.enter_default()
 
     def enter_highlighted(self):
         self._state_context.enter_highlighted()

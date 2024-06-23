@@ -34,10 +34,6 @@ class SudokuGenerator:
             x += 1
             y = 0
 
-        # If both row and column indices are beyond the last cell, the board is fully filled
-        if x >= BOARD_SIZE and y >= BOARD_SIZE:
-            return True
-
         # Skip the cells that belong to the pre-filled blocks
         if x < SUBGRID_SIZE:
             if y < SUBGRID_SIZE:

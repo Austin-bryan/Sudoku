@@ -118,12 +118,43 @@ class TestCellView(unittest.TestCase):
         for i in range(2):
             self.assertEqual(self.get_note_label(i), str(i + 1))
         self.assertEqual(self.get_note_label(2), '')
-        
+
+    def test_get_house(self):
+        self.cell_view.house_manager = Mock()
+        self.cell_view.house_manager.get_house = Mock()
+        self.cell_view.get_house()
+        self.assertTrue(self.cell_view.house_manager.get_house.called)
+
+    def test_get_row(self):
+        self.cell_view.house_manager = Mock()
+        self.cell_view.house_manager.get_row = Mock()
+        self.cell_view.get_row()
+        self.assertTrue(self.cell_view.house_manager.get_row.called)
+
+    def test_get_column(self):
+        self.cell_view.house_manager = Mock()
+        self.cell_view.house_manager.get_column = Mock()
+        self.cell_view.get_column()
+        self.assertTrue(self.cell_view.house_manager.get_column.called)
+
+    def test_get_subgrid(self):
+        self.cell_view.house_manager = Mock()
+        self.cell_view.house_manager.get_subgrid = Mock()
+        self.cell_view.get_subgrid()
+        self.assertTrue(self.cell_view.house_manager.get_subgrid.called)
+
+    def test_update_into_conflict(self):
+        """ Makes sure that when the model is set to conflict, the cell enters the conflict state. """
+        self.cell_view.model.set_conflict_status(True)
+        self.assertTrue(self.cell_view.model.in_conflict)
+        self.assertIsInstance(self.cell_view._state_context.state, ConflictCellViewState)
+        self.assertEqual(self.cell_view.cget("bg"), CELL_CONFLICT_COLOR)
+
     #
     # Helper Methods
     #
     def set_value(self, value, value_type):
-        """Helper method to set the model value and update the cell view labels."""
+        """ Helper method to set the model value and update the cell view labels. """
         self.model.value = value
         self.model.value_type = value_type
         self.cell_view.update_labels()
@@ -276,6 +307,19 @@ class TestCellViewStateMachine(unittest.TestCase):
         self.model.in_conflict = False
         self.state_context.exit_conflict()
         self.assert_selected()
+
+    def test_xy_properties(self):
+        self.cell_view.model.x = 1
+        self.cell_view.model.y = 2
+
+        self.assertEqual(self.cell_view.x, 1)
+        self.assertEqual(self.cell_view.y, 2)
+
+        self.cell_view.x = 3
+        self.cell_view.y = 4
+
+        self.assertEqual(self.cell_view.model.x, 3)
+        self.assertEqual(self.cell_view.model.y, 4)
 
     #
     # Helper Methods

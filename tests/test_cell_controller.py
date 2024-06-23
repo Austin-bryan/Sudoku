@@ -5,9 +5,9 @@ from tkinter import Tk
 from utils.constants import BOARD_SIZE, SUBGRID_SIZE
 from views.mode_button import ModeButton, Mode
 from views.cell_view import CellView, CELL_SELECTION_COLOR, CELL_MATCHING_COLOR, CELL_HIGHLIGHT_COLOR
+from controllers.board_controller import BoardController
 from controllers.cell_controller import CellController
 from models.cell_value_type import CellValueType
-from controllers.board_controller import BoardController
 from views.board_view import BoardView
 from models.board_model import BoardModel
 from views.number_button import NumberButton
@@ -39,8 +39,8 @@ class TestCellController(unittest.TestCase):
         self.assertFalse(self.cell_controller.model.in_conflict)
         self.assertListEqual(self.cell_controller.model.notes, [False] * BOARD_SIZE)
 
-    def test_on_press(self):
-        """ Ensures that on_press() properly selects and sets the color. """
+    def test_select(self):
+        """ Ensures that select() properly selects and sets the color. """
         self.cell_controller.view.update_color = Mock()
         self.cell_controller.select()
         self.assertEqual(self.board_controller.selected_cell, self.cell_controller)
@@ -48,9 +48,15 @@ class TestCellController(unittest.TestCase):
 
     def test_toggle_entry(self):
         """ Tests that setting the entry via toggle number works. """
+        self.cell_controller.model.value = 1
         self.cell_controller.toggle_number(5)
         self.assertEqual(self.cell_controller.model.value, 5)
         self.assertEqual(self.cell_controller.model.value_type, CellValueType.ENTRY)
+        self.cell_controller.view.update_labels.assert_called()
+
+        self.cell_controller.toggle_number(5)
+        self.assertEqual(self.cell_controller.model.value, None)
+        self.assertEqual(self.cell_controller.model.value_type, CellValueType.BLANK)
         self.cell_controller.view.update_labels.assert_called()
 
     def test_toggle_note(self):
@@ -60,6 +66,17 @@ class TestCellController(unittest.TestCase):
         self.assertTrue(self.cell_controller.model.notes[4])
         self.assertEqual(self.cell_controller.model.value_type, CellValueType.NOTES)
         self.cell_controller.view.update_labels.assert_called()
+
+        self.cell_controller.toggle_number(5)
+        self.assertFalse(self.cell_controller.model.notes[4])
+        self.assertEqual(self.cell_controller.model.value_type, CellValueType.BLANK)
+        self.cell_controller.view.update_labels.assert_called()
+
+    def test_toggle_given(self):
+        self.cell_controller.model.value = 1
+        self.cell_controller.model.value_type = CellValueType.GIVEN
+        self.cell_controller.toggle_number(5)
+        self.assertEqual(self.cell_controller.model.value, 1)
 
     def test_clear(self):
         """ Tests that clear works. """
@@ -165,6 +182,46 @@ class TestCellController(unittest.TestCase):
         self.cell_controller.board_controller.model.notify = Mock()
         self.cell_controller.clear()
         self.cell_controller.board_controller.model.notify.assert_called_once_with()
+
+    def test_valid_coordinates(self):
+        with self.assertRaises(ValueError):
+            cell = CellController(self.board_controller, Mock(), Mock(), 123, 12)
+
+    def test_clearing_notes_in_house_on_entry(self):
+        """ This tests that when the user makes an entry, all cells in the house get that note removed. """
+
+        def setup_cell(_x, _y):
+            self.board_controller.cells[_x][_y].toggle_number(5)
+            self.board_controller.cells[_x][_y].toggle_number(4)
+
+        ModeButton.mode = Mode.NOTES
+
+        testing_cells = [(0, 4), (1, 4), (4, 0), (4, 1), (3, 3), (5, 5)]  # Includes same row, column and subgrid
+        for x, y in testing_cells:
+            setup_cell(x, y)
+
+        ModeButton.mode = Mode.ENTRY
+        self.board_controller.cells[4][4].toggle_number(5)
+
+        # Makes sure 5 is cleared, but not 4
+        for x, y in testing_cells:
+            self.assertFalse(self.board_controller.cells[x][y].model.has_note(5), f"Note not cleared @ ({x}, {y})")
+            self.assertTrue(self.board_controller.cells[x][y].model.has_note(4), f"Note cleared @ ({x}, {y})")
+
+    def test_xy_set(self):
+        self.cell_controller.model.x = 3
+        self.cell_controller.model.y = 3
+
+        self.cell_controller.x = 4
+        self.cell_controller.y = 4
+
+        self.assertEqual(self.cell_controller.model.x, 4)
+        self.assertEqual(self.cell_controller.model.y, 4)
+
+    def test_event_handler(self):
+        self.cell_controller.clear = Mock()
+        self.cell_controller.event_handler.clear()
+        self.assertTrue(self.cell_controller.clear.called)
 
     #
     # Helper Methods

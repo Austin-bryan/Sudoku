@@ -1,0 +1,18 @@
+[run]
+# Exclude tests and other directories from coverage
+omit =
+    tests/*
+    */tests/*
+    __init__.py
+
+[report]
+# Exclude test helper functions from coverage report
+exclude_lines =
+    if __name__ == .__main__.:
+    pragma: no cover
+    def __repr__
+    if self.debug
+    raise AssertionError
+    raise NotImplementedError
+    pass
+    except:

@@ -7,9 +7,7 @@ import logging
 
 
 class BoardController:
-    """
-    Controller for managing the board's logic and interaction between the model and view.
-    """
+    """ Controller for managing the board's logic and interaction between the model and view. """
 
     def __init__(self, parent):
         """
@@ -57,11 +55,8 @@ class BoardController:
 
     def clear_selected(self):
         """ Clears the currently selected cell if it exists. """
-        try:
-            if self.selected_cell:
-                self.selected_cell.clear()
-        except Exception as e:
-            logging.error(f"Error clearing selected cell: {e}")
+        if self.selected_cell:
+            self.selected_cell.clear()
 
     def toggle_selected_cell(self, number):
         """
@@ -74,9 +69,6 @@ class BoardController:
                 self.selected_cell.toggle_number(number)
         except Exception as e:
             logging.error(f"Error toggling number in selected cell: {e}")
-            
-    def get_cell(self, x, y):
-        return self.cells[x][y]
 
     def get_frame(self):
         return self.view.get_frame()

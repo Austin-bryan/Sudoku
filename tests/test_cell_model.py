@@ -1,4 +1,6 @@
 ﻿import unittest
+from unittest.mock import Mock
+
 from models.cell_model import CellModel
 from models.cell_value_type import CellValueType
 from utils.constants import BOARD_SIZE
@@ -125,4 +127,39 @@ class TestCellModel(unittest.TestCase):
         self.cell_model.toggle_note(1)
         self.cell_model.toggle_entry(5)
         self.assertEqual(self.cell_model.notes, [True] + [False for _ in range(BOARD_SIZE - 1)])
+
+    def test_set_conflict_status(self):
+        """ Makes sure notify is called when setting status. """
+        self.cell_model.notify = Mock()
+        self.cell_model.set_conflict_status(True)
+        self.assertTrue(self.cell_model.in_conflict)
+        self.assertTrue(self.cell_model.notify.called)
+
+        self.cell_model.set_conflict_status(False)
+        self.assertFalse(self.cell_model.in_conflict)
+        self.assertTrue(self.cell_model.notify.called)
+
+    def test_get_house(self):
+        self.cell_model.house_manager = Mock()
+        self.cell_model.house_manager.get_house = Mock()
+        self.cell_model.get_house()
+        self.assertTrue(self.cell_model.house_manager.get_house.called)
+
+    def test_get_row(self):
+        self.cell_model.house_manager = Mock()
+        self.cell_model.house_manager.get_row = Mock()
+        self.cell_model.get_row()
+        self.assertTrue(self.cell_model.house_manager.get_row.called)
+
+    def test_get_column(self):
+        self.cell_model.house_manager = Mock()
+        self.cell_model.house_manager.get_column = Mock()
+        self.cell_model.get_column()
+        self.assertTrue(self.cell_model.house_manager.get_column.called)
+
+    def test_get_subgrid(self):
+        self.cell_model.house_manager = Mock()
+        self.cell_model.house_manager.get_subgrid = Mock()
+        self.cell_model.get_subgrid()
+        self.assertTrue(self.cell_model.house_manager.get_subgrid.called)
 

@@ -19,9 +19,6 @@ class BoardModel(Subject):
     def get_cell_value(self, x, y):
         return self.cells[x][y].value
 
-    def get_cell(self, x, y):
-        return self.cells[x][y]
-
     def add_cell_model(self, x, y, cell_model):
         """ Used by cell models when they are created to add themselves to the board. """
         self.cells[x][y] = cell_model

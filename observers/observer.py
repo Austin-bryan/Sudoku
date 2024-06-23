@@ -1,3 +1,8 @@
-class Observer:
+from abc import ABC, abstractmethod
+
+
+class Observer(ABC):
+
+    @abstractmethod
     def update(self):
-        raise NotImplementedError("The update method should be implemented by subclasses.")
+        pass

@@ -37,7 +37,6 @@ class CellController:
         self.highlighter.highlight_house()
         self.highlighter.highlight_matching_numbers()
         self.view.enter_selected()
-        # self.view.update_color(CellView._SELECTED_COLOR)
         NumberButton.show_number_buttons(self)
 
     def toggle_number(self, number):
@@ -67,9 +66,6 @@ class CellController:
     def move_selection(self, dx, dy):
         self.selection_manager.move_selection(dx, dy)
 
-    def safe_move_selection(self, dx, dy):
-        self.selection_manager.safe_move_selection(dx, dy)
-
     def get_house(self):
         return self.house_manager.get_house()
 
@@ -81,10 +77,6 @@ class CellController:
 
     def get_subgrid(self):
         return self.house_manager.get_subgrid()
-
-    def set_conflict_status(self, status):
-        pass
-        # self.view.set_conflict_status(status)
 
     @property
     def x(self):
@@ -121,16 +113,16 @@ class EventHandler:
         self.cell_controller.select()
 
     def on_up(self, event):
-        self.cell_controller.safe_move_selection(-1, 0)
+        self.cell_controller.move_selection(-1, 0)
 
     def on_down(self, event):
-        self.cell_controller.safe_move_selection(1, 0)
+        self.cell_controller.move_selection(1, 0)
 
     def on_left(self, event):
-        self.cell_controller.safe_move_selection(0, -1)
+        self.cell_controller.move_selection(0, -1)
 
     def on_right(self, event):
-        self.cell_controller.safe_move_selection(0, 1)
+        self.cell_controller.move_selection(0, 1)
 
     def on_key_press(self, event):
         if event.keysym in '123456789':
@@ -153,20 +145,11 @@ class Highlighter:
                           and cell.model is not self.cell_controller.model]
         for cell in matching_cells:
             cell.view.enter_matching()
-            # if not cell.model.in_conflict:
-            #     cell.view.update_color(CellView._MATCHING_COLOR)
 
     def highlight_house(self):
         for cell in self.board_controller.cells_flat:
-            # if not cell.model.in_conflict:
-            # else:
-            #     cell.view.update_color(CellView._CONFLICT_COLOR)
-            # cell.view._is_highlighted = False
             cell.view.reset_state()
         for cell in self.cell_controller.get_house():
-            # if not cell.model.in_conflict:
-            #     cell.view.update_color(CellView._HIGHLIGHT_COLOR)
-            # cell.view._is_highlighted = True
             cell.view.enter_highlighted()
 
 
@@ -180,9 +163,3 @@ class SelectionManager:
         new_cell = self.cell_controller.board_controller.cells[new_x][new_y]
         if new_cell:
             new_cell.event_handler.on_press(None)
-
-    def safe_move_selection(self, dx, dy):
-        try:
-            self.move_selection(dx, dy)
-        except IndexError as e:
-            print(f"Error during move selection: {e}")
