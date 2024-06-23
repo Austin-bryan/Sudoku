@@ -5,10 +5,11 @@ from unittest.mock import Mock
 from models.cell_value_type import CellValueType
 from utils.constants import BOARD_SIZE
 from views import number_button
+from views.game_button import BUTTON_DEFAULT_COLOR, BUTTON_HOVER_COLOR
 from views.mode_button import ModeButton, Mode
 from views.number_button import NumberButton
 from controllers.board_controller import BoardController
-from views.toggle_button import ToggleButton
+from views.toggle_button import ToggleButton, BUTTON_TOGGLE_COLOR
 
 
 class TestNumberButton(unittest.TestCase):
@@ -34,14 +35,14 @@ class TestNumberButton(unittest.TestCase):
         """ Tests that toggling on changes state and color. """
         NumberButton.buttons[1].toggle_on()
         self.assertTrue(NumberButton.buttons[1]._is_toggled)
-        self.assertEqual(self.button1_fill, ToggleButton._TOGGLE_COLOR)
+        self.assertEqual(self.button1_fill, BUTTON_TOGGLE_COLOR)
 
     def test_toggle_off(self):
         """ Tests that toggling off changes state and resets color. """
         NumberButton.buttons[1].toggle_on()
         NumberButton.buttons[1].toggle_off()
         self.assertFalse(NumberButton.buttons[1]._is_toggled)
-        self.assertEqual(self.button1_fill, ToggleButton._DEFAULT_COLOR)
+        self.assertEqual(self.button1_fill, BUTTON_DEFAULT_COLOR)
 
     def test_on_press(self):
         """ Tests that toggling on and off works. """
@@ -183,7 +184,7 @@ class TestNumberButton(unittest.TestCase):
         button = NumberButton.buttons[1]
         button.enable()
         button.on_enter(None)
-        self.assertEqual(self.button1_fill, NumberButton._HOVER_COLOR)
+        self.assertEqual(self.button1_fill, BUTTON_HOVER_COLOR)
 
     def test_enabled_leave(self):
         """ Makes sure that enabled buttons can remove hover effect. """
@@ -191,17 +192,17 @@ class TestNumberButton(unittest.TestCase):
         button.enable()
         button.on_enter(None)
         button.on_leave(None)
-        self.assertEqual(self.button1_fill, NumberButton._DEFAULT_COLOR)
+        self.assertEqual(self.button1_fill, BUTTON_DEFAULT_COLOR)
 
     def test_pressing_changes_color(self):
         """ Makes sure clicking on the button will change the color. """
         NumberButton.buttons[1].enable()
         button = NumberButton.buttons[1]
         button.on_press(None)
-        self.assertEqual(self.button1_fill, NumberButton._TOGGLE_COLOR)
+        self.assertEqual(self.button1_fill, BUTTON_TOGGLE_COLOR)
 
         button.on_press(None)
-        self.assertEqual(self.button1_fill, NumberButton._DEFAULT_COLOR)
+        self.assertEqual(self.button1_fill, BUTTON_DEFAULT_COLOR)
 
     def test_pressing_multiple_notes(self):
         """ Tests that multiple notes can be on at once. """
@@ -211,8 +212,8 @@ class TestNumberButton(unittest.TestCase):
         NumberButton.buttons[1].on_press(None)
         NumberButton.buttons[2].on_press(None)
 
-        self.assertEqual(self.button1_fill, NumberButton._TOGGLE_COLOR)
-        self.assertEqual(self.button2_fill, NumberButton._TOGGLE_COLOR)
+        self.assertEqual(self.button1_fill, BUTTON_TOGGLE_COLOR)
+        self.assertEqual(self.button2_fill, BUTTON_TOGGLE_COLOR)
 
     def test_pressing_multiple_entries(self):
         """ Tests that multiple entries will turn the active one off. """
@@ -222,8 +223,8 @@ class TestNumberButton(unittest.TestCase):
         NumberButton.buttons[1].on_press(None)
         NumberButton.buttons[2].on_press(None)
 
-        self.assertEqual(self.button1_fill, NumberButton._DEFAULT_COLOR)
-        self.assertEqual(self.button2_fill, NumberButton._TOGGLE_COLOR)
+        self.assertEqual(self.button1_fill, BUTTON_DEFAULT_COLOR)
+        self.assertEqual(self.button2_fill, BUTTON_TOGGLE_COLOR)
 
     @property
     def button1_fill(self):

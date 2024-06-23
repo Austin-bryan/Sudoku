@@ -3,6 +3,7 @@ from controllers.board_controller import BoardController
 from observers.conflict_observer import ConflictObserver
 from utils.constants import BACKGROUND_COLOR, BOARD_SIZE
 from utils.sudoku_generator import SudokuGenerator
+from views.game_button import GameButton
 from views.number_button import NumberButton
 from views.mode_button import ModeButton
 
@@ -39,16 +40,16 @@ class SudokuApp:
         generator = SudokuGenerator()
         self.board_controller.populate_board(generator.generate_board())
 
-        # Create the bottom row of buttons
+        # Create the grid of number buttons
         for i in range(BOARD_SIZE):
             number_button = NumberButton(number_grid, self.board_controller, i + 1)
             number_button.grid(row=i % 3, column=int(i / 3), padx=5, pady=5)
 
         mode_button = ModeButton(bottom_row, self.board_controller, label='M')
-        mode_button.grid(row=4, column=4, padx=2, pady=5)
+        mode_button.grid(row=1, column=1, padx=2, pady=5)
 
-        delete_button = tk.Button(bottom_row, text='Delete', command=lambda: self.board_controller.clear_selected())
-        delete_button.grid(row=0, column=10, padx=2, pady=5)
+        delete_button = GameButton(bottom_row, label='X', command=lambda: self.board_controller.clear_selected())
+        delete_button.grid(row=1, column=2, padx=2, pady=5)
 
         # Optionally configure row and column weights to control resizing behavior
         for i in range(BOARD_SIZE):

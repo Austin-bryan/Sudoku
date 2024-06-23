@@ -1,4 +1,5 @@
-﻿from views.toggle_button import ToggleButton
+﻿from views.game_button import BUTTON_DEFAULT_COLOR
+from views.toggle_button import ToggleButton
 
 
 class NumberButton(ToggleButton):
@@ -69,7 +70,7 @@ class NumberButton(ToggleButton):
     def enable(self):
         """ Restores appearance and allows interaction. """
         self._is_disabled = False
-        self._set_color(ToggleButton._DEFAULT_COLOR)
+        self._set_color(BUTTON_DEFAULT_COLOR)
         self.itemconfig(self.text, fill=NumberButton._DEFAULT_TEXT)
 
     @classmethod
