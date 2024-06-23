@@ -3,6 +3,7 @@ import random
 from tkinter import Tk
 from unittest.mock import Mock
 
+from controllers.board_controller import BoardController
 from utils.constants import BOARD_SIZE, SUBGRID_SIZE
 from views.cell_view import *
 from models.cell_model import CellModel

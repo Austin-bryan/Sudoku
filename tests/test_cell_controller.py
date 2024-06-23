@@ -3,8 +3,10 @@ from unittest.mock import Mock, patch
 from tkinter import Tk
 
 from utils.constants import BOARD_SIZE, SUBGRID_SIZE
+from utils.sudoku_generator import SudokuGenerator
 from views.mode_button import ModeButton, Mode
-from views.cell_view import CellView, CELL_SELECTION_COLOR, CELL_MATCHING_COLOR, CELL_HIGHLIGHT_COLOR
+from views.cell_view import CellView, CELL_SELECTION_COLOR, CELL_MATCHING_COLOR, CELL_HIGHLIGHT_COLOR, \
+    MatchingCellViewState, SelectedCellViewState, CELL_DEFAULT_COLOR, DefaultCellViewState
 from controllers.board_controller import BoardController
 from controllers.cell_controller import CellController
 from models.cell_value_type import CellValueType
@@ -19,7 +21,10 @@ class TestCellController(unittest.TestCase):
         self.board_model = BoardModel()
         self.board_view = BoardView(self.root)
         self.board_controller = BoardController(self.root)
-        self.cell_controller = CellController(self.board_controller, self.board_view, self.board_model, 0, 0)
+        generator = SudokuGenerator()
+        self.board_controller.populate_board(generator.generate_board())
+
+        self.cell_controller = self.board_controller.cells[0][0]
         self.cell_controller.view.update_labels = Mock()
         self.show_number_buttons = NumberButton.show_number_buttons
         NumberButton.show_number_buttons = Mock()
@@ -189,16 +194,20 @@ class TestCellController(unittest.TestCase):
 
     def test_clearing_notes_in_house_on_entry(self):
         """ This tests that when the user makes an entry, all cells in the house get that note removed. """
+        ModeButton.mode = Mode.NOTES
 
         def setup_cell(_x, _y):
+            self.board_controller.cells[_x][_y].model.is_given = Mock(return_value=False)
             self.board_controller.cells[_x][_y].toggle_number(5)
             self.board_controller.cells[_x][_y].toggle_number(4)
-
-        ModeButton.mode = Mode.NOTES
 
         testing_cells = [(0, 4), (1, 4), (4, 0), (4, 1), (3, 3), (5, 5)]  # Includes same row, column and subgrid
         for x, y in testing_cells:
             setup_cell(x, y)
+
+        for x, y in testing_cells:
+            self.assertTrue(self.board_controller.cells[x][y].model.has_note(5), f"Missing note 5 @ ({x}, {y})")
+            self.assertTrue(self.board_controller.cells[x][y].model.has_note(4), f"Missing not 4 ({x}, {y})")
 
         ModeButton.mode = Mode.ENTRY
         self.board_controller.cells[4][4].toggle_number(5)
@@ -223,9 +232,29 @@ class TestCellController(unittest.TestCase):
         self.cell_controller.event_handler.clear()
         self.assertTrue(self.cell_controller.clear.called)
 
+    def test_clearing_resets_to_default_state(self):
+        """ Tests to make sure that matching cells return to their default state when the selected cell is cleared. """
+        self.cell_controller.toggle_number(5)
+        other = self.board_controller.cells[5][5]
+        other.toggle_number(5)
+
+        other.select()
+
+        self.assert_state(other, SelectedCellViewState, CELL_SELECTION_COLOR)
+        self.assert_state(self.cell_controller, MatchingCellViewState, CELL_MATCHING_COLOR)
+
+        other.clear()
+
+        self.assert_state(other, SelectedCellViewState, CELL_SELECTION_COLOR)
+        self.assert_state(self.cell_controller, DefaultCellViewState, CELL_DEFAULT_COLOR)
+
     #
     # Helper Methods
     #
+    def assert_state(self, cell, state, color):
+        self.assertIsInstance(cell.view._state_context.state, state)
+        self.assertEqual(cell.view.cget("bg"), color)
+
     def assert_matching_cells(self, a, b):
         self.assertListEqual([(cell.model.x, cell.model.y) for cell in a],
                              [(cell.model.x, cell.model.y) for cell in b])

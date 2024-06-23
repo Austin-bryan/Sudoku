@@ -56,6 +56,8 @@ class CellController:
         self.highlighter.highlight_matching_numbers()
 
     def clear(self, event=None):
+        for cell in self.highlighter.get_matching_cells():
+            cell.view.reset_state()
         self.model.clear_cell()
         NumberButton.show_number_buttons(self)
         self.board_controller.model.notify()
@@ -139,10 +141,7 @@ class Highlighter:
         self.board_controller = board_control
 
     def highlight_matching_numbers(self):
-        matching_cells = [cell for cell in self.cell_controller.board_controller.cells_flat
-                          if cell.model.value == self.cell_controller.model.value
-                          and cell.model.has_value()
-                          and cell.model is not self.cell_controller.model]
+        matching_cells = self.get_matching_cells()
         for cell in matching_cells:
             cell.view.enter_matching()
 
@@ -151,6 +150,12 @@ class Highlighter:
             cell.view.reset_state()
         for cell in self.cell_controller.get_house():
             cell.view.enter_highlighted()
+
+    def get_matching_cells(self):
+        return [cell for cell in self.cell_controller.board_controller.cells_flat
+                          if cell.model.value == self.cell_controller.model.value
+                          and cell.model.has_value()
+                          and cell.model is not self.cell_controller.model]
 
 
 class SelectionManager:
