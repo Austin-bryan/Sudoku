@@ -12,7 +12,7 @@ class ModeButton(ToggleButton):
     mode = Mode.ENTRY
 
     def __init__(self, parent, board_controller, label, **kwargs):
-        super().__init__(parent, label, **kwargs)
+        super().__init__(parent, label, image_path='notes.png', **kwargs)
         self.board_controller = board_controller
 
     def on_press(self, event):

@@ -9,6 +9,14 @@ class NumberButton(ToggleButton):
     _DISABLED_TEXT = '#444'
     _DEFAULT_TEXT = '#FFF'
 
+    def __init__(self, parent, board_controller, number, **kwargs):
+        super().__init__(parent, number, font_size=18, width=100, **kwargs)
+        NumberButton.buttons[number] = self
+        self.board_controller = board_controller
+        self.number = number
+        self._is_disabled = True
+        self.disable()
+
     @classmethod
     def toggle_all_off(cls):
         [button.toggle_off() for button in cls.buttons.values()]
@@ -31,14 +39,6 @@ class NumberButton(ToggleButton):
         for i, should_toggle_on in enumerate(notes):
             if should_toggle_on:
                 cls.buttons[i + 1].toggle_on()
-
-    def __init__(self, parent, board_controller, number, **kwargs):
-        super().__init__(parent, number, 100, **kwargs)
-        NumberButton.buttons[number] = self
-        self.board_controller = board_controller
-        self.number = number
-        self._is_disabled = True
-        self.disable()
 
     def on_press(self, event):
         """ Depending on the mode, toggles entries or notes, if it's enabled. """

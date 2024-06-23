@@ -45,13 +45,26 @@ class SudokuApp:
             number_button = NumberButton(number_grid, self.board_controller, i + 1)
             number_button.grid(row=i % 3, column=int(i / 3), padx=5, pady=5)
 
-        mode_button = ModeButton(bottom_row, self.board_controller, label='M')
-        mode_button.grid(row=1, column=1, padx=2, pady=5)
+        undo_button = GameButton(bottom_row, label='Undo', image_path='undo.png',
+                                 command=lambda: self.board_controller.clear_selected())
+        undo_button.grid(row=1, column=0, padx=2, pady=5)
 
-        delete_button = GameButton(bottom_row, label='X', command=lambda: self.board_controller.clear_selected())
-        delete_button.grid(row=1, column=2, padx=2, pady=5)
+        redo_button = GameButton(bottom_row, label='Redo', image_path='redo.png',
+                                 command=lambda: self.board_controller.clear_selected())
+        redo_button.grid(row=1, column=1, padx=2, pady=5)
 
-        # Optionally configure row and column weights to control resizing behavior
+        mode_button = ModeButton(bottom_row, self.board_controller, label='Notes')
+        mode_button.grid(row=1, column=2, padx=2, pady=5)
+
+        clear_button = GameButton(bottom_row, label='Clear', image_path='clear.png',
+                                   command=lambda: self.board_controller.clear_selected())
+        clear_button.grid(row=1, column=3, padx=2, pady=5)
+
+        hint_button = GameButton(bottom_row, label='Hint', image_path='hint.png',
+                                 command=lambda: self.board_controller.clear_selected())
+        hint_button.grid(row=1, column=4, padx=2, pady=5)
+
+        # Configure row and column weights to control resizing behavior
         for i in range(BOARD_SIZE):
             grid_frame.columnconfigure(i, weight=1)
             grid_frame.rowconfigure(i, weight=1)
