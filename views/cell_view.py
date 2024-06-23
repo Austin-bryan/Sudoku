@@ -8,11 +8,11 @@ from utils.constants import SELECTION_COLOR, BACKGROUND_COLOR, SUBGRID_SIZE
 from models.cell_value_type import CellValueType
 
 # Cell colors
-_DEFAULT_COLOR = '#333'
-_HIGHLIGHT_COLOR = '#4a4a4a'
-_MATCHING_COLOR = '#299'
-_CONFLICT_COLOR = '#A33'
-_SELECTION_COLOR = SELECTION_COLOR
+CELL_DEFAULT_COLOR = '#333'
+CELL_HIGHLIGHT_COLOR = '#4a4a4a'
+CELL_MATCHING_COLOR = '#299'
+CELL_CONFLICT_COLOR = '#A33'
+CELL_SELECTION_COLOR = SELECTION_COLOR
 
 
 class CellView(Canvas, Observer):
@@ -23,7 +23,7 @@ class CellView(Canvas, Observer):
         self.model = model
         self.actual_width = CellView._WIDTH
         self.actual_height = CellView._WIDTH
-        self.config(width=CellView._WIDTH, height=CellView._WIDTH, bg=_DEFAULT_COLOR)
+        self.config(width=CellView._WIDTH, height=CellView._WIDTH, bg=CELL_DEFAULT_COLOR)
         self._draw_thick_borders()
         self.on_press_event = None
         self.is_highlighted = False
@@ -167,7 +167,7 @@ class DefaultCellViewState(CellViewState):
     priority = 1
 
     def enter(self, cell_view):
-        cell_view.update_color(_DEFAULT_COLOR)
+        cell_view.update_color(CELL_DEFAULT_COLOR)
 
 
 class HighlightedCellViewState(CellViewState):
@@ -175,7 +175,7 @@ class HighlightedCellViewState(CellViewState):
     priority = 2
 
     def enter(self, cell_view):
-        cell_view.update_color(_HIGHLIGHT_COLOR)
+        cell_view.update_color(CELL_HIGHLIGHT_COLOR)
 
 
 class SelectedCellViewState(CellViewState):
@@ -183,7 +183,7 @@ class SelectedCellViewState(CellViewState):
     priority = 3
 
     def enter(self, cell_view):
-        cell_view.update_color(_SELECTION_COLOR)
+        cell_view.update_color(CELL_SELECTION_COLOR)
 
 
 class MatchingCellViewState(CellViewState):
@@ -191,7 +191,7 @@ class MatchingCellViewState(CellViewState):
     priority = 4
 
     def enter(self, cell_view):
-        cell_view.update_color(_MATCHING_COLOR)
+        cell_view.update_color(CELL_MATCHING_COLOR)
 
 
 class ConflictCellViewState(CellViewState):
@@ -202,7 +202,7 @@ class ConflictCellViewState(CellViewState):
         self._rollback_state = previous_state
 
     def enter(self, cell_view):
-        cell_view.update_color(_CONFLICT_COLOR)
+        cell_view.update_color(CELL_CONFLICT_COLOR)
 
     def get_rollback_state(self):
         return self._rollback_state

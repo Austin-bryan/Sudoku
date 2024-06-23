@@ -13,7 +13,7 @@ class ConflictObserver(Observer):
     def detect_conflicts(self):
         for x in range(BOARD_SIZE):
             for y in range(BOARD_SIZE):
-                cell_model = self.board_model.get_cell(x, y)
+                cell_model = self.board_model.cells[x][y]
                 cell_model.set_conflict_status(self.has_conflict(cell_model))
 
     def has_conflict(self, cell_model):

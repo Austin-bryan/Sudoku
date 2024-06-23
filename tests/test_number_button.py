@@ -47,12 +47,12 @@ class TestNumberButton(unittest.TestCase):
         """ Tests that toggling on and off works. """
         self.cell_controller.model.is_given = Mock(return_value=False)
         NumberButton.buttons[1].enable()
-        NumberButton.buttons[1].select(None)
+        NumberButton.buttons[1].on_press(None)
 
         self.assertTrue(NumberButton.buttons[1]._is_toggled)
         self.board_controller.toggle_selected_cell.assert_called_with(1)
 
-        NumberButton.buttons[1].select(None)
+        NumberButton.buttons[1].on_press(None)
         self.assertFalse(NumberButton.buttons[1]._is_toggled)
         self.board_controller.toggle_selected_cell.assert_called_with(1)
 
@@ -167,7 +167,7 @@ class TestNumberButton(unittest.TestCase):
         """ Tests that disabled buttons do not change state or color on click. """
         button = NumberButton.buttons[1]
         button.disable()
-        button.select(None)
+        button.on_press(None)
         self.assertFalse(button._is_toggled)
         self.assertEqual(self.button1_fill, NumberButton._DISABLED_FILL)
 
@@ -193,15 +193,14 @@ class TestNumberButton(unittest.TestCase):
         button.on_leave(None)
         self.assertEqual(self.button1_fill, NumberButton._DEFAULT_COLOR)
 
-
     def test_pressing_changes_color(self):
         """ Makes sure clicking on the button will change the color. """
         NumberButton.buttons[1].enable()
         button = NumberButton.buttons[1]
-        button.select(None)
+        button.on_press(None)
         self.assertEqual(self.button1_fill, NumberButton._TOGGLE_COLOR)
 
-        button.select(None)
+        button.on_press(None)
         self.assertEqual(self.button1_fill, NumberButton._DEFAULT_COLOR)
 
     def test_pressing_multiple_notes(self):
@@ -209,8 +208,8 @@ class TestNumberButton(unittest.TestCase):
         NumberButton.buttons[1].enable()
         NumberButton.buttons[2].enable()
         ModeButton.mode = Mode.NOTES
-        NumberButton.buttons[1].select(None)
-        NumberButton.buttons[2].select(None)
+        NumberButton.buttons[1].on_press(None)
+        NumberButton.buttons[2].on_press(None)
 
         self.assertEqual(self.button1_fill, NumberButton._TOGGLE_COLOR)
         self.assertEqual(self.button2_fill, NumberButton._TOGGLE_COLOR)
@@ -220,8 +219,8 @@ class TestNumberButton(unittest.TestCase):
         NumberButton.buttons[1].enable()
         NumberButton.buttons[2].enable()
         ModeButton.mode = Mode.ENTRY
-        NumberButton.buttons[1].select(None)
-        NumberButton.buttons[2].select(None)
+        NumberButton.buttons[1].on_press(None)
+        NumberButton.buttons[2].on_press(None)
 
         self.assertEqual(self.button1_fill, NumberButton._DEFAULT_COLOR)
         self.assertEqual(self.button2_fill, NumberButton._TOGGLE_COLOR)

@@ -20,7 +20,7 @@ class TestCellView(unittest.TestCase):
 
     def test_initial_color(self):
         """ Test that the initial background color is set correctly."""
-        self.assertEqual(self.cell_view['bg'], CellView._DEFAULT_COLOR)
+        self.assertEqual(self.cell_view['bg'], CELL_DEFAULT_COLOR)
 
     def test_update_labels_entry(self):
         """ Test that the entry value is displayed correctly and color is updated."""
@@ -149,6 +149,8 @@ class TestCellViewStateMachine(unittest.TestCase):
         self.root = Tk()
         self.model = Mock()
         self.model.in_conflict = False
+        self.model.x = 0
+        self.model.y = 0
         self.cell_view = CellView(self.root, self.model)
         self.state_context = self.cell_view._state_context
 
@@ -157,34 +159,24 @@ class TestCellViewStateMachine(unittest.TestCase):
         self.root.destroy()
 
     def test_enter_default(self):
-        """Test entering the default state."""
         self.state_context.enter_default()
-        self.assertIsInstance(self.state_context.state, DefaultCellViewState)
-        self.assertEqual(self.cell_view.cget("bg"), '#333')
+        self.assert_default()
 
     def test_enter_highlighted(self):
-        """Test entering the highlighted state."""
         self.state_context.enter_highlighted()
-        self.assertIsInstance(self.state_context.state, HighlightedCellViewState)
-        self.assertEqual(self.cell_view.cget("bg"), '#4a4a4a')
+        self.assert_highlighted()
 
     def test_enter_selected(self):
-        """Test entering the selected state."""
         self.state_context.enter_selected()
-        self.assertIsInstance(self.state_context.state, SelectedCellViewState)
-        self.assertEqual(self.cell_view.cget("bg"), SELECTION_COLOR)
+        self.assert_selected()
 
     def test_enter_matching(self):
-        """Test entering the matching state."""
         self.state_context.enter_matching()
-        self.assertIsInstance(self.state_context.state, MatchingCellViewState)
-        self.assertEqual(self.cell_view.cget("bg"), '#299')
+        self.assert_matching()
 
     def test_enter_conflict(self):
-        """Test entering the conflict state."""
         self.state_context.enter_conflict()
-        self.assertIsInstance(self.state_context.state, ConflictCellViewState)
-        self.assertEqual(self.cell_view.cget("bg"), '#A33')
+        self.assert_conflict()
 
     def test_conflict_state_with_fallback(self):
         """
@@ -193,13 +185,11 @@ class TestCellViewStateMachine(unittest.TestCase):
         """
         self.state_context.enter_highlighted()
         self.state_context.enter_conflict()
-        self.assertIsInstance(self.state_context.state, ConflictCellViewState)
-        self.assertEqual(self.cell_view.cget("bg"), '#A33')
+        self.assert_conflict()
 
         self.model.in_conflict = False
         self.state_context.exit_conflict()
-        self.assertIsInstance(self.state_context.state, HighlightedCellViewState)
-        self.assertEqual(self.cell_view.cget("bg"), '#4a4a4a')
+        self.assert_highlighted()
 
     def test_conflict_state_to_default(self):
         """
@@ -208,27 +198,24 @@ class TestCellViewStateMachine(unittest.TestCase):
         """
         self.state_context.enter_default()
         self.state_context.enter_conflict()
-        self.assertIsInstance(self.state_context.state, ConflictCellViewState)
-        self.assertEqual(self.cell_view.cget("bg"), '#A33')
+        self.assert_conflict()
 
         self.model.in_conflict = False
         self.state_context.exit_conflict()
-        self.assertIsInstance(self.state_context.state, DefaultCellViewState)
-        self.assertEqual(self.cell_view.cget("bg"), '#333')
+        self.assert_default()
 
     def test_reset_state_from_conflict(self):
         """
         Test resetting the state from conflict to default.
-        Ensures the cell returns to the default state after resetting.
+        Ensures the cell remains in conflicting state.
         """
         self.state_context.enter_selected()
+        self.cell_view.model.in_conflict = True
         self.state_context.enter_conflict()
-        self.assertIsInstance(self.state_context.state, ConflictCellViewState)
-        self.assertEqual(self.cell_view.cget("bg"), '#A33')
+        self.assert_conflict()
 
         self.state_context.reset_state()
-        self.assertIsInstance(self.state_context.state, DefaultCellViewState)
-        self.assertEqual(self.cell_view.cget("bg"), '#333')
+        self.assert_conflict()
 
     def test_reset_state_from_non_conflict(self):
         """
@@ -236,9 +223,35 @@ class TestCellViewStateMachine(unittest.TestCase):
         Ensures the cell returns to the default state after resetting.
         """
         self.state_context.enter_selected()
+        self.assert_selected()
+
         self.state_context.reset_state()
-        self.assertIsInstance(self.state_context.state, DefaultCellViewState)
-        self.assertEqual(self.cell_view.cget("bg"), '#333')
+        self.assert_default()
+
+    def test_priority_system(self):
+        """Test the priority system of the state machine."""
+        self.state_context.enter_highlighted()
+        self.state_context.enter_default()
+        self.assert_highlighted()
+
+        self.state_context.enter_selected()
+        self.state_context.enter_highlighted()
+        self.state_context.enter_default()
+        self.assert_selected()
+
+        self.state_context.enter_matching()
+        self.state_context.enter_selected()
+        self.state_context.enter_highlighted()
+        self.state_context.enter_default()
+        self.assert_matching()
+
+        self.model.in_conflict = True
+        self.state_context.enter_conflict()
+        self.state_context.enter_matching()
+        self.state_context.enter_selected()
+        self.state_context.enter_highlighted()
+        self.state_context.enter_default()
+        self.assert_conflict()
 
     def test_try_set_state_conflict(self):
         """
@@ -246,9 +259,11 @@ class TestCellViewStateMachine(unittest.TestCase):
         Ensures the conflict state overrides other states.
         """
         self.state_context.enter_conflict()
+        self.state_context.cell_view.model.in_conflict = True
+        self.assertIsInstance(self.state_context.state.get_rollback_state(), DefaultCellViewState)
+
         self.state_context.enter_highlighted()
-        self.assertIsInstance(self.state_context.state, ConflictCellViewState)
-        self.assertEqual(self.cell_view.cget("bg"), '#A33')
+        self.assert_conflict()
         self.assertIsInstance(self.state_context.state.get_rollback_state(), HighlightedCellViewState)
 
     def test_exit_conflict_state_to_selected(self):
@@ -260,8 +275,29 @@ class TestCellViewStateMachine(unittest.TestCase):
         self.state_context.enter_conflict()
         self.model.in_conflict = False
         self.state_context.exit_conflict()
-        self.assertIsInstance(self.state_context.state, SelectedCellViewState)
-        self.assertEqual(self.cell_view.cget("bg"), SELECTION_COLOR)
+        self.assert_selected()
+
+    #
+    # Helper Methods
+    #
+    def assert_default(self):
+        self.assert_state(DefaultCellViewState, CELL_DEFAULT_COLOR)
+
+    def assert_highlighted(self):
+        self.assert_state(HighlightedCellViewState, CELL_HIGHLIGHT_COLOR)
+
+    def assert_selected(self):
+        self.assert_state(SelectedCellViewState, CELL_SELECTION_COLOR)
+
+    def assert_matching(self):
+        self.assert_state(MatchingCellViewState, CELL_MATCHING_COLOR)
+
+    def assert_conflict(self):
+        self.assert_state(ConflictCellViewState, CELL_CONFLICT_COLOR)
+
+    def assert_state(self, state, color):
+        self.assertIsInstance(self.state_context.state, state)
+        self.assertEqual(self.cell_view.cget("bg"), color)
 
 
 if __name__ == '__main__':

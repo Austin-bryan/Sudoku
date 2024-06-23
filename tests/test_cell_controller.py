@@ -4,7 +4,7 @@ from tkinter import Tk
 
 from utils.constants import BOARD_SIZE, SUBGRID_SIZE
 from views.mode_button import ModeButton, Mode
-from views.cell_view import CellView
+from views.cell_view import CellView, CELL_SELECTION_COLOR, CELL_MATCHING_COLOR, CELL_HIGHLIGHT_COLOR
 from controllers.cell_controller import CellController
 from models.cell_value_type import CellValueType
 from controllers.board_controller import BoardController
@@ -44,7 +44,7 @@ class TestCellController(unittest.TestCase):
         self.cell_controller.view.update_color = Mock()
         self.cell_controller.select()
         self.assertEqual(self.board_controller.selected_cell, self.cell_controller)
-        self.cell_controller.view.update_color.assert_called_with(CellView._SELECTED_COLOR)
+        self.cell_controller.view.update_color.assert_called_with(CELL_SELECTION_COLOR)
 
     def test_toggle_entry(self):
         """ Tests that setting the entry via toggle number works. """
@@ -80,7 +80,7 @@ class TestCellController(unittest.TestCase):
 
         another_cell_controller.view.update_color = Mock()
         self.cell_controller.highlight_matching_numbers()
-        another_cell_controller.view.update_color.assert_called_with(CellView._MATCHING_COLOR)
+        another_cell_controller.view.update_color.assert_called_with(CELL_MATCHING_COLOR)
 
     def test_move_selection(self):
         """ Tests that this properly moves to another cell in the correct location. """
@@ -152,7 +152,7 @@ class TestCellController(unittest.TestCase):
     def test_highlight_house(self):
         self.cell_controller.get_house()[0].view.update_color = Mock()
         self.cell_controller.highlight_house()
-        self.cell_controller.get_house()[0].view.update_color.assert_called_with(CellView._HIGHLIGHT_COLOR)
+        self.cell_controller.get_house()[0].view.update_color.assert_called_with(CELL_HIGHLIGHT_COLOR)
 
     def test_pressed_notify(self):
         """ Ensures pressing on cell notifies observers of board model. """
