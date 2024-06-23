@@ -8,9 +8,10 @@ class NumberButton(ToggleButton):
     _DISABLED_FILL = '#222'
     _DISABLED_TEXT = '#444'
     _DEFAULT_TEXT = '#FFF'
+    _WIDTH = 100
 
     def __init__(self, parent, board_controller, number, **kwargs):
-        super().__init__(parent, number, font_size=18, width=100, **kwargs)
+        super().__init__(parent, number, font_size=18, width=NumberButton._WIDTH, height=NumberButton._WIDTH, **kwargs)
         NumberButton.buttons[number] = self
         self.board_controller = board_controller
         self.number = number

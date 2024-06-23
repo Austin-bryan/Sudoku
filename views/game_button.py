@@ -10,29 +10,30 @@ BUTTON_HOVER_COLOR = '#a91'
 BUTTON_PRESS_COLOR = SELECTION_COLOR
 
 DEFAULT_FONT_SIZE = 9
+DEFAULT_WIDTH = 60
 
 
 class GameButton(Canvas):
-    def __init__(self, parent, label, font_size=DEFAULT_FONT_SIZE, width=60, command=None, image_path=None, **kwargs):
-        self.WIDTH = width
+    def __init__(self, parent, label, font_size=DEFAULT_FONT_SIZE, width=DEFAULT_WIDTH, height=DEFAULT_WIDTH,
+                 command=None, image_path=None, **kwargs):
         self.label = label
 
-        super().__init__(parent, width=self.WIDTH, height=self.WIDTH, highlightthickness=0, **kwargs)
+        super().__init__(parent, width=width, height=height, highlightthickness=0, **kwargs)
 
         # Draw the button
-        self.rect = self.create_rectangle(0, 0, self.WIDTH, self.WIDTH, fill=BUTTON_DEFAULT_COLOR, outline="")
-        self.text = self.create_text(self.WIDTH / 2,
-                                     self.WIDTH / 2 if image_path is None else 5 * self.WIDTH / 6,
+        self.rect = self.create_rectangle(0, 0, width, height, fill=BUTTON_DEFAULT_COLOR, outline="")
+        self.text = self.create_text(width / 2,
+                                     height / 2 if image_path is None else 5 * height / 6,
                                      text=self.label, fill="white", font=("Arial", font_size))
 
         self.image = None
         if image_path:
             full_image_path = os.path.join('images', image_path)
             image = Image.open(full_image_path)
-            image_scale = 0.6
-            image = image.resize((int(self.WIDTH * image_scale), int(self.WIDTH * image_scale)))
+            image_scale = 0.5
+            image = image.resize((int(width * image_scale), int(height * image_scale)))
             self.image = ImageTk.PhotoImage(image)
-            self.image_item = self.create_image(self.WIDTH / 2, 2 * self.WIDTH / 5, image=self.image)
+            self.image_item = self.create_image(width / 2, 2 * height / 5, image=self.image)
 
         # Bind mouse events
         self.bind("<Enter>", self.on_enter)
