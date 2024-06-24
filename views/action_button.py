@@ -28,21 +28,26 @@ class ActionButton(Canvas):
 
         self.image = None
         if image_path:
-            full_image_path = os.path.join('images', image_path)
-            image = Image.open(full_image_path)
-            image_scale = 0.5
-            image = image.resize((int(width * image_scale), int(height * image_scale)))
-            self.image = ImageTk.PhotoImage(image)
-            self.image_item = self.create_image(width / 2, 2 * height / 5, image=self.image)
+            self.image, self.image_item = self.create_icon(width, height, image_path)
 
         # Bind mouse events
         self.bind("<Enter>", self.on_enter)
         self.bind("<Leave>", self.on_leave)
 
         if command:
-            self.bind("<ButtonPress-1>", lambda event: command())
+            self.bind("<ButtonPress-1>", command)
         else:
             self.bind("<ButtonPress-1>", self.on_press)
+
+    def create_icon(self, width, height, image_path):
+        full_image_path = os.path.join('images', image_path)
+        image = Image.open(full_image_path)
+        image_scale = 0.5
+        image = image.resize((int(width * image_scale), int(height * image_scale)))
+        photo_image = ImageTk.PhotoImage(image)
+        image_item = self.create_image(width / 2, 2 * height / 5, image=photo_image)
+
+        return photo_image, image_item
 
     def on_enter(self, event):
         """ Applies hover effect. """

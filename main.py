@@ -43,15 +43,15 @@ class SudokuApp:
 
         # Create action buttons
         padx = 2
-        self.create_action_button('Undo', 0, lambda: self.board_controller.clear_selected(), padx)
-        self.create_action_button('Redo', 1, lambda: self.board_controller.clear_selected(), padx)
+        self.create_action_button('Undo', 0, lambda event: self.board_controller.clear_selected(), padx)
+        self.create_action_button('Redo', 1, lambda event: self.board_controller.clear_selected(), padx)
         self.create_mode_button('Notes', 2, padx)
-        self.create_action_button('Clear', 3, lambda: self.board_controller.clear_selected(), padx)
-        self.create_action_button('Hint', 4, lambda: self.board_controller.clear_selected(), padx)
+        self.create_action_button('Clear', 3, lambda event: self.board_controller.clear_selected(), padx)
+        self.create_action_button('Hint', 4, lambda event: self.board_controller.clear_selected(), padx)
 
         # Create large buttons
-        self.create_large_button('New Game', row=0, pady=0, command=lambda: self.board_controller.clear_selected())
-        self.create_large_button('Solve', row=3, pady=10, command=lambda: backtracking_solver.solve())
+        self.create_large_button('New Game', row=0, pady=0, command=lambda event: self.board_controller.clear_selected())
+        self.create_large_button('Solve', row=3, pady=10, command=lambda event: backtracking_solver.solve())
 
     @staticmethod
     def create_frame(side_panel_frame, row, column,

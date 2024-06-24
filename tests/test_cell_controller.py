@@ -21,8 +21,7 @@ class TestCellController(unittest.TestCase):
         self.board_model = BoardModel()
         self.board_view = BoardView(self.root)
         self.board_controller = BoardController(self.root)
-        generator = SudokuGenerator()
-        self.board_controller.populate_board(generator.generate_board())
+        generator = SudokuGenerator(self.board_controller)
 
         self.cell_controller = self.board_controller.cells[0][0]
         self.cell_controller.view.update_labels = Mock()
