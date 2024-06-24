@@ -2,6 +2,7 @@
 from typing import Union, Tuple
 from controllers.board_controller import BoardController
 from observers.conflict_observer import ConflictObserver
+from utils.backtracking_solver import BacktrackingSolver
 from utils.constants import BACKGROUND_COLOR, BOARD_SIZE
 from utils.sudoku_generator import SudokuGenerator
 from views.action_button import ActionButton, DEFAULT_WIDTH
@@ -36,6 +37,10 @@ class SudokuApp:
             number_button = NumberButton(self.number_grid, self.board_controller, i + 1)
             number_button.grid(row=i % 3, column=int(i / 3), padx=5, pady=5)
 
+        # Attach the conflict observer
+        conflict_observer = ConflictObserver(self.board_controller.model)
+        backtracking_solver = BacktrackingSolver(self.board_controller)
+
         # Create action buttons
         padx = 2
         self.create_action_button('Undo', 0, lambda: self.board_controller.clear_selected(), padx)
@@ -45,11 +50,8 @@ class SudokuApp:
         self.create_action_button('Hint', 4, lambda: self.board_controller.clear_selected(), padx)
 
         # Create large buttons
-        self.create_large_button(label='New Game', row=0, pady=0)
-        self.create_large_button(label='Solve', row=3, pady=10)
-
-        # Attach the conflict observer
-        conflict_observer = ConflictObserver(self.board_controller.model)
+        self.create_large_button('New Game', row=0, pady=0, command=lambda: self.board_controller.clear_selected())
+        self.create_large_button('Solve', row=3, pady=10, command=lambda: backtracking_solver.solve())
 
     @staticmethod
     def create_frame(side_panel_frame, row, column,
@@ -58,8 +60,8 @@ class SudokuApp:
         frame.grid(row=row, column=column, padx=padx, pady=pady)
         return frame
 
-    def create_large_button(self, label, row, pady):
-        button = ActionButton(self.side_frame, label, width=320, font_size=15, height=DEFAULT_WIDTH)
+    def create_large_button(self, label, row, pady, command):
+        button = ActionButton(self.side_frame, label, width=320, font_size=15, height=DEFAULT_WIDTH, command=command)
         button.grid(row=row, column=0, pady=pady)
 
     def create_action_button(self, label, column, command, padx):

@@ -63,6 +63,9 @@ class CellView(Canvas, Observer):
     def update_color(self, color):
         self.config(bg=color)
 
+    def update_entry_label(self):
+        self.itemconfig(self.value_label, text=self.model.value if self.model.value is not None else '',  fill='white')
+
     def update_labels(self):
         """
         Ensures that labels are set properly depending on the value type of the cell.
@@ -70,9 +73,7 @@ class CellView(Canvas, Observer):
         """
         match self.model.value_type:
             case CellValueType.ENTRY:
-                self.itemconfig(self.value_label,
-                                text=self.model.value if self.model.value is not None else '',
-                                fill='white')
+                self.update_entry_label()
                 self.clear_notes()
             case CellValueType.NOTES:
                 self.clear_entry()
