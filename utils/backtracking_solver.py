@@ -21,66 +21,42 @@ class BacktrackingSolver:
         self.step_display = 1
         NumberButton.show_number_buttons = Mock()
         self.start_time = time.time()
-        self._solve()
+        self._solve(0, 0)
         self.board_controller.view.update()
 
-    def _solve(self):
-        empty_cell = self._find_empty_cell()
-        if not empty_cell:
-            return True  # No empty cell means the board is solved
+    def _solve(self, x, y):
+        if x >= BOARD_SIZE or y >= BOARD_SIZE:
+            return True  # Reached the end of the board, the puzzle is solved
 
-        x, y = empty_cell
-
+        if self.board_controller.cells[x][y].model.value is not None:
+            return self._solve(*self._next_cell(x, y))
         for num in range(1, BOARD_SIZE + 1):
-            if self._is_safe(x, y, num):
-                self._place_number(x, y, num)
-                self.iter_count += 1
+            if not self._is_unused_in_house(x, y, num):
+                continue
+            self._place_number(x, y, num)
+            self.iter_count += 1
 
-                self._adjust_update_frequency()
+            self._adjust_update_frequency()
 
-                if self.iter_count % self.step_display == 0:
-                    self.board_controller.view.update()
-                    time.sleep(0.01)
+            if self.iter_count % self.step_display == 0:
+                self.board_controller.view.update()
+                time.sleep(0.01)
 
-                if self._solve():
-                    return True
-                self._remove_number(x, y)
-                if self.iter_count % self.step_display == 0:
-                    self.board_controller.view.update()
-
+            if self._solve(*self._next_cell(x, y)):
+                return True
+            self._remove_number(x, y)
+            if self.iter_count % self.step_display == 0:
+                self.board_controller.view.update()
         return False
 
-    def _find_empty_cell(self):
-        for x in range(BOARD_SIZE):
-            for y in range(BOARD_SIZE):
-                if self.board_controller.cells[x][y].model.value is None:
-                    return x, y
-        return None
+    @staticmethod
+    def _next_cell(x, y):
+        return (x, y + 1) if y + 1 < BOARD_SIZE else (x + 1, 0)
 
-    def _is_safe(self, x, y, num):
-        return (self._is_unused_in_row(x, num) and
-                self._is_unused_in_col(y, num) and
-                self._is_unused_in_subgrid(x, y, num))
-
-    def _is_unused_in_row(self, x, num):
-        for y in range(BOARD_SIZE):
-            if self.board_controller.cells[x][y].model.value == num:
+    def _is_unused_in_house(self, x, y, num):
+        for cell in self.board_controller.cells[x][y].get_house():
+            if cell.model.value == num:
                 return False
-        return True
-
-    def _is_unused_in_col(self, y, num):
-        for x in range(BOARD_SIZE):
-            if self.board_controller.cells[x][y].model.value == num:
-                return False
-        return True
-
-    def _is_unused_in_subgrid(self, x, y, num):
-        start_x = (x // SUBGRID_SIZE) * SUBGRID_SIZE
-        start_y = (y // SUBGRID_SIZE) * SUBGRID_SIZE
-        for i in range(start_x, start_x + SUBGRID_SIZE):
-            for j in range(start_y, start_y + SUBGRID_SIZE):
-                if self.board_controller.cells[i][j].model.value == num:
-                    return False
         return True
 
     def _place_number(self, x, y, num):
@@ -99,9 +75,9 @@ class BacktrackingSolver:
 
         if elapsed_time > 5:
             self.step_display = 200
-        if elapsed_time > 4.5:
+        elif elapsed_time > 4.5:
             self.step_display = 100
-        if elapsed_time > 4:
+        elif elapsed_time > 4:
             self.step_display = 50
         elif elapsed_time > 3:
             self.step_display = 20
@@ -109,4 +85,3 @@ class BacktrackingSolver:
             self.step_display = 10
         else:
             self.step_display = 2
-
