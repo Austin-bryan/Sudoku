@@ -63,8 +63,10 @@ class CellView(Canvas, Observer):
     def update_color(self, color):
         self.config(bg=color)
 
-    def update_entry_label(self):
-        self.itemconfig(self.value_label, text=self.model.value if self.model.value is not None else '',  fill='white')
+    def update_value_label(self):
+        self.itemconfig(self.value_label,
+                        text=self.model.value if self.model.value is not None else '',
+                        fill='white' if self.model.value_type == CellValueType.ENTRY else 'black')
 
     def update_labels(self):
         """
@@ -73,7 +75,7 @@ class CellView(Canvas, Observer):
         """
         match self.model.value_type:
             case CellValueType.ENTRY:
-                self.update_entry_label()
+                self.update_value_label()
                 self.clear_notes()
             case CellValueType.NOTES:
                 self.clear_entry()
@@ -81,7 +83,7 @@ class CellView(Canvas, Observer):
                 for i, label in enumerate(self.note_labels):
                     self.itemconfig(label, text=i + 1 if self.model.notes[i] else '')
             case CellValueType.GIVEN:
-                self.itemconfig(self.value_label, text=self.model.value, fill='black')
+                self.update_value_label()
             case _:
                 self.clear_entry()
                 self.clear_notes()

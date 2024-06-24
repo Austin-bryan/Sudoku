@@ -1,6 +1,5 @@
 ﻿from models.board_model import BoardModel
 from utils.constants import BOARD_SIZE
-from utils.sudoku_generator import SudokuGenerator
 from views.board_view import BoardView
 from controllers.cell_controller import CellController
 import logging
@@ -10,14 +9,11 @@ class BoardController:
     """ Controller for managing the board's logic and interaction between the model and view. """
 
     def __init__(self, parent):
-        """
-        Initialize the BoardController with a BoardModel, BoardView, and CellControllers.
-
-        :param parent: The parent GUI element.
-        """
+        """ Initialize the BoardController with a BoardModel, BoardView, and CellControllers. """
         self.model = BoardModel()
         self.view = BoardView(parent)
         self.cells = []
+        self.parent = parent
         self.selected_cell: CellController = None
 
         self._initialize_cells()

@@ -21,13 +21,13 @@ class SudokuApp:
         self.number_grid = SudokuApp.create_frame(self.side_frame, row=1, column=0, pady=(10, 0))  # Grid for number buttons
         self.bottom_row = SudokuApp.create_frame(self.side_frame, row=2, column=0, pady=(10, 0))  # Bottom row for buttons
 
-        # Initialize BoardController
         self.board_controller = BoardController(self.grid_frame)
-        self.board_controller.view.grid(row=0, column=0)
-        generator = SudokuGenerator()
-        self.board_controller.populate_board(generator.generate_board())
-
         self.create_widgets()
+
+        # Initialize BoardController
+        self.board_controller.view.grid(row=0, column=0)
+        generator = SudokuGenerator(self.board_controller)
+        generator.generate_board()
 
     def create_widgets(self):
         """Create and configure the widgets for the Sudoku application."""
