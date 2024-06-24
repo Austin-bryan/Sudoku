@@ -4,7 +4,7 @@ import unittest
 from tkinter import Tk
 from unittest.mock import Mock
 
-from views.game_button import BUTTON_DEFAULT_COLOR, BUTTON_HOVER_COLOR
+from views.action_button import BUTTON_DEFAULT_COLOR, BUTTON_HOVER_COLOR
 from views.toggle_button import ToggleButton, BUTTON_TOGGLE_COLOR
 
 

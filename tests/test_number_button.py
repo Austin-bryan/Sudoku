@@ -5,7 +5,7 @@ from unittest.mock import Mock
 from models.cell_value_type import CellValueType
 from utils.constants import BOARD_SIZE
 from views import number_button
-from views.game_button import BUTTON_DEFAULT_COLOR, BUTTON_HOVER_COLOR
+from views.action_button import BUTTON_DEFAULT_COLOR, BUTTON_HOVER_COLOR
 from views.mode_button import ModeButton, Mode
 from views.number_button import NumberButton
 from controllers.board_controller import BoardController

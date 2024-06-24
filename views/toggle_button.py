@@ -1,12 +1,12 @@
 from tkinter import *
 from abc import ABC
 from utils.constants import *
-from views.game_button import GameButton, BUTTON_DEFAULT_COLOR, DEFAULT_FONT_SIZE, DEFAULT_WIDTH
+from views.action_button import ActionButton, BUTTON_DEFAULT_COLOR, DEFAULT_FONT_SIZE, DEFAULT_WIDTH
 
 BUTTON_TOGGLE_COLOR = SELECTION_COLOR
 
 
-class ToggleButton(GameButton, ABC):
+class ToggleButton(ActionButton, ABC):
     def __init__(self, parent, label, font_size=DEFAULT_FONT_SIZE, width=DEFAULT_WIDTH, image_path=None, **kwargs):
         super().__init__(parent, label, font_size, width, image_path=image_path, **kwargs)
 

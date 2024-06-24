@@ -13,7 +13,7 @@ DEFAULT_FONT_SIZE = 9
 DEFAULT_WIDTH = 60
 
 
-class GameButton(Canvas):
+class ActionButton(Canvas):
     def __init__(self, parent, label, font_size=DEFAULT_FONT_SIZE, width=DEFAULT_WIDTH, height=DEFAULT_WIDTH,
                  command=None, image_path=None, **kwargs):
         self.label = label

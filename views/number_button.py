@@ -1,4 +1,4 @@
-﻿from views.game_button import BUTTON_DEFAULT_COLOR
+﻿from views.action_button import BUTTON_DEFAULT_COLOR
 from views.toggle_button import ToggleButton
 
 
