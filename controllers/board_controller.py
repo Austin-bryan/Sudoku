@@ -35,11 +35,7 @@ class BoardController:
             self.cells.append(row_controllers)
 
     def populate_board(self, numbers):
-        """
-        Populates the board with initial numbers and updates the view.
-
-        :param numbers: A 2D list of numbers to be the sudoku board.
-        """
+        """ Populates the board with initial numbers and updates the view. """
         try:
             self.model.populate_board(numbers)
             for x in range(BOARD_SIZE):
@@ -52,6 +48,10 @@ class BoardController:
     def cells_flat(self):
         """ Returns a flat list of all cell controllers on the board. """
         return [cell for row in self.cells for cell in row]
+
+    def reset_cells(self):
+        for cell in self.cells_flat:
+            cell.view.reset_state()
 
     def clear_selected(self):
         """ Clears the currently selected cell if it exists. """

@@ -33,9 +33,15 @@ class ToggleEntryCommand(Command):
         return house_states
 
     def execute(self):
+        self.cell_controller.reset_matching_cells()
         self.cell_model.toggle_entry(self.new_value)
+        # self.cell_controller.highlight_matching_cells()
 
     def undo(self):
+        # self.cell_controller.board_controller.selected_cell.reset_matching_cells()
+        # self.cell_controller.board_controller.reset_cells()
+        # self.cell_controller.highlight_house()
+
         # Restore the original state of the cell
         self.cell_model.value = self.old_value
         self.cell_model.value_type = self.old_value_type
@@ -49,10 +55,12 @@ class ToggleEntryCommand(Command):
             state['cell'].model.notes = state['notes'][:]
             state['cell'].model.notify()
 
+        self.cell_controller.select()
         self.board_model.notify()
 
     def redo(self):
         self.execute()
+        self.cell_controller.select()
         self.board_model.notify()
 
 
@@ -74,11 +82,13 @@ class ToggleNoteCommand(Command):
         self.cell_model.notes = self.old_notes[:]
         self.cell_model.value_type = self.old_value_type
 
+        self.cell_controller.select()
         self.board_model.notify()
         self.cell_model.notify()
 
     def redo(self):
         self.execute()
+        self.cell_controller.select()
         self.board_model.notify()
 
 
@@ -93,16 +103,20 @@ class ClearCellCommand(Command):
         self.old_value_type = self.cell_model.value_type
 
     def execute(self):
+        self.cell_controller.reset_matching_cells()
         self.cell_model.clear_cell()
 
     def undo(self):
         self.cell_model.value = self.old_value
         self.cell_model.notes = self.old_notes[:]
         self.cell_model.value_type = self.old_value_type
+        self.cell_controller.highlight_house()
 
+        self.cell_controller.select()
         self.board_model.notify()
         self.cell_model.notify()
 
     def redo(self):
         self.execute()
+        self.cell_controller.select()
         self.board_model.notify()

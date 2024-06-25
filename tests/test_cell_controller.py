@@ -100,13 +100,13 @@ class TestCellController(unittest.TestCase):
     def test_highlight_matching_numbers(self):
         """ Ensures that highlighting of matching colors works properly. """
         self.cell_controller.model.value = 5
-        self.cell_controller.highlight_matching_numbers()
+        self.cell_controller.highlight_matching_cells()
         # Assuming there's another cell with the same value
         another_cell_controller = self.board_controller.cells[1][1]
         another_cell_controller.model.value = 5
 
         another_cell_controller.view.update_color = Mock()
-        self.cell_controller.highlight_matching_numbers()
+        self.cell_controller.highlight_matching_cells()
         another_cell_controller.view.update_color.assert_called_with(CELL_MATCHING_COLOR)
 
     def test_move_selection(self):

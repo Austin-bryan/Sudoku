@@ -20,7 +20,7 @@ class SudokuGenerator:
         self.solver.solve()
 
     def _remove_numbers(self):
-        count = 40  # Higher the count, harder the difficulty
+        count = 30  # Higher the count, harder the difficulty
         max_iterations = 10000
         iter_count = 0
 
