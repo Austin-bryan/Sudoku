@@ -44,7 +44,7 @@ class TestSudokuGenerator(unittest.TestCase):
         cleared_cells = sum(1 for i in range(BOARD_SIZE)
                             for j in range(BOARD_SIZE)
                             if self.board_controller.cells[i][j].model.value is None)
-        self.assertEqual(cleared_cells, 40)
+        self.assertEqual(cleared_cells, self.generator.target_count)
 
     def test_remove_numbers_bounds(self):
         # Check if _remove_numbers handles empty and full boards correctly

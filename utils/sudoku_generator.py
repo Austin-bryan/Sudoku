@@ -9,6 +9,7 @@ class SudokuGenerator:
     def __init__(self, board_controller):
         self.board_controller = board_controller
         self.solver = BacktrackingSolver(board_controller, generate_mode=True)
+        self.target_count = 30
 
     def generate_board(self):
         self._fill_board()
@@ -20,7 +21,7 @@ class SudokuGenerator:
         self.solver.solve()
 
     def _remove_numbers(self):
-        count = 30  # Higher the count, harder the difficulty
+        count = self.target_count  # Higher the count, harder the difficulty
         max_iterations = 10000
         iter_count = 0
 
