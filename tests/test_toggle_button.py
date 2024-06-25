@@ -11,9 +11,13 @@ from views.toggle_button import ToggleButton, BUTTON_TOGGLE_COLOR
 class TestToggleButton(unittest.TestCase):
     def setUp(self):
         self.root = Tk()
+        self.root.withdraw()
         self.toggle_button = ToggleButton(self.root, 'Test')
 
     def tearDown(self):
+        from time import sleep
+        self.root.update_idletasks()
+        # sleep(0.1)
         self.root.destroy()
 
     def test_initial_state(self):

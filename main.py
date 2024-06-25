@@ -2,6 +2,7 @@
 from typing import Union, Tuple
 from controllers.board_controller import BoardController
 from observers.conflict_observer import ConflictObserver
+from undo_history.undo_history_manager import UndoHistoryManager
 from utils.backtracking_solver import BacktrackingSolver
 from utils.constants import BACKGROUND_COLOR, BOARD_SIZE
 from utils.sudoku_generator import SudokuGenerator
@@ -21,7 +22,8 @@ class SudokuApp:
         self.number_grid = SudokuApp.create_frame(self.side_frame, row=1, column=0, pady=(10, 0))  # Grid for number buttons
         self.bottom_row = SudokuApp.create_frame(self.side_frame, row=2, column=0, pady=(10, 0))  # Bottom row for buttons
 
-        self.board_controller = BoardController(self.grid_frame)
+        self.undo_history_manager = UndoHistoryManager()
+        self.board_controller = BoardController(self.grid_frame, self.undo_history_manager)
         self.create_widgets()
 
         # Initialize BoardController

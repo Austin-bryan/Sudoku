@@ -10,9 +10,13 @@ from models.cell_model import CellModel
 class TestBoardView(unittest.TestCase):
     def setUp(self):
         self.root = Tk()
+        self.root.withdraw()
         self.board_view = BoardView(self.root)
 
     def tearDown(self):
+        from time import sleep
+        self.root.update_idletasks()
+        # sleep(0.1)
         self.root.destroy()
 
     def test_initialization(self):

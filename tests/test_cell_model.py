@@ -163,3 +163,6 @@ class TestCellModel(unittest.TestCase):
         self.cell_model.get_subgrid()
         self.assertTrue(self.cell_model.house_manager.get_subgrid.called)
 
+
+if __name__ == '__main__':
+    unittest.main()

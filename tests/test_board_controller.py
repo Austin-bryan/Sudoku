@@ -6,18 +6,24 @@ from tkinter import Tk
 
 from controllers.cell_controller import CellController
 from models.board_model import BoardModel
+from undo_history.undo_history_manager import UndoHistoryManager
 from utils.constants import BOARD_SIZE
 from views.number_button import NumberButton
 
 
+# TODO:: Fix flashing windows
 class TestBoardController(unittest.TestCase):
     def setUp(self):
         self.root = Tk()
-        self.board_controller = BoardController(self.root)
+        self.root.withdraw()
+        self.board_controller = BoardController(self.root, UndoHistoryManager())
         self.show_number_buttons = NumberButton.show_number_buttons
         NumberButton.show_number_buttons = Mock()
 
     def tearDown(self):
+        from time import sleep
+        self.root.update_idletasks()
+        # sleep(0.1)
         self.root.destroy()
         NumberButton.show_number_buttons = self.show_number_buttons
 

@@ -12,9 +12,11 @@ from controllers.board_controller import BoardController
 from views.toggle_button import ToggleButton, BUTTON_TOGGLE_COLOR
 
 
+# TODO:: Fix flashing windows
 class TestNumberButton(unittest.TestCase):
     def setUp(self):
         self.root = Tk()
+        self.root.withdraw()
         self.board_controller = Mock(BoardController)
         self.cell_controller = Mock()
         self.cell_controller.model.value = None
@@ -23,6 +25,9 @@ class TestNumberButton(unittest.TestCase):
         NumberButton.buttons = {i: NumberButton(self.root, self.board_controller, i) for i in range(1, BOARD_SIZE + 1)}
 
     def tearDown(self):
+        from time import sleep
+        self.root.update_idletasks()
+        # sleep(0.1)
         self.root.destroy()
         NumberButton.buttons = {}
         NumberButton._selected_button = None

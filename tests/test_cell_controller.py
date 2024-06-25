@@ -2,6 +2,7 @@
 from unittest.mock import Mock, patch
 from tkinter import Tk
 
+from undo_history.undo_history_manager import UndoHistoryManager
 from utils.constants import BOARD_SIZE, SUBGRID_SIZE
 from utils.sudoku_generator import SudokuGenerator
 from views.mode_button import ModeButton, Mode
@@ -15,12 +16,14 @@ from models.board_model import BoardModel
 from views.number_button import NumberButton
 
 
+# TODO:: Fix flashing windows
 class TestCellController(unittest.TestCase):
     def setUp(self):
         self.root = Tk()
+        self.root.withdraw()
         self.board_model = BoardModel()
         self.board_view = BoardView(self.root)
-        self.board_controller = BoardController(self.root)
+        self.board_controller = BoardController(self.root, UndoHistoryManager())
         generator = SudokuGenerator(self.board_controller)
 
         self.cell_controller = self.board_controller.cells[0][0]
@@ -34,6 +37,9 @@ class TestCellController(unittest.TestCase):
         ]
 
     def tearDown(self):
+        from time import sleep
+        self.root.update_idletasks()
+        # sleep(0.1)
         self.root.destroy()
         NumberButton.show_number_buttons = self.show_number_buttons
 

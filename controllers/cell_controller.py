@@ -1,6 +1,7 @@
 from controllers import board_controller
 from house_manager import HouseManager
 from models.cell_model import CellModel
+from undo_history.cell_commands import ToggleEntryCommand, ToggleNoteCommand
 from utils.constants import BOARD_SIZE, SUBGRID_SIZE
 from views.cell_view import CellView
 from views.mode_button import ModeButton, Mode
@@ -43,12 +44,16 @@ class CellController:
         if self.model.is_given():
             return
         if ModeButton.mode == Mode.ENTRY:
-            self.model.toggle_entry(number)
+            command = ToggleEntryCommand(self.model, number)
+            self.undo_history_manager.execute_command(command)
+            # self.model.toggle_entry(number)
             for cell in self.house_manager.get_house():
                 if cell.model.is_notes() and cell.model.has_note(number):
                     cell.model.toggle_note(number)
         else:
-            self.model.toggle_note(number)
+            command = ToggleNoteCommand(self.model, number)
+            self.undo_history_manager.execute_command(command)
+            # self.model.toggle_note(number)
         NumberButton.show_number_buttons(self)
         self.board_controller.model.notify()
 
@@ -79,6 +84,10 @@ class CellController:
 
     def get_subgrid(self):
         return self.house_manager.get_subgrid()
+
+    @property
+    def undo_history_manager(self):
+        return self.board_controller.undo_history_manager
 
     @property
     def x(self):

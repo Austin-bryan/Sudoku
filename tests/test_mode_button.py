@@ -10,13 +10,16 @@ class TestModeButton(unittest.TestCase):
     def setUp(self, mock_create_icon):
         mock_create_icon.return_value = (Mock(), Mock())
         self.root = Tk()
+        self.root.withdraw()
         self.mode_button = ModeButton(self.root, Mock(), 'Notes')
         self.show_number_buttons = NumberButton.show_number_buttons
         ModeButton.mode = Mode.ENTRY
         NumberButton.show_number_buttons = Mock()
 
     def tearDown(self):
+        from time import sleep
         self.root.update_idletasks()
+        # sleep(0.1)
         self.root.destroy()
         NumberButton.show_number_buttons = self.show_number_buttons
 

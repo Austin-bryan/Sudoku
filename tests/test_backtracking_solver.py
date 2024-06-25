@@ -4,6 +4,7 @@ from unittest.mock import Mock, MagicMock
 import time
 from models.cell_value_type import CellValueType
 from controllers.board_controller import BoardController
+from undo_history.undo_history_manager import UndoHistoryManager
 from utils.constants import BOARD_SIZE
 from utils.backtracking_solver import BacktrackingSolver
 from utils.sudoku_generator import SudokuGenerator
@@ -13,7 +14,8 @@ class TestBacktrackingSolver(unittest.TestCase):
 
     def setUp(self):
         self.root = Tk()
-        self.board_controller = BoardController(self.root)
+        self.root.withdraw()
+        self.board_controller = BoardController(self.root, UndoHistoryManager())
         self.generator = SudokuGenerator(self.board_controller)
 
         self.board_controller.cells[0][0].view.update_value_label = Mock()

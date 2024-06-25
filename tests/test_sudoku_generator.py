@@ -2,19 +2,24 @@
 import tkinter as tk
 from unittest.mock import patch, MagicMock
 from controllers.board_controller import BoardController
+from undo_history.undo_history_manager import UndoHistoryManager
 from utils.backtracking_solver import BacktrackingSolver
 from utils.constants import BOARD_SIZE
 from utils.sudoku_generator import SudokuGenerator
 
 
+# TODO: Fix flashing windows
 class TestSudokuGenerator(unittest.TestCase):
     def setUp(self):
         self.root = tk.Tk()
-        self.board_controller = BoardController(self.root)
+        self.root.withdraw()
+        self.board_controller = BoardController(self.root, UndoHistoryManager())
         self.generator = SudokuGenerator(self.board_controller)
 
     def tearDown(self):
+        from time import sleep
         self.root.update_idletasks()
+        # sleep(0.1)
         self.root.destroy()
 
     @patch.object(SudokuGenerator, '_fill_board')

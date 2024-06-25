@@ -8,13 +8,18 @@ from models.cell_model import CellModel
 from models.cell_value_type import CellValueType
 
 
+# TODO:: Fix flashing windows
 class TestCellView(unittest.TestCase):
     def setUp(self):
         self.root = Tk()
+        self.root.withdraw()
         self.model = CellModel(0, 0)
         self.cell_view = CellView(self.root, self.model)
 
     def tearDown(self):
+        from time import sleep
+        self.root.update_idletasks()
+        # sleep(0.1)
         self.root.destroy()
 
     def test_initial_color(self):
@@ -177,6 +182,7 @@ class TestCellViewStateMachine(unittest.TestCase):
         Initializes the Tkinter root, mock model, CellView, and StateContext.
         """
         self.root = Tk()
+        self.root.withdraw()
         self.model = Mock()
         self.model.in_conflict = False
         self.model.x = 0
@@ -186,6 +192,9 @@ class TestCellViewStateMachine(unittest.TestCase):
 
     def tearDown(self):
         """Clean up the Tkinter root after each test."""
+        from time import sleep
+        self.root.update_idletasks()
+        # sleep(0.1)
         self.root.destroy()
 
     def test_enter_default(self):

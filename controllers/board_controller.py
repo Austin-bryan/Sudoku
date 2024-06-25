@@ -8,15 +8,19 @@ import logging
 class BoardController:
     """ Controller for managing the board's logic and interaction between the model and view. """
 
-    def __init__(self, parent):
+    def __init__(self, parent, undo_history_manager):
         """ Initialize the BoardController with a BoardModel, BoardView, and CellControllers. """
         self.model = BoardModel()
         self.view = BoardView(parent)
         self.cells = []
         self.parent = parent
         self.selected_cell: CellController = None
-
+        self._undo_history_manager = undo_history_manager
         self._initialize_cells()
+
+    @property
+    def undo_history_manager(self):
+        return self._undo_history_manager
 
     def _initialize_cells(self):
         """ Initializes the cells in the board and assigns them to the view and model. """
