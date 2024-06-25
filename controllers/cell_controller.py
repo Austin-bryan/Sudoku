@@ -1,8 +1,8 @@
 from controllers import board_controller
 from house_manager import HouseManager
 from models.cell_model import CellModel
-from undo_history.cell_commands import ToggleEntryCommand, ToggleNoteCommand
-from utils.constants import BOARD_SIZE, SUBGRID_SIZE
+from undo_history.cell_commands import *
+from utils.constants import BOARD_SIZE
 from views.cell_view import CellView
 from views.mode_button import ModeButton, Mode
 from views.number_button import NumberButton
@@ -46,12 +46,11 @@ class CellController:
         if ModeButton.mode == Mode.ENTRY:
             command = ToggleEntryCommand(self, number)
             self.undo_history_manager.execute_command(command)
-            # self.model.toggle_entry(number)
             for cell in self.house_manager.get_house():
                 if cell.model.is_notes() and cell.model.has_note(number):
                     cell.model.toggle_note(number)
         else:
-            command = ToggleNoteCommand(self.model, number)
+            command = ToggleNoteCommand(self, number)
             self.undo_history_manager.execute_command(command)
             # self.model.toggle_note(number)
         NumberButton.show_number_buttons(self)
@@ -63,7 +62,9 @@ class CellController:
     def clear(self, event=None):
         for cell in self.highlighter.get_matching_cells():
             cell.view.reset_state()
-        self.model.clear_cell()
+        command = ClearCellCommand(self)
+        self.undo_history_manager.execute_command(command)
+        # self.model.clear_cell()
         NumberButton.show_number_buttons(self)
         self.board_controller.model.notify()
 
