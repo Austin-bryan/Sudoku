@@ -44,7 +44,7 @@ class CellController:
         if self.model.is_given():
             return
         if ModeButton.mode == Mode.ENTRY:
-            command = ToggleEntryCommand(self.model, number)
+            command = ToggleEntryCommand(self, number)
             self.undo_history_manager.execute_command(command)
             # self.model.toggle_entry(number)
             for cell in self.house_manager.get_house():

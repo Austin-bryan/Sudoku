@@ -45,8 +45,8 @@ class SudokuApp:
 
         # Create action buttons
         padx = 2
-        self.create_action_button('Undo', 0, lambda event: self.board_controller.clear_selected(), padx)
-        self.create_action_button('Redo', 1, lambda event: self.board_controller.clear_selected(), padx)
+        self.create_action_button('Undo', 0, lambda event: self.undo_history_manager.undo(), padx)
+        self.create_action_button('Redo', 1, lambda event: self.undo_history_manager.redo(), padx)
         self.create_mode_button('Notes', 2, padx)
         self.create_action_button('Clear', 3, lambda event: self.board_controller.clear_selected(), padx)
         self.create_action_button('Hint', 4, lambda event: self.board_controller.clear_selected(), padx)

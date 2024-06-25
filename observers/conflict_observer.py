@@ -8,6 +8,7 @@ class ConflictObserver(Observer):
         self.board_model.attach(self)
 
     def update(self):
+        print('detect: \n\n\n')
         self.detect_conflicts()
 
     def detect_conflicts(self):
@@ -17,6 +18,7 @@ class ConflictObserver(Observer):
                 cell_model.set_conflict_status(self.has_conflict(cell_model))
 
     def has_conflict(self, cell_model):
+        # print(self.has_duplicates(cell_model, cell_model.get_house()))
         return self.has_duplicates(cell_model, cell_model.get_house())
 
     @staticmethod
