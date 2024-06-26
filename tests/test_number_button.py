@@ -12,7 +12,6 @@ from controllers.board_controller import BoardController
 from views.toggle_button import ToggleButton, BUTTON_TOGGLE_COLOR
 
 
-# TODO:: Fix flashing windows
 class TestNumberButton(unittest.TestCase):
     def setUp(self):
         self.root = Tk()
