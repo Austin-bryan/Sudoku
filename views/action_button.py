@@ -15,13 +15,13 @@ DEFAULT_WIDTH = 60
 
 class ActionButton(Canvas):
     def __init__(self, parent, label, font_size=DEFAULT_FONT_SIZE, width=DEFAULT_WIDTH, height=DEFAULT_WIDTH,
-                 command=None, image_path=None, **kwargs):
+                 command=None, image_path=None, bg=BUTTON_DEFAULT_COLOR, **kwargs):
         self.label = label
-
         super().__init__(parent, width=width, height=height, highlightthickness=0, **kwargs)
+        self.bg = bg
 
         # Draw the button
-        self.rect = self.create_rectangle(0, 0, width, height, fill=BUTTON_DEFAULT_COLOR, outline="")
+        self.rect = self.create_rectangle(0, 0, width, height, fill=bg, outline="")
         self.text = self.create_text(width / 2,
                                      height / 2 if image_path is None else 5 * height / 6,
                                      text=self.label, fill="white", font=("Arial", font_size))
@@ -55,7 +55,7 @@ class ActionButton(Canvas):
 
     def on_leave(self, event):
         """ Returns to default on mouse leave. """
-        self._set_color(BUTTON_DEFAULT_COLOR)
+        self._set_color(self.bg)
 
     def on_press(self, event):
         pass
