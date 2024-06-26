@@ -56,9 +56,12 @@ class SudokuApp:
         def hard_command(event):
             print("Hard selected")
 
-        options = [("Easy", easy_command), ("Medium", medium_command), ("Hard", hard_command)]
+        def extreme_command(event):
+            print("Extreme selected")
 
-        dropdown = DropdownMenu(self.difficult_row, options, width=150, height=40)
+        options = [("Easy", easy_command), ("Medium", medium_command), ("Hard", hard_command), ("Extreme", extreme_command)]
+
+        dropdown = DropdownMenu(self.difficult_row, options, width=125, height=40)
         dropdown.grid(row=0, column=1, sticky="w", padx=10, pady=10)
 
         # self.difficulty_menu = tk.OptionMenu(self.difficult_row, self.difficulty_var, "Easy", "Medium", "Hard")
