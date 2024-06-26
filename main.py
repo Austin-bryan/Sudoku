@@ -32,8 +32,6 @@ class SudokuApp:
 
         # Initialize BoardController
         self.board_controller.view.grid(row=0, column=0)
-        generator = SudokuGenerator(self.board_controller)
-        generator.generate_board()
 
         # Attach the conflict observer
         self.conflict_observer = ConflictObserver(self.board_controller.model)
@@ -42,31 +40,44 @@ class SudokuApp:
         # Create Difficulty UI
         self.difficulty_label = tk.Label(self.difficult_row, text="Difficulty:", bg=BACKGROUND_COLOR,
                                          fg="white", font=("Helvetica", 12), anchor="w")
-        self.difficulty_label.grid(row=0, column=0)
-        # self.difficulty_var = tk.StringVar(self.root)
-        # self.difficulty_var.set("Easy")  # default value
 
-        # Example commands
         def easy_command(event):
-            print("Easy selected")
+            generator = SudokuGenerator(self.board_controller, 25)
+            generator.generate_board()
 
         def medium_command(event):
-            print("Medium selected")
+            generator = SudokuGenerator(self.board_controller, 30)
+            generator.generate_board()
 
         def hard_command(event):
-            print("Hard selected")
+            generator = SudokuGenerator(self.board_controller, 40)
+            generator.generate_board()
 
         def extreme_command(event):
-            print("Extreme selected")
+            generator = SudokuGenerator(self.board_controller, 55)
+            generator.generate_board()
 
         options = [("Easy", easy_command), ("Medium", medium_command), ("Hard", hard_command), ("Extreme", extreme_command)]
 
         dropdown = DropdownMenu(self.difficult_row, options, width=125, height=40)
         dropdown.grid(row=0, column=1, sticky="w", padx=10, pady=10)
 
-        # self.difficulty_menu = tk.OptionMenu(self.difficult_row, self.difficulty_var, "Easy", "Medium", "Hard")
-        # self.difficulty_menu.config(bg=BACKGROUND_COLOR, fg="white", font=("Helvetica", 12))
-        # self.difficulty_menu.grid(row=0, column=1, sticky="w", padx=10)
+    def open_popup(self, event):
+        popup = tk.Toplevel(root)
+        popup.title("Popup Window")
+        print(f"200x100+{self.new_game_button.winfo_rootx()}+{self.new_game_button.winfo_rooty() + 20}")
+        popup.geometry(f"200x100+{self.new_game_button.winfo_rootx()}+{self.new_game_button.winfo_rooty() + 20}")
+        popup.configure(bg=BACKGROUND_COLOR)  # Set the background color
+        popup.overrideredirect(True)  # Hide the title bar
+
+        # label = tk.Label(popup, text="This is a popup window")
+        # label.pack(pady=20)
+
+        # button = tk.Button(popup, text="Close", command=popup.destroy)
+        # button.pack(pady=10)
+
+        new_game_button = ActionButton(popup, "New Game", font_size=12, width=120, height=40)
+        new_game_button.grid(row=0, column=0, padx=40, pady=10)
 
     def create_widgets(self):
         """Create and configure the widgets for the Sudoku application."""
@@ -85,7 +96,7 @@ class SudokuApp:
         self.create_action_button('Hint', 4, lambda event: self.board_controller.clear_selected(), padx)
 
         # Create large buttons
-        self.create_large_button('New Game', row=1, pady=0, command=lambda event: self.board_controller.clear_selected())
+        self.new_game_button = self.create_large_button('New Game', row=1, pady=0, command=self.open_popup)
         self.create_large_button('Solve', row=5, pady=10, command=lambda event: self.backtracking_solver.solve())
 
     @staticmethod
@@ -99,6 +110,7 @@ class SudokuApp:
     def create_large_button(self, label, row, pady, command):
         button = ActionButton(self.side_frame, label, width=320, font_size=15, height=DEFAULT_WIDTH, command=command)
         button.grid(row=row, column=0, padx=SudokuApp._PADX, pady=pady)
+        return button
 
     def create_action_button(self, label, column, command, padx):
         """ Helper function to create an action button with an image. """
