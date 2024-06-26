@@ -76,7 +76,6 @@ class CellView(Canvas, Observer):
         match self.model.value_type:
             case CellValueType.ENTRY:
                 self.update_value_label()
-                print('update', self.model.value)
                 self.clear_notes()
             case CellValueType.NOTES:
                 self.clear_entry()

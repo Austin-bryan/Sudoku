@@ -1,4 +1,5 @@
 ﻿from undo_history.command import Command
+from views.number_button import NumberButton
 
 
 class ToggleEntryCommand(Command):
@@ -35,13 +36,16 @@ class ToggleEntryCommand(Command):
     def execute(self):
         self.cell_controller.reset_matching_cells()
         self.cell_model.toggle_entry(self.new_value)
-        # self.cell_controller.highlight_matching_cells()
+
+        # Clear notes in the current house that have the same value as the selected cell
+        for cell in self.cell_controller.get_house():
+            if cell.model.is_notes() and cell.model.has_note(self.new_value):
+                cell.model.toggle_note(self.new_value)
+
+        self.board_model.notify()
+        NumberButton.show_number_buttons(self.cell_controller)
 
     def undo(self):
-        # self.cell_controller.board_controller.selected_cell.reset_matching_cells()
-        # self.cell_controller.board_controller.reset_cells()
-        # self.cell_controller.highlight_house()
-
         # Restore the original state of the cell
         self.cell_model.value = self.old_value
         self.cell_model.value_type = self.old_value_type
@@ -76,6 +80,7 @@ class ToggleNoteCommand(Command):
 
     def execute(self):
         self.cell_model.toggle_note(self.new_value)
+        NumberButton.show_number_buttons(self.cell_controller)
 
     def undo(self):
         self.cell_model.value = self.old_value
@@ -105,6 +110,8 @@ class ClearCellCommand(Command):
     def execute(self):
         self.cell_controller.reset_matching_cells()
         self.cell_model.clear_cell()
+        self.board_model.notify()
+        NumberButton.show_number_buttons(self.cell_controller)
 
     def undo(self):
         self.cell_model.value = self.old_value
@@ -120,3 +127,5 @@ class ClearCellCommand(Command):
         self.execute()
         self.cell_controller.select()
         self.board_model.notify()
+
+

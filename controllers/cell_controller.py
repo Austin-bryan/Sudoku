@@ -47,15 +47,9 @@ class CellController:
         if ModeButton.mode == Mode.ENTRY:
             command = ToggleEntryCommand(self, number)
             self.undo_history_manager.execute_command(command)
-            for cell in self.house_manager.get_house():
-                if cell.model.is_notes() and cell.model.has_note(number):
-                    cell.model.toggle_note(number)
         else:
             command = ToggleNoteCommand(self, number)
             self.undo_history_manager.execute_command(command)
-            # self.model.toggle_note(number)
-        NumberButton.show_number_buttons(self)
-        self.board_controller.model.notify()
 
     def highlight_matching_cells(self):
         self.highlighter.highlight_matching_cells()
@@ -63,8 +57,6 @@ class CellController:
     def clear(self, event=None):
         command = ClearCellCommand(self)
         self.undo_history_manager.execute_command(command)
-        # self.model.clear_cell()
-        NumberButton.show_number_buttons(self)
         self.board_controller.model.notify()
 
     def highlight_house(self):

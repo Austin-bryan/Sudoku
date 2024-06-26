@@ -1,7 +1,6 @@
 ﻿from models.cell_model import CellModel
 from models.subject import Subject
 from utils.constants import BOARD_SIZE
-from utils.sudoku_generator import SudokuGenerator
 
 
 class BoardModel(Subject):

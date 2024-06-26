@@ -6,10 +6,10 @@ from utils.backtracking_solver import BacktrackingSolver  # Import your backtrac
 
 
 class SudokuGenerator:
-    def __init__(self, board_controller):
+    def __init__(self, board_controller, target_count=40):
         self.board_controller = board_controller
         self.solver = BacktrackingSolver(board_controller, generate_mode=True)
-        self.target_count = 30
+        self.target_count = target_count
 
     def generate_board(self):
         self._fill_board()

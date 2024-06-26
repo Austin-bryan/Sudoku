@@ -31,6 +31,10 @@ class SudokuApp:
         generator = SudokuGenerator(self.board_controller)
         generator.generate_board()
 
+        # Attach the conflict observer
+        conflict_observer = ConflictObserver(self.board_controller.model)
+        backtracking_solver = BacktrackingSolver(self.board_controller)
+
     def create_widgets(self):
         """Create and configure the widgets for the Sudoku application."""
 
@@ -38,10 +42,6 @@ class SudokuApp:
         for i in range(BOARD_SIZE):
             number_button = NumberButton(self.number_grid, self.board_controller, i + 1)
             number_button.grid(row=i % 3, column=int(i / 3), padx=5, pady=5)
-
-        # Attach the conflict observer
-        conflict_observer = ConflictObserver(self.board_controller.model)
-        backtracking_solver = BacktrackingSolver(self.board_controller)
 
         # Create action buttons
         padx = 2
