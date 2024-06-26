@@ -1,10 +1,10 @@
-﻿import unittest
+﻿import time
+import unittest
 from tkinter import Tk
 from unittest.mock import MagicMock, Mock
 
 from controllers.board_controller import BoardController
 from controllers.cell_controller import CellController
-from models.board_model import BoardModel
 from models.cell_model import CellModel
 from models.cell_value_type import CellValueType
 from observers.conflict_observer import ConflictObserver
@@ -21,6 +21,11 @@ class TestCommands(unittest.TestCase):
         self.cell_controller.model = self.cell_model
         self.board_model = MagicMock()
         self.cell_controller.board_controller.model = self.board_model
+        self.show_number_buttons = NumberButton.show_number_buttons
+        NumberButton.show_number_buttons = Mock()
+
+    def tearDown(self):
+        NumberButton.show_number_buttons = self.show_number_buttons
 
     def test_set_entry_on_empty_cell(self):
         """ Tests that starting from a blank cell, entering a value, undoing will restore to blank. """
@@ -225,23 +230,29 @@ class TestCommands(unittest.TestCase):
 
 class TestCommandHighlighting(unittest.TestCase):
     def setUp(self):
-        root = Tk()
-        root.withdraw()
-        self.board_view = BoardView(root)
-        self.board_controller = BoardController(root, MagicMock())
-        generator = SudokuGenerator(self.board_controller, 81) # Ensure an empty board
+        self.root = Tk()
+        self.root.withdraw()
+        self.board_view = BoardView(self.root)
+        self.board_controller = BoardController(self.root, MagicMock())
+        generator = SudokuGenerator(self.board_controller, target_count=81)  # Ensure an empty board
         generator.generate_board()
         self.conflict_observer = ConflictObserver(self.board_controller.model)
+        self.show_number_buttons = NumberButton.show_number_buttons
+        NumberButton.show_number_buttons = Mock()
 
         # For each test, we need a fresh cell controller and model
         self.cell_controller00 = self.board_controller.cells[0][0]  # Get a reference to a cell controller
         self.cell_controller01 = self.board_controller.cells[0][1]  # Get a reference to a cell controller
         self.cell_model = self.cell_controller00.model
 
+    def tearDown(self):
+        self.root.update_idletasks()
+        time.sleep(0.1)
+        self.root.destroy()
+        NumberButton.show_number_buttons = self.show_number_buttons
+
     def test_undoing_restores_conflicts(self):
         """ Makes sure that if the user makes a conflict, clears, then undoes that, the conflict is restored. """
-        NumberButton.show_number_buttons = Mock()
-
         command = ToggleEntryCommand(self.cell_controller00, 5)
         command.execute()
         command = ToggleEntryCommand(self.cell_controller01, 5)
@@ -258,8 +269,6 @@ class TestCommandHighlighting(unittest.TestCase):
 
     def test_undoing_removes_conflicts(self):
         """ Makes sure that if the user makes a conflict, then hits undo, the conflict is reversed. """
-        NumberButton.show_number_buttons = Mock()
-
         command = ToggleEntryCommand(self.cell_controller00, 4)
         command.execute()
         command = ToggleEntryCommand(self.cell_controller01, 5)
@@ -277,8 +286,6 @@ class TestCommandHighlighting(unittest.TestCase):
 
     def test_redoing_restores_conflicts(self):
         """ If the user is in the conflict, hits undo then redo, this makes sure the conflict is restored. """
-        NumberButton.show_number_buttons = Mock()
-
         command = ToggleEntryCommand(self.cell_controller00, 5)
         command.execute()
         command = ToggleEntryCommand(self.cell_controller01, 5)
@@ -294,8 +301,6 @@ class TestCommandHighlighting(unittest.TestCase):
 
     def test_redoing_removes_conflicts(self):
         """ Makes sure that if they undo into a state of conflict, they can redo if no more conflicts exist. """
-        NumberButton.show_number_buttons = Mock()
-
         command = ToggleEntryCommand(self.cell_controller00, 5)
         command.execute()
         command = ToggleEntryCommand(self.cell_controller01, 5)
@@ -316,7 +321,6 @@ class TestCommandHighlighting(unittest.TestCase):
 
     def test_clear_command_updates_number_buttons_undo_redo(self):
         """ Tests that undoing and redoing the clear command will trigger the number buttons to refresh. """
-        NumberButton.show_number_buttons = Mock()
         command = ClearCellCommand(self.cell_controller00)
         command.execute()
         NumberButton.show_number_buttons.assert_called_once()
@@ -331,7 +335,6 @@ class TestCommandHighlighting(unittest.TestCase):
 
     def test_note_command_updates_number_buttons_undo_redo(self):
         """ Ensures that the note command will trigger the number buttons to refresh. """
-        NumberButton.show_number_buttons = Mock()
         command = ToggleNoteCommand(self.cell_controller00, 5)
         command.execute()
         NumberButton.show_number_buttons.assert_called_once()
@@ -346,7 +349,6 @@ class TestCommandHighlighting(unittest.TestCase):
 
     def test_entry_command_updates_number_buttons_undo_redo(self):
         """ Ensures that the entry command will trigger the number buttons to refresh. """
-        NumberButton.show_number_buttons = Mock()
         command = ToggleEntryCommand(self.cell_controller00, 5)
         command.execute()
         NumberButton.show_number_buttons.assert_called_once()
@@ -361,7 +363,6 @@ class TestCommandHighlighting(unittest.TestCase):
 
     def test_entry_command_resets_matching_undo_redo(self):
         """ Makes sure that entry command will reset cells properly. """
-        NumberButton.show_number_buttons = Mock()
         self.board_controller.reset_cells = Mock()
         self.cell_controller00.reset_matching_cells = Mock()
         command = ToggleEntryCommand(self.cell_controller00, 5)
@@ -377,7 +378,6 @@ class TestCommandHighlighting(unittest.TestCase):
 
     def test_clear_command_resets_matching_undo_redo(self):
         """ Makes sure that clear command will reset cells properly. """
-        NumberButton.show_number_buttons = Mock()
         self.board_controller.reset_cells = Mock()
         self.cell_controller00.reset_matching_cells = Mock()
         command = ClearCellCommand(self.cell_controller00)

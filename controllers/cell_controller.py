@@ -57,7 +57,7 @@ class CellController:
     def clear(self, event=None):
         command = ClearCellCommand(self)
         self.undo_history_manager.execute_command(command)
-        self.board_controller.model.notify()
+        # self.board_controller.model.notify()
 
     def highlight_house(self):
         self.highlighter.highlight_house()

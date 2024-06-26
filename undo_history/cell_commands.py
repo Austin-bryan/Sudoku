@@ -65,7 +65,6 @@ class ToggleEntryCommand(Command):
     def redo(self):
         self.execute()
         self.cell_controller.select()
-        self.board_model.notify()
 
 
 class ToggleNoteCommand(Command):
@@ -81,6 +80,7 @@ class ToggleNoteCommand(Command):
     def execute(self):
         self.cell_model.toggle_note(self.new_value)
         NumberButton.show_number_buttons(self.cell_controller)
+        self.board_model.notify()
 
     def undo(self):
         self.cell_model.value = self.old_value
@@ -94,7 +94,6 @@ class ToggleNoteCommand(Command):
     def redo(self):
         self.execute()
         self.cell_controller.select()
-        self.board_model.notify()
 
 
 class ClearCellCommand(Command):
@@ -126,6 +125,5 @@ class ClearCellCommand(Command):
     def redo(self):
         self.execute()
         self.cell_controller.select()
-        self.board_model.notify()
 
 

@@ -11,7 +11,6 @@ from utils.constants import BOARD_SIZE
 from views.number_button import NumberButton
 
 
-# TODO:: Fix flashing windows
 class TestBoardController(unittest.TestCase):
     def setUp(self):
         self.root = Tk()

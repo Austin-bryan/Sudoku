@@ -22,6 +22,10 @@ class TestBacktrackingSolver(unittest.TestCase):
         self.board_controller.view.update = Mock()
         self.solver = BacktrackingSolver(self.board_controller)
 
+    def tearDown(self):
+        self.root.update_idletasks()
+        self.root.destroy()
+
     def test_solve_empty_board(self):
         """ Test solving an empty board. """
         for cell in self.board_controller.cells_flat:
