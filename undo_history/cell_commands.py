@@ -64,9 +64,6 @@ class ToggleEntryCommand(CellCommand):
             state['cell'].model.notes = state['notes'][:]
             state['cell'].model.notify()
 
-    # def redo(self):
-    #     self.execute()
-
 
 class ToggleNoteCommand(CellCommand):
     def __init__(self, cell_controller, number):
@@ -76,9 +73,6 @@ class ToggleNoteCommand(CellCommand):
     def execute(self):
         self.cell_model.toggle_note(self.new_value)
         self.notify_and_update_buttons()
-
-    # def redo(self):
-    #     self.execute()
 
 
 class ClearCellCommand(CellCommand):
@@ -90,4 +84,3 @@ class ClearCellCommand(CellCommand):
     def undo(self):
         super().undo()
         self.cell_controller.highlight_house()
-

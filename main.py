@@ -7,20 +7,24 @@ from utils.backtracking_solver import BacktrackingSolver
 from utils.constants import BACKGROUND_COLOR, BOARD_SIZE
 from utils.sudoku_generator import SudokuGenerator
 from views.action_button import ActionButton, DEFAULT_WIDTH
+from views.drop_down_menu import DropdownMenu
 from views.number_button import NumberButton
 from views.mode_button import ModeButton
 
 
 class SudokuApp:
+    _PADX = (0, 20)
+
     def __init__(self, root):
         """Initialize the Sudoku application."""
         self.root = root
         self.root.title("Sudoku")
         self.root.configure(bg=BACKGROUND_COLOR)
-        self.grid_frame = SudokuApp.create_frame(self.root, row=0, column=0, padx=10, pady=10)  # Frame for Sudoku grid
-        self.side_frame = SudokuApp.create_frame(self.root, row=0, column=1, padx=0, pady=0)  # Stores side buttons
-        self.number_grid = SudokuApp.create_frame(self.side_frame, row=1, column=0, pady=(10, 0))  # Grid for number buttons
-        self.bottom_row = SudokuApp.create_frame(self.side_frame, row=2, column=0, pady=(10, 0))  # Bottom row for buttons
+        self.grid_frame = self.create_frame(self.root, row=1, column=0, padx=10, pady=0)
+        self.side_frame = self.create_frame(self.root, row=1, column=1, padx=0, pady=0)
+        self.difficult_row = self.create_frame(self.side_frame, row=0, column=0, sticky="w")
+        self.number_grid = self.create_frame(self.side_frame, row=3, column=0, padx=SudokuApp._PADX, pady=(10, 0))
+        self.bottom_row = self.create_frame(self.side_frame, row=4, column=0, padx=SudokuApp._PADX, pady=(10, 0))
 
         self.undo_history_manager = UndoHistoryManager()
         self.board_controller = BoardController(self.grid_frame, self.undo_history_manager)
@@ -32,8 +36,34 @@ class SudokuApp:
         generator.generate_board()
 
         # Attach the conflict observer
-        conflict_observer = ConflictObserver(self.board_controller.model)
-        backtracking_solver = BacktrackingSolver(self.board_controller)
+        self.conflict_observer = ConflictObserver(self.board_controller.model)
+        self.backtracking_solver = BacktrackingSolver(self.board_controller)
+
+        # Create Difficulty UI
+        self.difficulty_label = tk.Label(self.difficult_row, text="Difficulty:", bg=BACKGROUND_COLOR,
+                                         fg="white", font=("Helvetica", 12), anchor="w")
+        self.difficulty_label.grid(row=0, column=0)
+        # self.difficulty_var = tk.StringVar(self.root)
+        # self.difficulty_var.set("Easy")  # default value
+
+        # Example commands
+        def easy_command(event):
+            print("Easy selected")
+
+        def medium_command(event):
+            print("Medium selected")
+
+        def hard_command(event):
+            print("Hard selected")
+
+        options = [("Easy", easy_command), ("Medium", medium_command), ("Hard", hard_command)]
+
+        dropdown = DropdownMenu(self.difficult_row, options, width=150, height=40)
+        dropdown.grid(row=0, column=1, sticky="w", padx=10, pady=10)
+
+        # self.difficulty_menu = tk.OptionMenu(self.difficult_row, self.difficulty_var, "Easy", "Medium", "Hard")
+        # self.difficulty_menu.config(bg=BACKGROUND_COLOR, fg="white", font=("Helvetica", 12))
+        # self.difficulty_menu.grid(row=0, column=1, sticky="w", padx=10)
 
     def create_widgets(self):
         """Create and configure the widgets for the Sudoku application."""
@@ -52,19 +82,20 @@ class SudokuApp:
         self.create_action_button('Hint', 4, lambda event: self.board_controller.clear_selected(), padx)
 
         # Create large buttons
-        self.create_large_button('New Game', row=0, pady=0, command=lambda event: self.board_controller.clear_selected())
-        self.create_large_button('Solve', row=3, pady=10, command=lambda event: backtracking_solver.solve())
+        self.create_large_button('New Game', row=1, pady=0, command=lambda event: self.board_controller.clear_selected())
+        self.create_large_button('Solve', row=5, pady=10, command=lambda event: self.backtracking_solver.solve())
 
     @staticmethod
-    def create_frame(side_panel_frame, row, column,
-                     padx: Union[int, Tuple[int, int]] = 0, pady: Union[int, Tuple[int, int]] = 0):
-        frame = tk.Frame(side_panel_frame, bg=BACKGROUND_COLOR)
-        frame.grid(row=row, column=column, padx=padx, pady=pady)
+    def create_frame(parent, row, column,
+                     padx: Union[int, Tuple[int, int]] = 0, pady: Union[int, Tuple[int, int]] = 0,
+                     sticky: str = ""):
+        frame = tk.Frame(parent, bg=BACKGROUND_COLOR)
+        frame.grid(row=row, column=column, padx=padx, pady=pady, sticky=sticky)
         return frame
 
     def create_large_button(self, label, row, pady, command):
         button = ActionButton(self.side_frame, label, width=320, font_size=15, height=DEFAULT_WIDTH, command=command)
-        button.grid(row=row, column=0, pady=pady)
+        button.grid(row=row, column=0, padx=SudokuApp._PADX, pady=pady)
 
     def create_action_button(self, label, column, command, padx):
         """ Helper function to create an action button with an image. """
