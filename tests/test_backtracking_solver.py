@@ -64,10 +64,10 @@ class TestBacktrackingSolver(unittest.TestCase):
         self.board_controller.cells[1][0].model.value = 2
         self.board_controller.cells[1][1].model.value = 3
 
-        self.assertFalse(self.solver._is_unused_in_house(0, 0, 1))
-        self.assertFalse(self.solver._is_unused_in_house(0, 0, 2))
-        self.assertFalse(self.solver._is_unused_in_house(0, 0, 3))
-        self.assertTrue(self.solver._is_unused_in_house(0, 0, 4))
+        self.assertFalse(self.solver._is_valid_placement(0, 0, 1))
+        self.assertFalse(self.solver._is_valid_placement(0, 0, 2))
+        self.assertFalse(self.solver._is_valid_placement(0, 0, 3))
+        self.assertTrue(self.solver._is_valid_placement(0, 0, 4))
 
     def test_adjust_update_frequency(self):
         """ Test the _adjust_update_frequency method. """

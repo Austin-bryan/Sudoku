@@ -100,6 +100,10 @@ class CellController:
     def y(self, value):
         self.model.y = value
 
+    @property
+    def value(self):
+        return self.model.value
+
 
 class EventHandler:
     def __init__(self, cell_controller):

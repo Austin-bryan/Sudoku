@@ -1,25 +1,27 @@
 ﻿import time
 import random
 
+from house_manager import HouseManager
 from models.cell_value_type import CellValueType
 from utils.constants import BOARD_SIZE, SUBGRID_SIZE
 
 
 class BacktrackingSolver:
 
-    def __init__(self, board_controller, generate_mode=False, max_iterations=1000000):
+    def __init__(self, board_controller, ui_display_mode=False, max_iterations=1000000):
         self.board_controller = board_controller
         self.iter_count = 0  # Counts the number of iterations
         self.step_display = 1  # Used to speed up the display by skipping display numbers
         self.start_time = None
         self.max_iterations = max_iterations
-        self.generate_mode = generate_mode
+        self.ui_display_mode = ui_display_mode
+        self.solutions = 0  # Used to count the number of solutions
 
     def solve(self):
         self.iter_count = 0
         self.step_display = 1
         self.start_time = time.time()
-        self._solve(0, 0)
+        return self._solve(0, 0)
 
     def _solve(self, x, y):
         """ Recursively solve the board using backtracking. """
@@ -28,44 +30,72 @@ class BacktrackingSolver:
         self.iter_count += 1
 
         if x >= BOARD_SIZE or y >= BOARD_SIZE:
-            return True  # Reached the end of the board, the puzzle is solved
+            return True
 
+        # Move on to the next empty cell
         if self.board_controller.cells[x][y].model.value is not None:
-            return self._solve(*self._next_cell(x, y))  # Move on to the next empty cell
+            return self._solve(*self._next_cell(x, y))
 
         numbers = list(range(1, BOARD_SIZE + 1))
         random.shuffle(numbers)  # Shuffle the numbers before trying them
         for num in numbers:
-            if not self._is_unused_in_house(x, y, num):  # Skip to the next valid entry
+            if not self._is_valid_placement(self.board_controller, x, y, num):  # Skip to the next valid entry
                 continue
             self._place_number(x, y, num)
 
-            if not self.generate_mode:
+            if self.ui_display_mode:
                 self._adjust_update_frequency()  # Allows the display to update less and less often
-
                 # Only update the display sometimes
                 if self.iter_count % self.step_display == 0:
                     self.board_controller.view.update()
                     time.sleep(0.01)
-
             if self._solve(*self._next_cell(x, y)):
                 return True
 
             # Backtrack
             self._clear_number(x, y)
-            if not self.generate_mode and self.iter_count % self.step_display == 0:
+            if self.ui_display_mode and self.iter_count % self.step_display == 0:
                 self.board_controller.view.update()
         return False
+
+    def has_unique_solution(self):
+        board = UniqueCheckBoard(self.board_controller)
+        solutions = []
+
+        if self._check_unique(board, solutions):
+            return len(solutions) == 1
+        return False
+
+    def _check_unique(self, board, solutions, x=0, y=0):
+        if x >= BOARD_SIZE:
+            solutions.append(1)
+            return len(solutions) == 1  # Return True if exactly one solution found
+
+        if board.cells[x][y].value is not None:
+            return self._check_unique(board, solutions, *self._next_cell(x, y))
+
+        for num in range(1, BOARD_SIZE + 1):
+            if not self._is_valid_placement(board, x, y, num):
+                continue
+            board.cells[x][y].value = num
+
+            if self._check_unique(board, solutions, *self._next_cell(x, y)):
+                if len(solutions) > 1:
+                    board.cells[x][y].value = None  # Backtrack
+                    return False  # More than one solution found
+            board.cells[x][y].value = None  # Backtrack
+
+        return len(solutions) == 1  # Return True if exactly one solution found
 
     @staticmethod
     def _next_cell(x, y):
         """ Returns the next right-bottom most cell. """
         return (x, y + 1) if y + 1 < BOARD_SIZE else (x + 1, 0)
 
-    def _is_unused_in_house(self, x, y, num):
+    def _is_valid_placement(self, board, x, y, num):
         """ Returns true if there are no cells in the house with the value of num. """
-        for cell in self.board_controller.cells[x][y].get_house():
-            if cell.model.value == num:
+        for cell in board.cells[x][y].get_house():
+            if cell.value == num:
                 return False
         return True
 
@@ -77,7 +107,7 @@ class BacktrackingSolver:
         """
         cell = self.board_controller.cells[x][y]
         cell.model.value = num
-        cell.model.value_type = CellValueType.GIVEN if self.generate_mode else CellValueType.ENTRY
+        cell.model.value_type = CellValueType.GIVEN if not self.ui_display_mode else CellValueType.ENTRY
         cell.view.update_value_label()
 
     def _clear_number(self, x, y):
@@ -110,3 +140,30 @@ class BacktrackingSolver:
             self.step_display = 10
         else:
             self.step_display = 2
+
+
+class UniqueCheckBoard:
+    def __init__(self, board_controller):
+        self.cells = [
+            [UniqueCheckCell(x, y, cell.model.value, self) for y, cell in enumerate(row)]
+            for x, row in enumerate(board_controller.cells)
+        ]
+
+
+class UniqueCheckCell:
+    def __init__(self, x, y, value, board):
+        self.x, self.y, self.value = x, y, value
+        self.board = board
+        self.house_manager = HouseManager(self, board)
+
+    def get_row(self):
+        return self.house_manager.get_row()
+
+    def get_column(self):
+        return self.house_manager.get_column()
+
+    def get_subgrid(self):
+        return self.house_manager.get_subgrid()
+
+    def get_house(self):
+        return self.house_manager.get_house()

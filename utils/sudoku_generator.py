@@ -8,7 +8,7 @@ from utils.backtracking_solver import BacktrackingSolver  # Import your backtrac
 class SudokuGenerator:
     def __init__(self, board_controller, target_count=40):
         self.board_controller = board_controller
-        self.solver = BacktrackingSolver(board_controller, generate_mode=True)
+        self.solver = BacktrackingSolver(board_controller)
         self.target_count = target_count
 
     def generate_board(self):
@@ -22,8 +22,10 @@ class SudokuGenerator:
 
     def _remove_numbers(self):
         count = self.target_count  # Higher the count, harder the difficulty
-        max_iterations = 10000
+        max_iterations = 100
         iter_count = 0
+        solver = BacktrackingSolver(self.board_controller)
+        non_unique_cache = []  # These are cells that once removed, prevent a unique solution from existing
 
         def get_cell():
             i = random.randint(0, BOARD_SIZE - 1)
@@ -39,8 +41,15 @@ class SudokuGenerator:
                     break
                 cell = get_cell()
 
+            old_value = cell.model.value
             cell.model.value = None
-            cell.model.value_type = CellValueType.BLANK
-            cell.view.update_labels()
 
-            count -= 1
+            if solver.has_unique_solution():
+                cell.model.value_type = CellValueType.BLANK
+                cell.view.update_labels()
+
+                count -= 1
+            else:
+                cell.model.value = old_value
+                non_unique_cache.append(cell)
+        print(solver.has_unique_solution())
