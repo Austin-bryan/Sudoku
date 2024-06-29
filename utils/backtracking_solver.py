@@ -3,6 +3,7 @@ import random
 
 from house_manager import HouseManager
 from models.cell_value_type import CellValueType
+from utils.Mocks import MockBoard
 from utils.constants import BOARD_SIZE, SUBGRID_SIZE
 
 
@@ -59,7 +60,7 @@ class BacktrackingSolver:
         return False
 
     def has_unique_solution(self):
-        board = UniqueCheckBoard(self.board_controller)
+        board = MockBoard(self.board_controller)
         solutions = []
 
         if self._check_unique(board, solutions):
@@ -140,30 +141,3 @@ class BacktrackingSolver:
             self.step_display = 10
         else:
             self.step_display = 2
-
-
-class UniqueCheckBoard:
-    def __init__(self, board_controller):
-        self.cells = [
-            [UniqueCheckCell(x, y, cell.model.value, self) for y, cell in enumerate(row)]
-            for x, row in enumerate(board_controller.cells)
-        ]
-
-
-class UniqueCheckCell:
-    def __init__(self, x, y, value, board):
-        self.x, self.y, self.value = x, y, value
-        self.board = board
-        self.house_manager = HouseManager(self, board)
-
-    def get_row(self):
-        return self.house_manager.get_row()
-
-    def get_column(self):
-        return self.house_manager.get_column()
-
-    def get_subgrid(self):
-        return self.house_manager.get_subgrid()
-
-    def get_house(self):
-        return self.house_manager.get_house()

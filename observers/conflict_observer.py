@@ -1,3 +1,5 @@
+from enum import Enum
+
 from observers.observer import Observer
 from utils.constants import BOARD_SIZE
 
@@ -14,13 +16,10 @@ class ConflictObserver(Observer):
         for x in range(BOARD_SIZE):
             for y in range(BOARD_SIZE):
                 cell_model = self.board_model.cells[x][y]
-                cell_model.set_conflict_status(self.has_conflict(cell_model))
-
-    def has_conflict(self, cell_model):
-        return self.has_duplicates(cell_model, cell_model.get_house())
+                cell_model.set_conflict_status(self.has_conflict(cell_model, cell_model.get_house()))
 
     @staticmethod
-    def has_duplicates(cell_model, house):
+    def has_conflict(cell_model, house):
         values = [cell.value for cell in house if cell.value != 0 and cell.value is not None]
         for value in values:
             if value == cell_model.value:

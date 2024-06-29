@@ -1,6 +1,7 @@
 ﻿import tkinter as tk
 from typing import Union, Tuple
 from controllers.board_controller import BoardController
+from models.cell_value_type import CellValueType
 from observers.conflict_observer import ConflictObserver
 from undo_history.undo_history_manager import UndoHistoryManager
 from utils.backtracking_solver import BacktrackingSolver
@@ -54,16 +55,32 @@ class SudokuApp:
             self.generator = SudokuGenerator(self.board_controller, 50)
             self.generator.generate_board()
 
-        def extreme_command(event):
-            self.generator = SudokuGenerator(self.board_controller, 55)
-            self.generator.generate_board()
-
         easy_command(None)
 
-        options = [("Easy", easy_command), ("Medium", medium_command), ("Hard", hard_command), ("Extreme", extreme_command)]
+        options = [("Easy", easy_command), ("Medium", medium_command), ("Hard", hard_command)]
 
         dropdown = DropdownMenu(self.difficult_row, options, width=125, height=40)
-        dropdown.grid(row=0, column=1, sticky="w", padx=10, pady=10)
+        dropdown.grid(row=0, column=1, sticky="w", padx=5, pady=10)
+
+        notes_button = ActionButton(self.difficult_row, 'Auto Notes', font_size=12,
+                                    width=125, height=40, command=self.auto_notes)
+        notes_button.grid(row=0, column=2, sticky="w", padx=5, pady=10)
+
+    def auto_notes(self, e):
+        for cell in self.board_controller.cells_flat:
+            possible_values = list(range(1, BOARD_SIZE + 1))
+
+            if cell.model.value_type is CellValueType.GIVEN or cell.model.value_type is CellValueType.ENTRY:
+                continue
+
+            cell.model.clear()
+
+            for house_cell in cell.get_house():
+                if house_cell.value in possible_values:
+                    possible_values.remove(house_cell.value)
+
+            for possible_value in possible_values:
+                cell.model.toggle_note(possible_value)
 
     def create_widgets(self):
         """Create and configure the widgets for the Sudoku application."""

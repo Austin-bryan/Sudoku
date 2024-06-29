@@ -3,6 +3,7 @@ import random
 from models.cell_value_type import CellValueType
 from utils.constants import BOARD_SIZE, SUBGRID_SIZE
 from utils.backtracking_solver import BacktrackingSolver  # Import your backtracking solver
+from utils.difficulty_rater import DifficultyRater
 
 
 class SudokuGenerator:
@@ -12,10 +13,15 @@ class SudokuGenerator:
         self.target_count = target_count
 
     def generate_board(self):
+        self._empty_board()
         self._fill_board()
         self._remove_numbers()
         self.board_controller.view.update()
         return self.board_controller
+
+    def _empty_board(self):
+        for cell in self.board_controller.cells_flat:
+            cell.clear()
 
     def _fill_board(self):
         self.solver.solve()
@@ -25,31 +31,45 @@ class SudokuGenerator:
         max_iterations = 100
         iter_count = 0
         solver = BacktrackingSolver(self.board_controller)
-        non_unique_cache = []  # These are cells that once removed, prevent a unique solution from existing
+        non_unique_cache = set()  # Use a set to track cells that cause non-unique solutions
 
-        def get_cell():
+        def get_random_cell():
             i = random.randint(0, BOARD_SIZE - 1)
             j = random.randint(0, BOARD_SIZE - 1)
             return self.board_controller.cells[i][j]
 
-        while count > 0:
-            cell = get_cell()
-            while cell.model.value is None:
+        all_cells = [(i, j) for i in range(BOARD_SIZE) for j in range(BOARD_SIZE)]
+        random.shuffle(all_cells)  # Shuffle the list to remove cells randomly
+
+        while count > 0 and iter_count < max_iterations:
+            if not all_cells:
+                break
+
+            i, j = all_cells.pop()
+            cell = self.board_controller.cells[i][j]
+
+            if cell in non_unique_cache or cell.model.value is None:
                 iter_count += 1
-                if iter_count > max_iterations:
-                    count = 0
-                    break
-                cell = get_cell()
+                continue
 
             old_value = cell.model.value
             cell.model.value = None
 
-            if solver.has_unique_solution():
+            # Always ensure at least 3 cells are removed initially
+            if self.target_count - count < 3 or solver.has_unique_solution():
                 cell.model.value_type = CellValueType.BLANK
                 cell.view.update_labels()
-
                 count -= 1
             else:
                 cell.model.value = old_value
-                non_unique_cache.append(cell)
-        print(solver.has_unique_solution())
+                non_unique_cache.add(cell)
+
+            iter_count += 1
+
+        if count > 0:
+            self._remove_numbers()  # Retry if not enough cells were removed
+
+        # rater = DifficultyRater(self.board_controller)
+
+        # if rater.solve():
+        #     self.generate_board()

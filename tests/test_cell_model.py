@@ -58,7 +58,7 @@ class TestCellModel(unittest.TestCase):
         self.cell_model.toggle_note(2)
         self.cell_model.toggle_note(4)
         self.cell_model.toggle_note(6)
-        self.cell_model.clear_cell()
+        self.cell_model.clear()
 
         self.assertIsNone(self.cell_model.value)
         self.assertFalse(self.cell_model.in_conflict)
@@ -68,7 +68,7 @@ class TestCellModel(unittest.TestCase):
     def test_clear_given(self):
         """ Ensures that clear cannot clear a given value"""
         self.cell_model.set_given(9)
-        self.cell_model.clear_cell()
+        self.cell_model.clear()
         self.assertEqual(self.cell_model.value, 9)
         self.assertEqual(self.cell_model.value_type, CellValueType.GIVEN)
 
@@ -96,11 +96,11 @@ class TestCellModel(unittest.TestCase):
         """ Tests that clearing resets to blank."""
         self.assertTrue(self.cell_model.is_blank())
         self.cell_model.toggle_entry(3)
-        self.cell_model.clear_cell()
+        self.cell_model.clear()
         self.assertTrue(self.cell_model.is_blank())
 
         self.cell_model.toggle_note(3)
-        self.cell_model.clear_cell()
+        self.cell_model.clear()
         self.assertTrue(self.cell_model.is_blank())
 
     def test_has_value(self):
@@ -109,7 +109,7 @@ class TestCellModel(unittest.TestCase):
         self.cell_model.toggle_entry(4)
         self.assertTrue(self.cell_model.has_value())
 
-        self.cell_model.clear_cell()
+        self.cell_model.clear()
         self.assertFalse(self.cell_model.has_value())
 
         self.cell_model.set_given(5)

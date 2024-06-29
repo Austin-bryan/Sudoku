@@ -78,7 +78,7 @@ class ToggleNoteCommand(CellCommand):
 class ClearCellCommand(CellCommand):
     def execute(self):
         self.cell_controller.reset_matching_cells()
-        self.cell_model.clear_cell()
+        self.cell_model.clear()
         self.notify_and_update_buttons()
 
     def undo(self):

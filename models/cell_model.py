@@ -3,6 +3,12 @@ from models.subject import Subject
 from utils.constants import BOARD_SIZE
 
 
+def get_possible_values(cell):
+    possible_values = set(range(1, BOARD_SIZE + 1))
+    used_values = {c.value for c in cell.get_house() if c.value is not None}
+    return possible_values - used_values
+
+
 class CellModel(Subject):
     def __init__(self, x, y):
         super().__init__()
@@ -33,7 +39,7 @@ class CellModel(Subject):
         self.value_type = CellValueType.GIVEN
         self.notify()
 
-    def clear_cell(self):
+    def clear(self):
         """ Clears all contents of the cell, both value and all notes. Sets the state back to BLANK. """
         if self.is_given():
             return
