@@ -99,8 +99,14 @@ class SudokuApp:
         self.create_action_button('Hint', 4, lambda e: self.board_controller.clear_selected(), padx)
 
         # Create large buttons
-        self.create_large_button('New Game', row=1, pady=0, command=lambda e: self.generator.generate_board())
+        self.create_large_button('New Game', row=1, pady=0, command=self.new_game)
         self.create_large_button('Solve', row=5, pady=10, command=lambda e: self.backtracking_solver.solve())
+
+    def new_game(self, event):
+        self.generator.generate_board()
+
+        for cell in self.board_controller.cells_flat:
+            cell.view.return_to_default()
 
     @staticmethod
     def create_frame(parent, row, column,

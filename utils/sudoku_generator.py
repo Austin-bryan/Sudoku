@@ -13,17 +13,11 @@ class SudokuGenerator:
         self.target_count = target_count
 
     def generate_board(self):
-        print('Generating board')
         self._empty_board()
         self._fill_board()
         self._remove_numbers()
         self.board_controller.view.update()
-        self._reset_board_state()
         return self.board_controller
-
-    def _reset_board_state(self):
-        for cell in self.board_controller.cells_flat:
-            cell.view.return_to_default()
 
     def _empty_board(self):
         for cell in self.board_controller.cells_flat:

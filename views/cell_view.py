@@ -168,7 +168,6 @@ class DefaultCellViewState(CellViewState):
     priority = 1
 
     def enter(self, cell_view):
-        print('default')
         cell_view.update_color(CELL_DEFAULT_COLOR)
 
 
