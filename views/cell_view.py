@@ -148,6 +148,9 @@ class CellView(Canvas, Observer):
         """ Resets the state to default or conflicted, depending if a conflict exists. """
         self._state_context.reset_state()
 
+    def return_to_default(self):
+        self._state_context.return_to_default()
+
 
 class CellViewState(ABC):
     priority = 0
@@ -165,6 +168,7 @@ class DefaultCellViewState(CellViewState):
     priority = 1
 
     def enter(self, cell_view):
+        print('default')
         cell_view.update_color(CELL_DEFAULT_COLOR)
 
 
@@ -224,6 +228,9 @@ class StateContext:
         """
         self.state = new_state
         self.state.enter(self.cell_view)
+
+    def return_to_default(self):
+        self._rollback_state(DefaultCellViewState())
 
     def enter_default(self):
         self.set_state(DefaultCellViewState())

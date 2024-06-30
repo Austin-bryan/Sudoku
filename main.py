@@ -44,15 +44,15 @@ class SudokuApp:
         self.generator = None
 
         def easy_command(event):
-            self.generator = SudokuGenerator(self.board_controller, 40)
+            self.generator = SudokuGenerator(self.board_controller, 35)
             self.generator.generate_board()
 
         def medium_command(event):
-            self.generator = SudokuGenerator(self.board_controller, 45)
+            self.generator = SudokuGenerator(self.board_controller, 40)
             self.generator.generate_board()
 
         def hard_command(event):
-            self.generator = SudokuGenerator(self.board_controller, 50)
+            self.generator = SudokuGenerator(self.board_controller, 45)
             self.generator.generate_board()
 
         easy_command(None)
