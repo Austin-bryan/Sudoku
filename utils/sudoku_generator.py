@@ -26,15 +26,15 @@ class SudokuGenerator:
         self.solver.solve()
 
     def _remove_numbers(self):
-        count = self.target_count  # Higher the count, harder the difficulty
+        number_cells_to_remove = self.target_count  # Higher the count, harder the difficulty
         max_iterations = 1000
-        iter_count = 0
+        iterations = 0
         non_unique_cache = set()  # Use a set to track cells that cause non-unique solutions
 
         all_cells = [(i, j) for i in range(BOARD_SIZE) for j in range(BOARD_SIZE)]
         random.shuffle(all_cells)  # Shuffle the list to remove cells randomly
 
-        while count > 0 and iter_count < max_iterations:
+        while number_cells_to_remove > 0 and iterations < max_iterations:
             if not all_cells:
                 break
 
@@ -42,22 +42,22 @@ class SudokuGenerator:
             cell = self.board_controller.cells[i][j]
 
             if cell in non_unique_cache or cell.model.value is None:
-                iter_count += 1
+                iterations += 1
                 continue
 
             old_value = cell.model.value
             cell.model.value = None
 
             # Always ensure at least 3 cells are removed initially
-            if self.target_count - count < 3 or self.solver.has_unique_solution():
+            if self.target_count - number_cells_to_remove < 3 or self.solver.has_unique_solution():
                 cell.model.value_type = CellValueType.BLANK
                 cell.view.update_labels()
-                count -= 1
+                number_cells_to_remove -= 1
             else:
                 cell.model.value = old_value
                 non_unique_cache.add(cell)
 
-            iter_count += 1
+            iterations += 1
 
         # if count > 0:
         #     self._remove_numbers()  # Retry if not enough cells were removed

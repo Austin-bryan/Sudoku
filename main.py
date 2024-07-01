@@ -18,7 +18,7 @@ from views.mode_button import ModeButton
 
 
 class SudokuApp:
-    _PADX = (0, 20)
+    PADX = (0, 20)
 
     def __init__(self, root):
         """Initialize the Sudoku application."""
@@ -28,8 +28,8 @@ class SudokuApp:
         self.grid_frame = self.create_frame(self.root, row=1, column=0, padx=10, pady=0)
         self.side_frame = self.create_frame(self.root, row=1, column=1, padx=0, pady=0)
         self.top_row = self.create_frame(self.side_frame, row=0, column=0, sticky="w")
-        self.number_grid = self.create_frame(self.side_frame, row=3, column=0, padx=SudokuApp._PADX, pady=(10, 0))
-        self.bottom_row = self.create_frame(self.side_frame, row=4, column=0, padx=SudokuApp._PADX, pady=(10, 0))
+        self.number_grid = self.create_frame(self.side_frame, row=3, column=0, padx=SudokuApp.PADX, pady=(10, 0))
+        self.bottom_row = self.create_frame(self.side_frame, row=4, column=0, padx=SudokuApp.PADX, pady=(10, 0))
 
         self.undo_history_manager = UndoHistoryManager()
         self.board_controller = BoardController(self.grid_frame, self.undo_history_manager)
@@ -63,7 +63,7 @@ class SudokuApp:
         dropdown.grid(row=0, column=1, sticky="w", padx=5, pady=10)
 
         notes_button = ActionButton(self.top_row, 'Auto Notes', font_size=12,
-                                    width=100, height=40, command=self.auto_notes)
+                                    width=100, height=40, command=self.auto_notes_command)
         notes_button.grid(row=0, column=2, sticky="w", padx=5, pady=10)
 
         timer = Timer(self.top_row)
@@ -76,22 +76,6 @@ class SudokuApp:
         self.board_end_observer = BoardEndObserver(self.is_solved_observer, timer,
                                                    self.board_controller, self.board_start_observer)
         self.backtracking_solver = BacktrackingSolver(self.board_controller, ui_display_mode=True)
-
-    def auto_notes(self, e):
-        for cell in self.board_controller.cells_flat:
-            possible_values = list(range(1, BOARD_SIZE + 1))
-
-            if cell.model.value_type is CellValueType.GIVEN or cell.model.value_type is CellValueType.ENTRY:
-                continue
-
-            cell.model.clear()
-
-            for house_cell in cell.get_house():
-                if house_cell.value in possible_values:
-                    possible_values.remove(house_cell.value)
-
-            for possible_value in possible_values:
-                cell.model.toggle_note(possible_value)
 
     def create_widgets(self):
         """Create and configure the widgets for the Sudoku application."""
@@ -110,10 +94,26 @@ class SudokuApp:
         self.create_action_button('Hint', 4, lambda e: self.board_controller.clear_selected(), padx)
 
         # Create large buttons
-        self.create_large_button('New Game', row=1, pady=0, command=self.new_game)
+        self.create_large_button('New Game', row=1, pady=0, command=self.new_game_command)
         self.create_large_button('Solve', row=5, pady=10, command=lambda e: self.backtracking_solver.solve())
 
-    def new_game(self, event):
+    def auto_notes_command(self, e):
+        for cell in self.board_controller.cells_flat:
+            possible_values = list(range(1, BOARD_SIZE + 1))
+
+            if cell.model.value_type is CellValueType.GIVEN or cell.model.value_type is CellValueType.ENTRY:
+                continue
+
+            cell.model.clear()
+
+            for house_cell in cell.get_house():
+                if house_cell.value in possible_values:
+                    possible_values.remove(house_cell.value)
+
+            for possible_value in possible_values:
+                cell.model.toggle_note(possible_value)
+
+    def new_game_command(self, event):
         self.generator.generate_board()
         self.board_controller.return_to_default()
         self.board_controller.can_select = True
@@ -127,7 +127,7 @@ class SudokuApp:
 
     def create_large_button(self, label, row, pady, command):
         button = ActionButton(self.side_frame, label, width=320, font_size=15, height=DEFAULT_WIDTH, command=command)
-        button.grid(row=row, column=0, padx=SudokuApp._PADX, pady=pady)
+        button.grid(row=row, column=0, padx=SudokuApp.PADX, pady=pady)
         return button
 
     def create_action_button(self, label, column, command, padx):
