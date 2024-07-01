@@ -6,8 +6,11 @@ from tkinter import Tk
 
 from controllers.cell_controller import CellController
 from models.board_model import BoardModel
+from models.cell_value_type import CellValueType
+from observers.conflict_observer import ConflictObserver
 from undo_history.undo_history_manager import UndoHistoryManager
 from utils.constants import BOARD_SIZE
+from views.cell_view import CELL_DEFAULT_COLOR, DefaultCellViewState, SelectedCellViewState, ConflictCellViewState
 from views.number_button import NumberButton
 
 
@@ -55,6 +58,49 @@ class TestBoardController(unittest.TestCase):
 
     def test_get_frame(self):
         self.assertIsNotNone(self.board_controller.get_frame())
+
+    def test_return_to_default(self):
+        """ Ensures that return to default resets all set to a new game, even if they are in conflict. """
+        # Simulate a cell with a different state and color
+        selected_cell = self.board_controller.cells[0][0]
+        other_cell = self.board_controller.cells[0][1]
+        selected_cell.select()
+
+        # Ensure that there are cells with different colors initially
+        self.assertNotEqual(selected_cell.view.color, other_cell.view.color)
+        self.assertTrue(isinstance(selected_cell.view._state_context.state, SelectedCellViewState))
+        self.assert_return_to_default()
+
+        self.board_controller.can_select = True
+        conflict_observer = ConflictObserver(self.board_controller.model)
+
+        # Ensures returning to default will clear conflicts
+        self.setup_cell_conflict(selected_cell)
+        self.setup_cell_conflict(other_cell)
+
+        self.assertTrue(selected_cell.model.in_conflict)
+        self.assertTrue(isinstance(selected_cell.view._state_context.state, ConflictCellViewState))
+
+        self.assertTrue(other_cell.model.in_conflict)
+        self.assertTrue(isinstance(other_cell.view._state_context.state, ConflictCellViewState))
+
+        self.assert_return_to_default()
+
+    #
+    # Helper Functions
+    #
+    def assert_return_to_default(self):
+        self.board_controller.return_to_default()
+
+        for cell in self.board_controller.cells_flat:
+            self.assertTrue(isinstance(cell.view._state_context.state, DefaultCellViewState))
+            self.assertEqual(cell.view.color, CELL_DEFAULT_COLOR)
+
+    def setup_cell_conflict(self, cell):
+        cell.model.value_type = CellValueType.ENTRY
+        cell.clear()
+        cell.toggle_number(1)
+        print('val', cell.model.value)
 
 
 if __name__ == '__main__':

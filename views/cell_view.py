@@ -68,6 +68,10 @@ class CellView(Canvas, Observer):
                         text=self.model.value if self.model.value is not None else '',
                         fill='white' if self.model.value_type == CellValueType.ENTRY else 'black')
 
+    @property
+    def color(self):
+        return self['bg']
+
     def update_labels(self):
         """
         Ensures that labels are set properly depending on the value type of the cell.

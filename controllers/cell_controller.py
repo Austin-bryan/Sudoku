@@ -43,6 +43,7 @@ class CellController:
         self.board_controller.model.notify()
 
     def toggle_number(self, number):
+        print(self.model.value_type, self.model.is_given(), self.board_controller.can_select)
         if self.model.is_given() or not self.board_controller.can_select:
             return
         if ModeButton.mode == Mode.ENTRY:
