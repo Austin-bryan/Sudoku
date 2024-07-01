@@ -17,6 +17,7 @@ class BoardController:
         self.selected_cell: CellController = None
         self._undo_history_manager = undo_history_manager
         self._initialize_cells()
+        self.can_select = True
 
     @property
     def undo_history_manager(self):
@@ -72,3 +73,17 @@ class BoardController:
 
     def get_frame(self):
         return self.view.get_frame()
+
+    def return_to_default(self):
+        self.can_select = False
+
+        for cell in self.cells_flat:
+            cell.view.return_to_default()
+
+    def select_cell(self, cell):
+        if not self.can_select:
+            return
+        if self.selected_cell is not None:
+            self.selected_cell.model.is_selected = False
+        self.selected_cell = cell
+        cell.model.is_selected = True

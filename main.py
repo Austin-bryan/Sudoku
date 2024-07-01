@@ -2,6 +2,7 @@
 from typing import Union, Tuple
 from controllers.board_controller import BoardController
 from models.cell_value_type import CellValueType
+from observers.board_end_observer import BoardEndObserver
 from observers.board_start_observer import BoardStartObserver
 from observers.conflict_observer import ConflictObserver
 from observers.is_solved_observer import IsSolvedObserver
@@ -43,7 +44,7 @@ class SudokuApp:
         self.generator = None
 
         def easy_command(event):
-            self.generator = SudokuGenerator(self.board_controller, 35)
+            self.generator = SudokuGenerator(self.board_controller, 1)
             self.generator.generate_board()
 
         def medium_command(event):
@@ -71,7 +72,9 @@ class SudokuApp:
         # Attach the conflict observer
         self.conflict_observer = ConflictObserver(self.board_controller.model)
         self.is_solved_observer = IsSolvedObserver(self.board_controller.model)
-        self.timer_start_observer = BoardStartObserver(self.board_controller.model, timer)
+        self.board_start_observer = BoardStartObserver(self.board_controller.model, timer)
+        self.board_end_observer = BoardEndObserver(self.is_solved_observer, timer,
+                                                   self.board_controller, self.board_start_observer)
         self.backtracking_solver = BacktrackingSolver(self.board_controller, ui_display_mode=True)
 
     def auto_notes(self, e):
@@ -112,9 +115,9 @@ class SudokuApp:
 
     def new_game(self, event):
         self.generator.generate_board()
-
-        for cell in self.board_controller.cells_flat:
-            cell.view.return_to_default()
+        self.board_controller.return_to_default()
+        self.board_controller.can_select = True
+        self.board_start_observer.first_cell_selected = False
 
     @staticmethod
     def create_frame(parent, row, column,

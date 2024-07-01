@@ -87,7 +87,8 @@ class NumberButton(ToggleButton):
         cls.toggle_all_off()
         from views.mode_button import ModeButton, Mode
 
-        if cell_controller.model.is_given() or not NumberButton.board_controller.model.is_any_cell_selected():
+        if cell_controller.model.is_given() or not NumberButton.board_controller.model.is_any_cell_selected() or \
+                not NumberButton.board_controller.can_select:
             cls.disable_all()
         else:
             cls.enable_all()

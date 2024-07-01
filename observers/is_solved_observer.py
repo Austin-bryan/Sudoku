@@ -12,7 +12,6 @@ class IsSolvedObserver(Observer, Subject):
     def update(self):
         if self.is_solved():
             self.notify()
-            NumberButton.disable_all()
 
     def is_solved(self):
         for row in self.board_model.cells:

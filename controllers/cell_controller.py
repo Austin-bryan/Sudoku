@@ -30,21 +30,20 @@ class CellController:
         board_view.add_cell_view(x, y, self.view)
 
     def select(self):
-        if self.board_controller.selected_cell is not None:
-            self.board_controller.selected_cell.model.is_selected = False
-        self.model.is_selected = True
-        self.board_controller.model.notify()
+        if not self.board_controller.can_select:
+            return
+        self.board_controller.select_cell(self)
         self.board_controller.reset_cells()
-        self.board_controller.selected_cell = self
         self.view.focus_set()
 
         self.highlighter.highlight_house()
         self.highlighter.highlight_matching_cells()
         self.view.enter_selected()
         NumberButton.show_number_buttons(self)
+        self.board_controller.model.notify()
 
     def toggle_number(self, number):
-        if self.model.is_given():
+        if self.model.is_given() or not self.board_controller.can_select:
             return
         if ModeButton.mode == Mode.ENTRY:
             command = ToggleEntryCommand(self, number)
@@ -54,7 +53,8 @@ class CellController:
             self.undo_history_manager.execute_command(command)
 
     def highlight_matching_cells(self):
-        self.highlighter.highlight_matching_cells()
+        if self.board_controller.can_select:
+            self.highlighter.highlight_matching_cells()
 
     def clear(self, event=None):
         command = ClearCellCommand(self)

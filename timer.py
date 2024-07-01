@@ -13,7 +13,6 @@ class Timer(tk.Canvas):
         self.timer_label.config(font=('Helvetica', 18, 'bold'), background=BACKGROUND_COLOR)
         self.timer_label.pack()
         self.stop()
-        # self.timer_label.grid(row=0, column=0, padx=10, pady=10)
         self.update_timer()
 
     def start(self):
@@ -21,7 +20,8 @@ class Timer(tk.Canvas):
             self.running = True
             self._update()
             self.timer_label.config(foreground='green')
-
+            self.reset()
+        
     def stop(self):
         if self.running:
             self.running = False

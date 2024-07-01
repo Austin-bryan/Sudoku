@@ -1,5 +1,4 @@
 ﻿from observers.observer import Observer
-from views.number_button import NumberButton
 
 
 class BoardStartObserver(Observer):
@@ -11,7 +10,6 @@ class BoardStartObserver(Observer):
 
     def update(self):
         if not self.first_cell_selected and self.board_model.is_any_cell_selected():
-            # NumberButton.enable_all()
+            print('update 2')
             self.first_cell_selected = True
             self.timer.start()
-            print('hello')
