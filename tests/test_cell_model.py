@@ -1,7 +1,7 @@
 ﻿import unittest
 from unittest.mock import Mock
 
-from models.cell_model import CellModel
+from models.cell_model import CellModel, get_possible_values
 from models.cell_value_type import CellValueType
 from utils.constants import BOARD_SIZE
 
@@ -162,6 +162,26 @@ class TestCellModel(unittest.TestCase):
         self.cell_model.house_manager.get_subgrid = Mock()
         self.cell_model.get_subgrid()
         self.assertTrue(self.cell_model.house_manager.get_subgrid.called)
+
+    def test_get_possible_values(self):
+        self.cell_model.value = None
+
+        def _mock_get_house():
+            """ Returns a list of mocked cells representing the house. """
+            house = []
+            # Create 8 mock cells with values and 1 mock cell (self.cell) without a value
+            for i in range(8):
+                mock_cell = Mock(spec=CellModel)
+                mock_cell.value = i + 1 if i < 4 else None  # First 4 cells have values, next 4 cells are None
+                house.append(mock_cell)
+            return house
+
+        self.cell_model.get_house = _mock_get_house
+
+        # Check that the possible values are {5, 6, 7, 8, 9} since 1, 2, 3, 4 are used in the house
+        possible_values = get_possible_values(self.cell_model)
+        expected_values = {5, 6, 7, 8, 9}
+        self.assertEqual(possible_values, expected_values)
 
 
 if __name__ == '__main__':

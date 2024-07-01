@@ -23,7 +23,7 @@ class TestBoardModel(unittest.TestCase):
         """ Makes sure is_any_selected returns true if only one cell is selected. """
         self.board_model.cells = [[CellModel(x, y) for x in range(BOARD_SIZE)] for y in range(BOARD_SIZE)]
         self.assertFalse(self.board_model.is_any_cell_selected())
-        
+
         self.board_model.cells[0][0].is_selected = True
         self.assertTrue(self.board_model.is_any_cell_selected())
 
