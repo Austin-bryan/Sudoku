@@ -1,26 +1,28 @@
 ﻿import unittest
 import tkinter as tk
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch, MagicMock, Mock
 from controllers.board_controller import BoardController
 from undo_history.undo_history_manager import UndoHistoryManager
 from utils.backtracking_solver import BacktrackingSolver
 from utils.constants import BOARD_SIZE
 from utils.sudoku_generator import SudokuGenerator
+from views.number_button import NumberButton
 
 
-# TODO: Fix flashing windows
 class TestSudokuGenerator(unittest.TestCase):
     def setUp(self):
         self.root = tk.Tk()
         self.root.withdraw()
         self.board_controller = BoardController(self.root, UndoHistoryManager())
         self.generator = SudokuGenerator(self.board_controller)
+        self.show_number_buttons = NumberButton.show_number_buttons
+        NumberButton.show_number_buttons = Mock()
 
     def tearDown(self):
         from time import sleep
         self.root.update_idletasks()
-        # sleep(0.1)
         self.root.destroy()
+        NumberButton.show_number_buttons = self.show_number_buttons
 
     @patch.object(SudokuGenerator, '_fill_board')
     @patch.object(SudokuGenerator, '_remove_numbers')
@@ -38,6 +40,10 @@ class TestSudokuGenerator(unittest.TestCase):
         # Mocking the board to have all cells filled initially
         for cell in self.board_controller.cells_flat:
             cell.model.value = 1  # Arbitrary non-None value
+
+        solver = BacktrackingSolver(self.board_controller)
+        solver.has_unique_solution = Mock(return_value=True)
+        self.generator = SudokuGenerator(self.board_controller, solver=solver)
         self.generator._remove_numbers()
 
         # Check if the correct number of cells were cleared
@@ -59,11 +65,11 @@ class TestSudokuGenerator(unittest.TestCase):
                 self.assertTrue(0 <= i < BOARD_SIZE)
                 self.assertTrue(0 <= j < BOARD_SIZE)
 
-    @patch('random.randint', return_value=0)
-    def test_remove_numbers_random(self, mock_randint):
+    @patch('random.shuffle')
+    def test_remove_numbers_random(self, mock_random_shuffle):
         self.generator._fill_board()
         self.generator._remove_numbers()
-        mock_randint.assert_called()
+        mock_random_shuffle.assert_called()
 
 
 if __name__ == '__main__':

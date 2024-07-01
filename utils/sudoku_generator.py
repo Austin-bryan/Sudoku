@@ -32,11 +32,6 @@ class SudokuGenerator:
         iter_count = 0
         non_unique_cache = set()  # Use a set to track cells that cause non-unique solutions
 
-        def get_random_cell():
-            i = random.randint(0, BOARD_SIZE - 1)
-            j = random.randint(0, BOARD_SIZE - 1)
-            return self.board_controller.cells[i][j]
-
         all_cells = [(i, j) for i in range(BOARD_SIZE) for j in range(BOARD_SIZE)]
         random.shuffle(all_cells)  # Shuffle the list to remove cells randomly
 
