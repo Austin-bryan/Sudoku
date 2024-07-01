@@ -8,6 +8,7 @@ from undo_history.undo_history_manager import UndoHistoryManager
 from utils.constants import BOARD_SIZE
 from utils.backtracking_solver import BacktrackingSolver
 from utils.sudoku_generator import SudokuGenerator
+from views.number_button import NumberButton
 
 
 class TestBacktrackingSolver(unittest.TestCase):
@@ -20,11 +21,14 @@ class TestBacktrackingSolver(unittest.TestCase):
 
         self.board_controller.cells[0][0].view.update_value_label = Mock()
         self.board_controller.view.update = Mock()
-        self.solver = BacktrackingSolver(self.board_controller)
+        self.show_number_buttons = NumberButton.show_number_buttons
+        NumberButton.show_number_buttons = Mock()
+        self.solver = BacktrackingSolver(self.board_controller, True)
 
     def tearDown(self):
         self.root.update_idletasks()
         self.root.destroy()
+        NumberButton.show_number_buttons = self.show_number_buttons
 
     def test_solve_empty_board(self):
         """ Test solving an empty board. """
@@ -64,10 +68,10 @@ class TestBacktrackingSolver(unittest.TestCase):
         self.board_controller.cells[1][0].model.value = 2
         self.board_controller.cells[1][1].model.value = 3
 
-        self.assertFalse(self.solver._is_valid_placement(0, 0, 1))
-        self.assertFalse(self.solver._is_valid_placement(0, 0, 2))
-        self.assertFalse(self.solver._is_valid_placement(0, 0, 3))
-        self.assertTrue(self.solver._is_valid_placement(0, 0, 4))
+        self.assertFalse(self.solver._is_valid_placement(self.board_controller, 0, 0, 1))
+        self.assertFalse(self.solver._is_valid_placement(self.board_controller, 0, 0, 2))
+        self.assertFalse(self.solver._is_valid_placement(self.board_controller, 0, 0, 3))
+        self.assertTrue(self.solver._is_valid_placement(self.board_controller, 0, 0, 4))
 
     def test_adjust_update_frequency(self):
         """ Test the _adjust_update_frequency method. """

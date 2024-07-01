@@ -21,7 +21,7 @@ class Timer(tk.Canvas):
             self._update()
             self.timer_label.config(foreground='green')
             self.reset()
-        
+
     def stop(self):
         if self.running:
             self.running = False
