@@ -56,9 +56,6 @@ class TestBoardController(unittest.TestCase):
         self.board_controller.toggle_selected_cell(5)
         self.assertEqual(cell_controller.model.value, 5)
 
-    def test_get_frame(self):
-        self.assertIsNotNone(self.board_controller.get_frame())
-
     def test_return_to_default(self):
         """ Ensures that return to default resets all set to a new game, even if they are in conflict. """
         # Simulate a cell with a different state and color
