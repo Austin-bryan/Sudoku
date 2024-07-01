@@ -135,7 +135,7 @@ class CellController:
         self.model.x = value
 
     @property
-    def y(self) => int:
+    def y(self) -> int:
         """ Return the Y coordinate. """
         return self.model.y
 

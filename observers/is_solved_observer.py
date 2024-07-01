@@ -1,19 +1,27 @@
+from models.board_model import BoardModel
 from models.subject import Subject
 from observers.observer import Observer
-from views.number_button import NumberButton
 
 
 class IsSolvedObserver(Observer, Subject):
-    def __init__(self, board_model):
+    """ Observes the board model, detecting when the game is solved. """
+    def __init__(self, board_model: BoardModel):
         super().__init__()
         self.board_model = board_model
         self.board_model.attach(self)
 
     def update(self):
+        """ Notify observers when it detects the board model is solved. """
         if self.is_solved():
             self.notify()
 
     def is_solved(self):
+        """
+        If all cells are both
+            A) Not None and
+            B) Not in conflict
+        Then the game is solved.
+        """
         for row in self.board_model.cells:
             for cell in row:
                 if cell.value is None:

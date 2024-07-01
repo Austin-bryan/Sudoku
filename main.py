@@ -117,7 +117,7 @@ class SudokuApp:
         self.generator.generate_board()
         self.board_controller.return_to_default()
         self.board_controller.can_select = True
-        self.board_start_observer.first_cell_selected = False
+        self.board_start_observer.game_has_started = False
 
     @staticmethod
     def create_frame(parent, row, column, padx: Union[int, Tuple[int, int]] = 0, pady: Union[int, Tuple[int, int]] = 0, sticky: str = ""):

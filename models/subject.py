@@ -9,7 +9,7 @@ class Subject:
     def __init__(self):
         self._observers = []
 
-    def attach(self, observer: Observer):
+    def attach(self, observer: 'Observer'):
         """
         Add an observer to the list of observers to notify.
         :param observer: Observer to add
@@ -17,7 +17,7 @@ class Subject:
         if observer not in self._observers:
             self._observers.append(observer)
 
-    def detach(self, observer: Observer):
+    def detach(self, observer: 'Observer'):
         """
         Remove an observer from the list of observers to notify.
         :param observer: Observer to remove
@@ -26,6 +26,6 @@ class Subject:
             self._observers.remove(observer)
 
     def notify(self):
-        """ Notify all observers that a change has occured. """
+        """ Notify all observers that a change has occurred. """
         for observer in self._observers:
             observer.update()
