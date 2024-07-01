@@ -21,3 +21,10 @@ class BoardModel(Subject):
     def add_cell_model(self, x, y, cell_model):
         """ Used by cell models when they are created to add themselves to the board. """
         self.cells[x][y] = cell_model
+
+    def is_any_cell_selected(self):
+        for row in self.cells:
+            for cell in row:
+                if cell.is_selected:
+                    return True
+        return False

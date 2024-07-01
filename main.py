@@ -2,7 +2,10 @@
 from typing import Union, Tuple
 from controllers.board_controller import BoardController
 from models.cell_value_type import CellValueType
+from observers.board_start_observer import BoardStartObserver
 from observers.conflict_observer import ConflictObserver
+from observers.is_solved_observer import IsSolvedObserver
+from timer import Timer
 from undo_history.undo_history_manager import UndoHistoryManager
 from utils.backtracking_solver import BacktrackingSolver
 from utils.constants import BACKGROUND_COLOR, BOARD_SIZE
@@ -23,7 +26,7 @@ class SudokuApp:
         self.root.configure(bg=BACKGROUND_COLOR)
         self.grid_frame = self.create_frame(self.root, row=1, column=0, padx=10, pady=0)
         self.side_frame = self.create_frame(self.root, row=1, column=1, padx=0, pady=0)
-        self.difficult_row = self.create_frame(self.side_frame, row=0, column=0, sticky="w")
+        self.top_row = self.create_frame(self.side_frame, row=0, column=0, sticky="w")
         self.number_grid = self.create_frame(self.side_frame, row=3, column=0, padx=SudokuApp._PADX, pady=(10, 0))
         self.bottom_row = self.create_frame(self.side_frame, row=4, column=0, padx=SudokuApp._PADX, pady=(10, 0))
 
@@ -34,12 +37,8 @@ class SudokuApp:
         # Initialize BoardController
         self.board_controller.view.grid(row=0, column=0)
 
-        # Attach the conflict observer
-        self.conflict_observer = ConflictObserver(self.board_controller.model)
-        self.backtracking_solver = BacktrackingSolver(self.board_controller, ui_display_mode=True)
-
         # Create Difficulty UI
-        self.difficulty_label = tk.Label(self.difficult_row, text="Difficulty:", bg=BACKGROUND_COLOR,
+        self.difficulty_label = tk.Label(self.top_row, text="Difficulty:", bg=BACKGROUND_COLOR,
                                          fg="white", font=("Helvetica", 12), anchor="w")
         self.generator = None
 
@@ -59,12 +58,21 @@ class SudokuApp:
 
         options = [("Easy", easy_command), ("Medium", medium_command), ("Hard", hard_command)]
 
-        dropdown = DropdownMenu(self.difficult_row, options, width=125, height=40)
+        dropdown = DropdownMenu(self.top_row, options, width=100, height=40)
         dropdown.grid(row=0, column=1, sticky="w", padx=5, pady=10)
 
-        notes_button = ActionButton(self.difficult_row, 'Auto Notes', font_size=12,
-                                    width=125, height=40, command=self.auto_notes)
+        notes_button = ActionButton(self.top_row, 'Auto Notes', font_size=12,
+                                    width=100, height=40, command=self.auto_notes)
         notes_button.grid(row=0, column=2, sticky="w", padx=5, pady=10)
+
+        timer = Timer(self.top_row)
+        timer.grid(row=0, column=3, sticky="w", padx=5, pady=10)
+
+        # Attach the conflict observer
+        self.conflict_observer = ConflictObserver(self.board_controller.model)
+        self.is_solved_observer = IsSolvedObserver(self.board_controller.model)
+        self.timer_start_observer = BoardStartObserver(self.board_controller.model, timer)
+        self.backtracking_solver = BacktrackingSolver(self.board_controller, ui_display_mode=True)
 
     def auto_notes(self, e):
         for cell in self.board_controller.cells_flat:

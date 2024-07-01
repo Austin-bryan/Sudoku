@@ -9,11 +9,12 @@ class NumberButton(ToggleButton):
     _DISABLED_TEXT = '#444'
     _DEFAULT_TEXT = '#FFF'
     _WIDTH = 100
+    board_controller = None
 
     def __init__(self, parent, board_controller, number, **kwargs):
         super().__init__(parent, number, font_size=18, width=NumberButton._WIDTH, height=NumberButton._WIDTH, **kwargs)
         NumberButton.buttons[number] = self
-        self.board_controller = board_controller
+        NumberButton.board_controller = board_controller
         self.number = number
         self._is_disabled = True
         self.disable()
@@ -86,7 +87,7 @@ class NumberButton(ToggleButton):
         cls.toggle_all_off()
         from views.mode_button import ModeButton, Mode
 
-        if cell_controller.model.is_given():
+        if cell_controller.model.is_given() or not NumberButton.board_controller.model.is_any_cell_selected():
             cls.disable_all()
         else:
             cls.enable_all()

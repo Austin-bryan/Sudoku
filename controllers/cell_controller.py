@@ -30,8 +30,10 @@ class CellController:
         board_view.add_cell_view(x, y, self.view)
 
     def select(self):
-        if self.board_controller.selected_cell is None:
-            NumberButton.enable_all()
+        if self.board_controller.selected_cell is not None:
+            self.board_controller.selected_cell.model.is_selected = False
+        self.model.is_selected = True
+        self.board_controller.model.notify()
         self.board_controller.reset_cells()
         self.board_controller.selected_cell = self
         self.view.focus_set()

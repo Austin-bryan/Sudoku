@@ -15,6 +15,7 @@ class CellModel(Subject):
         self.x, self.y = x, y
         self.value, self.notes = None, [False] * BOARD_SIZE
         self.in_conflict = False
+        self.is_selected = False
         self.value_type = CellValueType.BLANK
         self.house_manager = None
 
