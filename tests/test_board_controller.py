@@ -86,6 +86,20 @@ class TestBoardController(unittest.TestCase):
 
         self.assert_return_to_default()
 
+    def test_can_select(self):
+        cell_controller = self.board_controller.cells[0][0]
+        cell_controller.model.is_selected = False
+        self.board_controller.can_select = True
+
+        self.board_controller.select_cell(cell_controller)
+        self.assertTrue(cell_controller.model.is_selected)
+
+        cell_controller.model.is_selected = False
+        self.board_controller.can_select = False
+
+        self.board_controller.select_cell(cell_controller)
+        self.assertFalse(cell_controller.model.is_selected)
+
     #
     # Helper Functions
     #
