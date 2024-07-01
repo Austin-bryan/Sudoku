@@ -1,7 +1,7 @@
 ﻿import time
 import unittest
 from tkinter import Tk
-from unittest.mock import MagicMock, Mock
+from unittest.mock import MagicMock, Mock, patch
 
 from controllers.board_controller import BoardController
 from controllers.cell_controller import CellController
@@ -9,6 +9,7 @@ from models.cell_model import CellModel
 from models.cell_value_type import CellValueType
 from observers.conflict_observer import ConflictObserver
 from undo_history.cell_commands import *
+from utils.backtracking_solver import BacktrackingSolver
 from utils.sudoku_generator import SudokuGenerator
 from views.board_view import BoardView
 from views.number_button import NumberButton
@@ -229,12 +230,17 @@ class TestCommands(unittest.TestCase):
 
 
 class TestCommandHighlighting(unittest.TestCase):
+
     def setUp(self):
         self.root = Tk()
         self.root.withdraw()
         self.board_view = BoardView(self.root)
         self.board_controller = BoardController(self.root, MagicMock())
-        generator = SudokuGenerator(self.board_controller, target_count=81)  # Ensure an empty board
+
+        # Ensure an empty board
+        solver = BacktrackingSolver(self.board_controller)
+        solver.has_unique_solution = Mock(return_value=True)
+        generator = SudokuGenerator(self.board_controller, target_count=81, solver=solver)
         generator.generate_board()
         self.conflict_observer = ConflictObserver(self.board_controller.model)
         self.show_number_buttons = NumberButton.show_number_buttons
@@ -305,6 +311,7 @@ class TestCommandHighlighting(unittest.TestCase):
         command.execute()
         command = ToggleEntryCommand(self.cell_controller01, 5)
         command.execute()
+
         self.assertTrue(self.cell_model.in_conflict)
 
         command = ToggleEntryCommand(self.cell_controller01, 4)

@@ -7,9 +7,9 @@ from utils.difficulty_rater import DifficultyRater
 
 
 class SudokuGenerator:
-    def __init__(self, board_controller, target_count=40):
+    def __init__(self, board_controller, target_count=40, solver=None):
         self.board_controller = board_controller
-        self.solver = BacktrackingSolver(board_controller)
+        self.solver = BacktrackingSolver(board_controller) if solver is None else solver
         self.target_count = target_count
 
     def generate_board(self):
@@ -28,9 +28,8 @@ class SudokuGenerator:
 
     def _remove_numbers(self):
         count = self.target_count  # Higher the count, harder the difficulty
-        max_iterations = 100
+        max_iterations = 1000
         iter_count = 0
-        solver = BacktrackingSolver(self.board_controller)
         non_unique_cache = set()  # Use a set to track cells that cause non-unique solutions
 
         def get_random_cell():
@@ -56,7 +55,7 @@ class SudokuGenerator:
             cell.model.value = None
 
             # Always ensure at least 3 cells are removed initially
-            if self.target_count - count < 3 or solver.has_unique_solution():
+            if self.target_count - count < 3 or self.solver.has_unique_solution():
                 cell.model.value_type = CellValueType.BLANK
                 cell.view.update_labels()
                 count -= 1
@@ -66,8 +65,8 @@ class SudokuGenerator:
 
             iter_count += 1
 
-        if count > 0:
-            self._remove_numbers()  # Retry if not enough cells were removed
+        # if count > 0:
+        #     self._remove_numbers()  # Retry if not enough cells were removed
 
         # rater = DifficultyRater(self.board_controller)
 

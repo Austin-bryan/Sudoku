@@ -44,7 +44,7 @@ class SudokuApp:
         self.generator = None
 
         def easy_command(event):
-            self.generator = SudokuGenerator(self.board_controller, 1)
+            self.generator = SudokuGenerator(self.board_controller, 35)
             self.generator.generate_board()
 
         def medium_command(event):
