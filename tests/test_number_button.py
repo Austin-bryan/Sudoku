@@ -17,6 +17,9 @@ class TestNumberButton(unittest.TestCase):
         self.root = Tk()
         self.root.withdraw()
         self.board_controller = Mock(BoardController)
+        self.board_controller.model = Mock()
+        self.board_controller.can_select = True
+        self.board_controller.model.is_any_selected = Mock(return_value=True)
         self.cell_controller = Mock()
         self.cell_controller.model.value = None
         self.cell_controller.model.notes = [False] * BOARD_SIZE
