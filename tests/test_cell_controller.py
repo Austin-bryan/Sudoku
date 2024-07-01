@@ -16,7 +16,6 @@ from models.board_model import BoardModel
 from views.number_button import NumberButton
 
 
-# TODO:: Fix flashing windows
 class TestCellController(unittest.TestCase):
     def setUp(self):
         self.root = Tk()
@@ -252,6 +251,18 @@ class TestCellController(unittest.TestCase):
 
         self.assert_state(other, SelectedCellViewState, CELL_SELECTION_COLOR)
         self.assert_state(self.cell_controller, DefaultCellViewState, CELL_DEFAULT_COLOR)
+
+    def test_can_select(self):
+        """ Ensures that selection only works when it is enabled. """
+        self.board_controller.can_select = True
+
+        self.cell_controller.select()
+        self.assertTrue(self.cell_controller.model.is_selected)
+
+        self.board_controller.can_select = False
+
+        self.cell_controllers[0][1].select()
+        self.assertFalse(self.cell_controllers[0][1].model.is_selected)
 
     #
     # Helper Methods
