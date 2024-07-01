@@ -29,15 +29,12 @@ class ActionButton(Canvas):
         self.image = None
         if image_path:
             self.image, self.image_item = self.create_icon(width, height, image_path)
+        self.command = command
 
         # Bind mouse events
         self.bind("<Enter>", self.on_enter)
         self.bind("<Leave>", self.on_leave)
-
-        if command:
-            self.bind("<ButtonPress-1>", command)
-        else:
-            self.bind("<ButtonPress-1>", self.on_press)
+        self.bind("<ButtonPress-1>", self.on_press)
 
     def create_icon(self, width, height, image_path):
         full_image_path = os.path.join('images', image_path)
@@ -58,7 +55,7 @@ class ActionButton(Canvas):
         self._set_color(self.bg)
 
     def on_press(self, event):
-        pass
+        self.command(event)
 
     def _set_color(self, color):
         self.itemconfig(self.rect, fill=color)

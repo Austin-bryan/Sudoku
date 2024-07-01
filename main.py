@@ -120,9 +120,7 @@ class SudokuApp:
         self.board_start_observer.first_cell_selected = False
 
     @staticmethod
-    def create_frame(parent, row, column,
-                     padx: Union[int, Tuple[int, int]] = 0, pady: Union[int, Tuple[int, int]] = 0,
-                     sticky: str = ""):
+    def create_frame(parent, row, column, padx: Union[int, Tuple[int, int]] = 0, pady: Union[int, Tuple[int, int]] = 0, sticky: str = ""):
         frame = tk.Frame(parent, bg=BACKGROUND_COLOR)
         frame.grid(row=row, column=column, padx=padx, pady=pady, sticky=sticky)
         return frame
