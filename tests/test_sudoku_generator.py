@@ -14,7 +14,7 @@ class TestSudokuGenerator(unittest.TestCase):
         self.root = tk.Tk()
         self.root.withdraw()
         self.board_controller = BoardController(self.root, UndoHistoryManager())
-        self.generator = SudokuGenerator(self.board_controller)
+        self.generator = SudokuGenerator(self.board_controller, 50)
         self.show_number_buttons = NumberButton.show_number_buttons
         NumberButton.show_number_buttons = Mock()
 

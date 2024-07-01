@@ -12,7 +12,6 @@ class BoardEndObserver(Observer):
         self.board_start = board_start
 
     def update(self):
-        print('update')
         self.board_controller.return_to_default()
         self.board_controller.can_select = False
         self.timer.stop()

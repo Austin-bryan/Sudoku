@@ -3,7 +3,6 @@ import random
 from models.cell_value_type import CellValueType
 from utils.constants import BOARD_SIZE, SUBGRID_SIZE
 from utils.backtracking_solver import BacktrackingSolver  # Import your backtracking solver
-from utils.difficulty_rater import DifficultyRater
 
 
 class SudokuGenerator:
