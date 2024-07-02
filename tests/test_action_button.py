@@ -41,7 +41,7 @@ class TestActionButton(unittest.TestCase):
 
     def test_icon_creation(self):
         button = ActionButton(self.root, 'Test', image_path='clear.png')
-        self.assertIsNotNone(button.image)
+        self.assertIsNotNone(button.photo_image)
         self.assertIsNotNone(button.image_item)
 
 

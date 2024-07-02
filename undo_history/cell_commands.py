@@ -1,8 +1,11 @@
 ﻿from abc import ABC
 
-from controllers.cell_controller import CellController
 from undo_history.command import Command
 from views.number_button import NumberButton
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from controllers.cell_controller import CellController
 
 
 class CellCommand(Command, ABC):
@@ -10,7 +13,7 @@ class CellCommand(Command, ABC):
     Base class for cell commands, such as Toggle Entry, Toggle Note, and Clear.
     The use of the command pattern allows easy undoing and redoing.
     """
-    def __init__(self, cell_controller: CellController):
+    def __init__(self, cell_controller: 'CellController'):
         self.cell_controller = cell_controller
         self.cell_model = cell_controller.model
         self.board_model = cell_controller.board_controller.model
@@ -40,7 +43,7 @@ class CellCommand(Command, ABC):
 
 class ToggleEntryCommand(CellCommand):
     """ Command for when the user toggles an entry on or off. """
-    def __init__(self, cell_controller: CellController, number: int):
+    def __init__(self, cell_controller: 'CellController', number: int):
         """
         :param cell_controller: Controller for the cell this command effects
         :param number: The number being toggled on or off
@@ -88,7 +91,7 @@ class ToggleEntryCommand(CellCommand):
 
 class ToggleNoteCommand(CellCommand):
     """ Enables toggling of a note on or off. """
-    def __init__(self, cell_controller: CellController, number: int):
+    def __init__(self, cell_controller: 'CellController', number: int):
         super().__init__(cell_controller)
         self.new_value = number
 
