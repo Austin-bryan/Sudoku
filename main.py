@@ -1,5 +1,6 @@
-﻿import tkinter as tk
-from typing import Union, Tuple
+﻿from typing import Union, Tuple, Callable
+import tkinter as tk
+
 from controllers.board_controller import BoardController
 from models.cell_value_type import CellValueType
 from observers.board_end_observer import BoardEndObserver
@@ -25,6 +26,8 @@ class SudokuApp:
         self.root = root
         self.root.title("Sudoku")
         self.root.configure(bg=BACKGROUND_COLOR)
+
+        # Create frames
         self.grid_frame = self.create_frame(self.root, row=1, column=0, padx=10, pady=0)
         self.side_frame = self.create_frame(self.root, row=1, column=1, padx=0, pady=0)
         self.top_row = self.create_frame(self.side_frame, row=0, column=0, sticky="w")
@@ -43,42 +46,41 @@ class SudokuApp:
                                          fg="white", font=("Helvetica", 12), anchor="w")
         self.generator = None
 
-        def easy_command(event):
-            self.generator = SudokuGenerator(self.board_controller, 35)
-            self.generator.generate_board()
+        # Generate an easy board to start
+        self.easy_command(None)
 
-        def medium_command(event):
-            self.generator = SudokuGenerator(self.board_controller, 40)
-            self.generator.generate_board()
-
-        def hard_command(event):
-            self.generator = SudokuGenerator(self.board_controller, 45)
-            self.generator.generate_board()
-
-        easy_command(None)
-
-        options = [("Easy", easy_command), ("Medium", medium_command), ("Hard", hard_command)]
-
-        dropdown = DropdownMenu(self.top_row, options, width=100, height=40)
-        dropdown.grid(row=0, column=1, sticky="w", padx=5, pady=10)
-
-        notes_button = ActionButton(self.top_row, 'Auto Notes', font_size=12,
-                                    width=100, height=40, command=self.auto_notes_command)
-        notes_button.grid(row=0, column=2, sticky="w", padx=5, pady=10)
-
+        # Create timer
         timer = Timer(self.top_row)
         timer.grid(row=0, column=3, sticky="w", padx=5, pady=10)
 
-        # Attach the conflict observer
+        # Create observers
         self.conflict_observer = ConflictObserver(self.board_controller.model)
         self.is_solved_observer = IsSolvedObserver(self.board_controller.model)
         self.board_start_observer = BoardStartObserver(self.board_controller.model, timer)
         self.board_end_observer = BoardEndObserver(self.is_solved_observer, timer,
                                                    self.board_controller, self.board_start_observer)
+
+        # Create solver
         self.backtracking_solver = BacktrackingSolver(self.board_controller, ui_display_mode=True)
 
+    # Commands for difficulty creation
+    def easy_command(self, event):
+        """ Generate easy puzzle. """
+        self.generator = SudokuGenerator(self.board_controller, 35)
+        self.generator.generate_board()
+
+    def medium_command(self, event):
+        """ Generate medium puzzle. """
+        self.generator = SudokuGenerator(self.board_controller, 40)
+        self.generator.generate_board()
+
+    def hard_command(self, event):
+        """ Generate hard puzzle. """
+        self.generator = SudokuGenerator(self.board_controller, 45)
+        self.generator.generate_board()
+
     def create_widgets(self):
-        """Create and configure the widgets for the Sudoku application."""
+        """ Create and configure the widgets for the Sudoku application. """
 
         # Create the grid of number buttons
         for i in range(BOARD_SIZE):
@@ -93,45 +95,68 @@ class SudokuApp:
         self.create_action_button('Clear', 3, lambda e: self.board_controller.clear_selected(), padx)
         self.create_action_button('Hint', 4, lambda e: self.board_controller.clear_selected(), padx)
 
+        # Create difficulty drop down menu
+        options = [("Easy", self.easy_command), ("Medium", self.medium_command), ("Hard", self.hard_command)]
+
+        dropdown = DropdownMenu(self.top_row, options, width=100, height=40)
+        dropdown.grid(row=0, column=1, sticky="w", padx=5, pady=10)
+
+        # Create auto notes button
+        auto_notes_button = ActionButton(self.top_row, 'Auto Notes', font_size=12,
+                                         width=100, height=40, command=self.auto_notes_command)
+        auto_notes_button.grid(row=0, column=2, sticky="w", padx=5, pady=10)
+
         # Create large buttons
         self.create_large_button('New Game', row=1, pady=0, command=self.new_game_command)
         self.create_large_button('Solve', row=5, pady=10, command=lambda e: self.backtracking_solver.solve())
 
-    def auto_notes_command(self, e):
+    def auto_notes_command(self, event):
+        """ Auto populates all cells with valid notes. """
         for cell in self.board_controller.cells_flat:
+
+            # Get possible notes
             possible_values = list(range(1, BOARD_SIZE + 1))
 
+            # Skip Given or Entries
             if cell.model.value_type is CellValueType.GIVEN or cell.model.value_type is CellValueType.ENTRY:
                 continue
 
+            # Clear any notes that are already there
             cell.model.clear()
 
+            # Remove values that are already in the house
             for house_cell in cell.get_house():
                 if house_cell.value in possible_values:
                     possible_values.remove(house_cell.value)
 
+            # For all that remain, toggle the notes
             for possible_value in possible_values:
                 cell.model.toggle_note(possible_value)
 
     def new_game_command(self, event):
+        """ Generates a new board, reset all cells and states for a new game. """
         self.generator.generate_board()
         self.board_controller.return_to_default()
         self.board_controller.can_select = True
         self.board_start_observer.game_has_started = False
 
     @staticmethod
-    def create_frame(parent, row, column, padx: Union[int, Tuple[int, int]] = 0, pady: Union[int, Tuple[int, int]] = 0, sticky: str = ""):
+    def create_frame(parent, row: int, column: int,
+                     padx: Union[int, Tuple[int, int]] = 0,
+                     pady: Union[int, Tuple[int, int]] = 0, sticky: str = ""):
+        """ Helper function for creating a frame. """
         frame = tk.Frame(parent, bg=BACKGROUND_COLOR)
         frame.grid(row=row, column=column, padx=padx, pady=pady, sticky=sticky)
         return frame
 
-    def create_large_button(self, label, row, pady, command):
+    def create_large_button(self, label: str, row: int, pady: int, command: Callable[[tk.Event], None]):
+        """ Helper function for creating large buttons. """
         button = ActionButton(self.side_frame, label, width=320, font_size=15, height=DEFAULT_WIDTH, command=command)
         button.grid(row=row, column=0, padx=SudokuApp.PADX, pady=pady)
         return button
 
     def create_action_button(self, label, column, command, padx):
-        """ Helper function to create an action button with an image. """
+        """ Helper function to create a square action button with an image. """
         button = ActionButton(self.bottom_row, label=label, image_path=label.lower() + '.png', command=command)
         button.grid(row=1, column=column, padx=padx, pady=5)
 

@@ -1,6 +1,7 @@
 ﻿from tkinter import *
 from utils.constants import *
 from views.action_button import ActionButton, BUTTON_DEFAULT_COLOR, BUTTON_HOVER_COLOR, DEFAULT_WIDTH
+from typing import Tuple, Callable
 
 # Colors for different states
 DROPDOWN_TEXT_COLOR = 'white'
@@ -11,7 +12,8 @@ DROPDOWN_ARROW_SIZE = 6
 
 class DropdownMenu(Canvas):
     """ Custom dropdown menu class, that has more consistent UI with the rest of the application. """
-    def __init__(self, parent, options, width=DEFAULT_WIDTH, height=DEFAULT_WIDTH, **kwargs):
+    def __init__(self, parent: Frame, options: list[Tuple[str, Callable[[Event], None]]],
+                 width: int = DEFAULT_WIDTH, height: int = DEFAULT_WIDTH, **kwargs):
         """ Options is an array of tuples of the option text and option command. """
         super().__init__(parent, width=width, height=height, highlightthickness=0, bg=BUTTON_DEFAULT_COLOR, **kwargs)
         self.options = options
@@ -66,6 +68,7 @@ class DropdownMenu(Canvas):
         return lambda event: (command(event), self.select_option(option))
 
     def toggle_menu(self, event=None):
+        """ Toggles the menu open or closed. """
         if self.is_open:
             self.close_menu()
         else:
@@ -80,14 +83,17 @@ class DropdownMenu(Canvas):
         self.dropdown_panel.focus_set()  # Ensure the dropdown panel gets focus
 
     def close_menu(self, event=None):
+        """ Closes the dropdown menu. """
         self.is_open = False
         self.dropdown_panel.withdraw()
 
     def update_dropdown_position(self):
+        """ Makes sure the menu is position correctly. """
         x, y = self.winfo_rootx(), self.winfo_rooty() + self.height
         self.dropdown_panel.geometry(f"{self.width}x{self.height * len(self.options)}+{x}+{y}")
 
     def on_configure(self, event):
+        """ This closes the menu if the window is resized or moved. """
         if self.is_open:
             self.close_menu()
 
@@ -98,11 +104,14 @@ class DropdownMenu(Canvas):
         self.close_menu()
 
     def on_enter(self, event):
+        """ Show hover color. """
         self._set_color(BUTTON_HOVER_COLOR)
 
     def on_leave(self, event):
+        """ Return to default color. """
         self._set_color(BUTTON_DEFAULT_COLOR)
 
     def _set_color(self, color):
+        """ Changes color of drop down menu. """
         self.itemconfig(self.rect, fill=color)
 

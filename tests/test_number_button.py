@@ -169,7 +169,7 @@ class TestNumberButton(unittest.TestCase):
         button = NumberButton.buttons[1]
         button.disable()
         button.on_enter(None)
-        self.assertEqual(self.button1_fill, NumberButton._DISABLED_FILL)
+        self.assertEqual(self.button1_fill, NumberButton.DISABLED_FILL)
 
     def test_disabled_buttons_cannot_click(self):
         """ Tests that disabled buttons do not change state or color on click. """
@@ -177,14 +177,14 @@ class TestNumberButton(unittest.TestCase):
         button.disable()
         button.on_press(None)
         self.assertFalse(button._is_toggled)
-        self.assertEqual(self.button1_fill, NumberButton._DISABLED_FILL)
+        self.assertEqual(self.button1_fill, NumberButton.DISABLED_FILL)
 
     def test_disabled_buttons_cannot_leave(self):
         """ Tests that disabled buttons do not change color on leave. """
         button = NumberButton.buttons[1]
         button.disable()
         button.on_leave(None)
-        self.assertEqual(self.button1_fill, NumberButton._DISABLED_FILL)
+        self.assertEqual(self.button1_fill, NumberButton.DISABLED_FILL)
 
     def test_enabled_enter(self):
         """ Makes sure that enabled buttons can have hover effect. """

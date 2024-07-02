@@ -5,7 +5,8 @@ from utils.constants import BACKGROUND_COLOR
 
 
 class Timer(tk.Canvas):
-    def __init__(self, parent, **kwargs):
+    """ Timer for the game. Starts on first cell selected and ends when game is solved. """
+    def __init__(self, parent: tk.Frame, **kwargs):
         super().__init__(parent, **kwargs)
         self.running = True
         self.time = 0
@@ -16,28 +17,36 @@ class Timer(tk.Canvas):
         self.update_timer()
 
     def start(self):
-        if not self.running:
-            self.running = True
-            self._update()
-            self.timer_label.config(foreground='green')
-            self.reset()
+        """ Start the timer if not already started. Changes the color to green. """
+        if self.running:
+            return
+        self.running = True
+        self._update()
+        self.timer_label.config(foreground='green')
+        self.reset()
 
     def stop(self):
-        if self.running:
-            self.running = False
-            self.timer_label.config(foreground='red')
+        """ Stops the timer and reset to red. """
+        if not self.running:
+            return
+        self.running = False
+        self.timer_label.config(foreground='red')
 
     def reset(self):
+        """ Resets the timer to the initial state. """
         self.time = 0
         self.update_timer()
 
     def _update(self):
-        if self.running:
-            self.time += 1
-            self.update_timer()
-            self.after(1000, self._update)
+        """ Continues to tick once per second. """
+        if not self.running:
+            return
+        self.time += 1
+        self.update_timer()
+        self.after(1000, self._update)
 
     def update_timer(self):
+        """ Updates the display of the timer to represent how much time has passed. """
         hours = self.time // 3600
         minutes = (self.time % 3600) // 60
         seconds = self.time % 60

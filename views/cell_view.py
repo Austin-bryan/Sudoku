@@ -1,8 +1,10 @@
-﻿from abc import ABC, abstractmethod
+﻿import tkinter as tk
+from abc import ABC, abstractmethod
 from tkinter import Canvas
 from typing import cast, Optional
 
 from house_manager import HouseManager
+from models.cell_model import CellModel
 from observers.observer import Observer
 from utils.constants import SELECTION_COLOR, BACKGROUND_COLOR, SUBGRID_SIZE
 from models.cell_value_type import CellValueType
@@ -16,14 +18,19 @@ CELL_SELECTION_COLOR = SELECTION_COLOR
 
 
 class CellView(Canvas, Observer):
-    _WIDTH = 70
+    """
+    Manages the visuals for the cell.
+    This is also an observer of its cell model,
+    and gets notified when the value or notes change of the cell model.
+    """
+    WIDTH = 70
 
-    def __init__(self, parent, model, **kwargs):
+    def __init__(self, parent: tk.Frame, model: CellModel, **kwargs):
         super().__init__(parent, bd=0, highlightthickness=0, **kwargs)
         self.model = model
-        self.actual_width = CellView._WIDTH
-        self.actual_height = CellView._WIDTH
-        self.config(width=CellView._WIDTH, height=CellView._WIDTH, bg=CELL_DEFAULT_COLOR)
+        self.actual_width = CellView.WIDTH
+        self.actual_height = CellView.WIDTH
+        self.config(width=CellView.WIDTH, height=CellView.WIDTH, bg=CELL_DEFAULT_COLOR)
         self._draw_thick_borders()
         self.on_press_event = None
         self.is_highlighted = False
@@ -31,8 +38,10 @@ class CellView(Canvas, Observer):
         self.model.attach(self)
         self._state_context = StateContext(self)
 
+        # Used to display final values, given or entry
         self.value_label = self.create_text(self.actual_width / 2, self.actual_height / 2,
                                             text='', fill='black', font=("Arial", 30))
+        # An array of 9 notes
         self.note_labels = [self.create_text((col + 1) * self.actual_width / 4,
                                              (row + 1) * self.actual_height / 4, fill='white', font=("Arial", 9))
                             for row in range(SUBGRID_SIZE) for col in range(SUBGRID_SIZE)]
@@ -40,30 +49,34 @@ class CellView(Canvas, Observer):
     def _draw_thick_borders(self):
         """
         Draws the thicker lines on cells that are on the edge of a subgrid.
-
         Because this changes the length of the cell, the cell has to be made even long to accommodate them.
         """
         thickness_width = 8
         should_draw_vertical_line = self.model.y % SUBGRID_SIZE == 0 and self.model.y != 0
         should_draw_horizontal_line = self.model.x % SUBGRID_SIZE == 0 and self.model.x != 0
-        line_length = CellView._WIDTH * 1.4
+        line_length = CellView.WIDTH * 1.4
 
         if should_draw_vertical_line:
             self.create_line(0, 0, 0, line_length if should_draw_horizontal_line
-                                                  else CellView._WIDTH, width=thickness_width, fill=BACKGROUND_COLOR)
-            self.actual_width = CellView._WIDTH + thickness_width
-            self.config(width=CellView._WIDTH + thickness_width / 2)
+                                                  else CellView.WIDTH, width=thickness_width, fill=BACKGROUND_COLOR)
+            self.actual_width = CellView.WIDTH + thickness_width
+            self.config(width=CellView.WIDTH + thickness_width / 2)
 
         if should_draw_horizontal_line:
             self.create_line(0, 0, line_length if should_draw_vertical_line
-                                               else CellView._WIDTH, 0, width=thickness_width, fill=BACKGROUND_COLOR)
-            self.actual_height = CellView._WIDTH + thickness_width
-            self.config(height=CellView._WIDTH + thickness_width / 2)
+                                               else CellView.WIDTH, 0, width=thickness_width, fill=BACKGROUND_COLOR)
+            self.actual_height = CellView.WIDTH + thickness_width
+            self.config(height=CellView.WIDTH + thickness_width / 2)
 
-    def update_color(self, color):
+    def update_color(self, color: str):
+        """ Sets the color of the cell. """
         self.config(bg=color)
 
     def update_value_label(self):
+        """
+        Updates the cell value label to be whatever the value of the model is.
+        If the model is empty, this will be blank.
+        """
         self.itemconfig(self.value_label,
                         text=self.model.value if self.model.value is not None else '',
                         fill='white' if self.model.value_type == CellValueType.ENTRY else 'black')
@@ -89,6 +102,7 @@ class CellView(Canvas, Observer):
             case CellValueType.GIVEN:
                 self.update_value_label()
             case _:
+                # For blank, clear both
                 self.clear_entry()
                 self.clear_notes()
 
@@ -102,6 +116,10 @@ class CellView(Canvas, Observer):
             self.itemconfig(label, text='')
 
     def update(self):
+        """
+        This is called by the cell model when any change is made.
+        Enters or exits conflicts if needed. Updates labels.
+        """
         if self.model.in_conflict:
             self.enter_conflict()
         else:
@@ -124,46 +142,61 @@ class CellView(Canvas, Observer):
     def y(self, value):
         self.model.y = value
 
-    def get_house(self):
-        return self.house_manager.get_house()
-
     def get_row(self):
+        """ Returns the row of this cell. """
         return self.house_manager.get_row()
 
     def get_column(self):
+        """ Returns the column of this cell. """
         return self.house_manager.get_column()
 
     def get_subgrid(self):
+        """ Returns the subgrid of this cell. """
         return self.house_manager.get_subgrid()
 
+    def get_house(self):
+        """ Returns the house (row, column and subgrid) of this cell. """
+        return self.house_manager.get_house()
+
     def enter_highlighted(self):
+        """ This occurs when the user selects a cell, all cells in the house are highlighted. """
         self._state_context.enter_highlighted()
 
     def enter_selected(self):
+        """ This occurs when the user clicks on the cell. """
         self._state_context.enter_selected()
 
     def enter_matching(self):
+        """ This occurs when the user selects one cell, all cells with matching numbers are shown."""
         self._state_context.enter_matching()
 
     def enter_conflict(self):
+        """ This occurs when there exists a conflict. """
         self._state_context.enter_conflict()
 
     def reset_state(self):
-        """ Resets the state to default or conflicted, depending if a conflict exists. """
+        """ Resets the state to default or conflicted, depending on if a conflict exists. """
         self._state_context.reset_state()
 
     def return_to_default(self):
+        """ Return to default, regardless the current state. Only used during the new game. """
         self._state_context.return_to_default()
 
 
 class CellViewState(ABC):
+    """ Controls the state of a cell view. """
     priority = 0
 
     @abstractmethod
-    def enter(self, cell_view):
+    def enter(self, cell_view: CellView):
+        """
+        Override this to change the cell view on state change.
+        :param cell_view: The owning cell view.
+        """
         pass
 
     def get_rollback_state(self) -> Optional["CellViewState"]:
+        """ Used to return to cached states, if they exist. """
         return None
 
 
@@ -200,7 +233,11 @@ class MatchingCellViewState(CellViewState):
 
 
 class ConflictCellViewState(CellViewState):
-    """ When two cells in the same house have the same number and the cell turns to conflict color. """
+    """
+    When two cells in the same house have the same number and the cell turns to conflict color.
+    Since conflict state can override states, when a conflict is removed it may need to fall back to a different state,
+    such as the highlight state or matching state.
+    """
     priority = 5
 
     def __init__(self, previous_state):
@@ -210,11 +247,13 @@ class ConflictCellViewState(CellViewState):
         cell_view.update_color(CELL_CONFLICT_COLOR)
 
     def get_rollback_state(self):
+        """ Allows for resetting to states other than default. """
         return self._rollback_state
 
 
 class StateContext:
-    def __init__(self, cell_view):
+    """ Manages the state of the cell view. """
+    def __init__(self, cell_view: CellView):
         self.cell_view = cell_view
         self.state = DefaultCellViewState()
 
@@ -233,6 +272,7 @@ class StateContext:
         self.state.enter(self.cell_view)
 
     def return_to_default(self):
+        """ Return to default, regardless the current state. Only used during the new game. """
         self._rollback_state(DefaultCellViewState())
 
     def enter_default(self):
