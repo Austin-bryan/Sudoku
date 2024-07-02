@@ -54,7 +54,7 @@ class NumberButton(ToggleButton):
         Toggles the button on a given number.
         :param number: The number of the button to toggle.
         """
-        if 0 <= number < len(cls.buttons):
+        if number and 0 <= number < len(cls.buttons):
             cls.buttons[number].toggle_on()
 
     @classmethod
