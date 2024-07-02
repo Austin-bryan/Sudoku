@@ -76,7 +76,7 @@ class SudokuApp:
 
     def hard_command(self, event):
         """ Generate hard puzzle. """
-        self.generator = SudokuGenerator(self.board_controller, 45)
+        self.generator = SudokuGenerator(self.board_controller, 50)
         self.generator.generate_board()
 
     def create_widgets(self):

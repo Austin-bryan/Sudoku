@@ -1,6 +1,7 @@
 import random
 
 from controllers.board_controller import BoardController
+from controllers.cell_controller import CellController
 from models.cell_value_type import CellValueType
 from utils.constants import BOARD_SIZE, SUBGRID_SIZE
 from utils.backtracking_solver import BacktrackingSolver  # Import your backtracking solver
@@ -48,30 +49,50 @@ class SudokuGenerator:
 
         # Remove until count is reached
         while number_cells_to_remove > 0 and iterations < max_iterations:
+            iterations += 1
+
             if not all_cells:
                 break
 
             i, j = all_cells.pop()
             cell = self.board_controller.cells[i][j]
 
+            sym_cells = self._get_symmetrical_cells(cell)
+
             # Don't remove cells that previously allowed multiple solutions when removed
             if cell in non_unique_cache or cell.model.value is None:
-                iterations += 1
                 continue
 
-            # Cache value before assigning to None, in case we need to restore it
-            old_value = cell.model.value
-            cell.model.value = None
+            # Skip blank cells
+            if all(c.model.value is None for c in sym_cells):
+                continue
 
-            # Always ensure at least 3 cells are removed initially
-            if self.target_count - number_cells_to_remove < 3 or self.solver.has_unique_solution():
+            # Cache values before assigning to None, in case we need to restore it
+            old_values = [c.model.value for c in sym_cells]
+            for c in sym_cells:
+                c.model.value = None
+
+            if self.solver.has_unique_solution():
                 # Unique solution exists, finalize removal
-                cell.model.value_type = CellValueType.BLANK
-                cell.view.update_labels()
-                number_cells_to_remove -= 1
+                number_cells_to_remove -= len(sym_cells)
+                for c in sym_cells:
+                    c.model.value_type = CellValueType.BLANK
+                    c.view.update_labels()
             else:
-                # Lost unique solution, revert changes and cache number
-                cell.model.value = old_value
-                non_unique_cache.add(cell)
+                # Unique solution not found, undo removal
+                for c, val in zip(sym_cells, old_values):
+                    c.model.value = val
 
-            iterations += 1
+    def _get_symmetrical_cells(self, cell: CellController):
+        """
+        Gets the 3 symmetrical cells from the given cell.
+        :param cell: The cell to get symmetrical cells from.
+        :return: A list of 4 cells that are 4 way symmetrical.
+        """
+        x, y = cell.model.x, cell.model.y
+        return [
+            self.board_controller.cells[x][y],
+            self.board_controller.cells[BOARD_SIZE - 1 - x][y],
+            self.board_controller.cells[x][BOARD_SIZE - 1 - y],
+            self.board_controller.cells[BOARD_SIZE - 1 - x][BOARD_SIZE - 1 - y]
+        ]
