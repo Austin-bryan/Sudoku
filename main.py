@@ -1,5 +1,6 @@
 ﻿from typing import Union, Tuple, Callable
 import tkinter as tk
+from tkinter import Event
 
 from controllers.board_controller import BoardController
 from models.cell_value_type import CellValueType
@@ -46,37 +47,42 @@ class SudokuApp:
                                          fg="white", font=("Helvetica", 12), anchor="w")
         self.generator = None
 
-        # Generate an easy board to start
-        self.easy_command(None)
-
         # Create timer
-        timer = Timer(self.top_row)
-        timer.grid(row=0, column=3, sticky="w", padx=5, pady=10)
+        self.timer = Timer(self.top_row)
+        self.timer.grid(row=0, column=3, sticky="w", padx=5, pady=10)
 
         # Create observers
         self.conflict_observer = ConflictObserver(self.board_controller.model)
         self.is_solved_observer = IsSolvedObserver(self.board_controller.model)
-        self.board_start_observer = BoardStartObserver(self.board_controller.model, timer)
-        self.board_end_observer = BoardEndObserver(self.is_solved_observer, timer,
+        self.board_start_observer = BoardStartObserver(self.board_controller.model, self.timer)
+        self.board_end_observer = BoardEndObserver(self.is_solved_observer, self.timer,
                                                    self.board_controller, self.board_start_observer)
 
         # Create solver
         self.backtracking_solver = BacktrackingSolver(self.board_controller, ui_display_mode=True)
 
+        # Generate an easy board to start
+        self.easy_command(None)
+
     # Commands for difficulty creation
-    def easy_command(self, event):
+    def easy_command(self, event: Event):
         """ Generate easy puzzle. """
-        self.generator = SudokuGenerator(self.board_controller, 35)
-        self.generator.generate_board()
+        self.create_generator(35)
 
-    def medium_command(self, event):
+    def medium_command(self, event: Event):
         """ Generate medium puzzle. """
-        self.generator = SudokuGenerator(self.board_controller, 40)
-        self.generator.generate_board()
+        self.create_generator(40)
 
-    def hard_command(self, event):
+    def hard_command(self, event: Event):
         """ Generate hard puzzle. """
-        self.generator = SudokuGenerator(self.board_controller, 50)
+        self.create_generator(50)
+
+    def create_generator(self, target_count: int):
+        """
+        Creates a puzzle generator to use for new games.
+        :param target_count: Determines how many cells will be cleared.
+        """
+        self.generator = SudokuGenerator(self.board_controller, self.timer, target_count)
         self.generator.generate_board()
 
     def create_widgets(self):

@@ -4,19 +4,23 @@ from controllers.board_controller import BoardController
 from controllers.cell_controller import CellController
 from models.cell_value_type import CellValueType
 from utils.constants import BOARD_SIZE, SUBGRID_SIZE
-from utils.backtracking_solver import BacktrackingSolver  # Import your backtracking solver
+from utils.backtracking_solver import BacktrackingSolver
+from timer import Timer
 
 
 class SudokuGenerator:
     """ Generates a sudoku puzzle that has only one unique solution. """
 
-    def __init__(self, board_controller: BoardController, target_count=40, solver: BacktrackingSolver=None):
+    def __init__(self, board_controller: BoardController, timer: Timer, target_count=40, solver: BacktrackingSolver=None):
         self.board_controller = board_controller
         self.solver = BacktrackingSolver(board_controller) if solver is None else solver
         self.target_count = target_count
+        self.timer = timer
 
     def generate_board(self):
         """" Generates a board, randomly removes numbers, then updates the views. """
+        self.timer.stop()
+        self.timer.reset()
         self._empty_board()
         self._fill_board()
         self._remove_numbers()
