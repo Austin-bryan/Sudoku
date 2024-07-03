@@ -1,5 +1,6 @@
-﻿from tkinter import Frame
+﻿from tkinter import Frame, Tk
 from enum import Enum
+from typing import Union
 
 from views.number_button import NumberButton
 from views.toggle_button import ToggleButton
@@ -18,7 +19,7 @@ class ModeButton(ToggleButton):
     """ Controls the mode of entering numbers between note mode or entry mode. """
     mode = Mode.ENTRY
 
-    def __init__(self, parent: Frame, board_controller: 'BoardController', label: str, **kwargs):
+    def __init__(self, parent: Union[Tk, Frame], board_controller: 'BoardController', label: str, **kwargs):
         super().__init__(parent, label, image_path='notes.png', **kwargs)
         self.board_controller = board_controller
 

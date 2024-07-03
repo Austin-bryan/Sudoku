@@ -12,6 +12,7 @@ class TestModeButton(unittest.TestCase):
         self.root = Tk()
         self.root.withdraw()
         self.mode_button = ModeButton(self.root, Mock(), 'Notes')
+        self.mode_button = ModeButton(self.root, Mock(), 'Notes')
         self.show_number_buttons = NumberButton.show_number_buttons
         ModeButton.mode = Mode.ENTRY
         NumberButton.show_number_buttons = Mock()
