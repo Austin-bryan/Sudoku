@@ -69,24 +69,25 @@ class SudokuApp:
     # Commands for difficulty creation
     def easy_command(self, event: Event):
         """ Generate easy puzzle. """
-        self.create_generator(35)
+        self.start_new_game(35)
 
     def medium_command(self, event: Event):
         """ Generate medium puzzle. """
-        self.create_generator(40)
+        self.start_new_game(40)
 
     def hard_command(self, event: Event):
         """ Generate hard puzzle. """
-        self.create_generator(50)
+        self.start_new_game(50)
 
-    def create_generator(self, target_count: int):
+    def start_new_game(self, target_count: int):
         """
-        Creates a puzzle generator to use for new games.
+        Creates a puzzle generator to use for new games. Clears old data from previous game.
         :param target_count: Determines how many cells will be cleared.
         """
         self.hint_manager.clear_cache()
         self.generator = SudokuGenerator(self.board_controller, self.hint_manager, self.timer, target_count)
         self.generator.generate_board()
+        self.undo_history_manager.clear_history()
 
     def create_widgets(self):
         """ Create and configure the widgets for the Sudoku application. """

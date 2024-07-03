@@ -1,4 +1,5 @@
-from controllers import board_controller
+from tkinter import Event
+
 from house_manager import HouseManager
 from models.board_model import BoardModel
 from models.cell_model import CellModel
@@ -81,7 +82,7 @@ class CellController:
         if self.board_controller.can_select:
             self.highlighter.highlight_matching_cells()
 
-    def clear(self, event=None):
+    def clear(self, event: Event = None):
         """ Executes a clear command, removing any entry and notes the cell had. """
         command = ClearCellCommand(self)
         self.undo_history_manager.execute_command(command)

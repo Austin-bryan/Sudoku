@@ -35,3 +35,6 @@ class UndoHistoryManager:
         if self.current_index < len(self.history) - 1:
             self.current_index += 1
             self.history[self.current_index].redo()
+
+    def clear_history(self):
+        self.history.clear()

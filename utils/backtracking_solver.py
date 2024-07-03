@@ -161,7 +161,7 @@ class BacktrackingSolver:
         cell = self.board_controller.cells[x][y]
         cell.model.value = num
         cell.model.value_type = CellValueType.GIVEN if not self.ui_display_mode else CellValueType.ENTRY
-        cell.view.update_value_label()
+        cell.model.notify()
 
     def _clear_number(self, x: int, y: int):
         """

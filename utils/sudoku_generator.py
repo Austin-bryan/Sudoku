@@ -24,7 +24,7 @@ class SudokuGenerator:
         """" Generates a board, randomly removes numbers, then updates the views. """
         self.timer.stop()
         self.timer.reset()
-        self._empty_board()
+        # self._empty_board()
         self._fill_board()
         self._remove_numbers()
         self.board_controller.view.update()
