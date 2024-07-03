@@ -6,16 +6,19 @@ from models.cell_value_type import CellValueType
 from utils.constants import BOARD_SIZE, SUBGRID_SIZE
 from utils.backtracking_solver import BacktrackingSolver
 from timer import Timer
+from utils.hint_manager import HintManager
 
 
 class SudokuGenerator:
     """ Generates a sudoku puzzle that has only one unique solution. """
 
-    def __init__(self, board_controller: BoardController, timer: Timer, target_count=40, solver: BacktrackingSolver=None):
+    def __init__(self, board_controller: BoardController, hint_manager: HintManager, timer: Timer, target_count=40,
+                 solver: BacktrackingSolver=None):
         self.board_controller = board_controller
         self.solver = BacktrackingSolver(board_controller) if solver is None else solver
         self.target_count = target_count
         self.timer = timer
+        self.hint_manager = hint_manager
 
     def generate_board(self):
         """" Generates a board, randomly removes numbers, then updates the views. """
@@ -79,9 +82,10 @@ class SudokuGenerator:
             if self.solver.has_unique_solution():
                 # Unique solution exists, finalize removal
                 number_cells_to_remove -= len(sym_cells)
-                for c in sym_cells:
+                for i, c in enumerate(sym_cells):
                     c.model.value_type = CellValueType.BLANK
                     c.view.update_labels()
+                    self.hint_manager.cache_removed_value(c, old_values[i])
             else:
                 # Unique solution not found, undo removal
                 for c, val in zip(sym_cells, old_values):

@@ -87,9 +87,11 @@ class CellModel(Subject):
         return self.value_type == CellValueType.NOTES
 
     def is_blank(self) -> bool:
+        """ Returns true if the cell is blank. """
         return self.value_type == CellValueType.BLANK
 
     def has_value(self) -> bool:
+        """ Returns true if the cell has a value. It could be a given, or an entry. """
         return self.value is not None
 
     def has_note(self, number) -> bool:

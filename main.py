@@ -12,6 +12,7 @@ from timer import Timer
 from undo_history.undo_history_manager import UndoHistoryManager
 from utils.backtracking_solver import BacktrackingSolver
 from utils.constants import BACKGROUND_COLOR, BOARD_SIZE
+from utils.hint_manager import HintManager
 from utils.sudoku_generator import SudokuGenerator
 from views.action_button import ActionButton, DEFAULT_WIDTH
 from views.drop_down_menu import DropdownMenu
@@ -58,8 +59,9 @@ class SudokuApp:
         self.board_end_observer = BoardEndObserver(self.is_solved_observer, self.timer,
                                                    self.board_controller, self.board_start_observer)
 
-        # Create solver
+        # Create other utility classes
         self.backtracking_solver = BacktrackingSolver(self.board_controller, ui_display_mode=True)
+        self.hint_manager = HintManager()
 
         # Generate an easy board to start
         self.easy_command(None)
@@ -82,7 +84,8 @@ class SudokuApp:
         Creates a puzzle generator to use for new games.
         :param target_count: Determines how many cells will be cleared.
         """
-        self.generator = SudokuGenerator(self.board_controller, self.timer, target_count)
+        self.hint_manager.clear_cache()
+        self.generator = SudokuGenerator(self.board_controller, self.hint_manager, self.timer, target_count)
         self.generator.generate_board()
 
     def create_widgets(self):
@@ -99,7 +102,7 @@ class SudokuApp:
         self.create_action_button('Redo', 1, lambda e: self.undo_history_manager.redo(), padx)
         self.create_mode_button('Notes', 2, padx)
         self.create_action_button('Clear', 3, lambda e: self.board_controller.clear_selected(), padx)
-        self.create_action_button('Hint', 4, lambda e: self.board_controller.clear_selected(), padx)
+        self.create_action_button('Hint', 4, lambda e: self.hint_manager.restore_hint(), padx)
 
         # Create difficulty drop down menu
         options = [("Easy", self.easy_command), ("Medium", self.medium_command), ("Hard", self.hard_command)]
