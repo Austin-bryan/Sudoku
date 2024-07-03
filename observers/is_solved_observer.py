@@ -15,12 +15,13 @@ class IsSolvedObserver(Observer, Subject):
         if self.is_solved():
             self.notify()
 
-    def is_solved(self):
+    def is_solved(self) -> bool:
         """
-        If all cells are both
+        Returns true if all cells are both
             A) Not None and
             B) Not in conflict
         Then the game is solved.
+        :return: Whether the board model is solved.
         """
         for row in self.board_model.cells:
             for cell in row:

@@ -1,12 +1,13 @@
-﻿from models.board_model import BoardModel
+﻿import tkinter as tk
+import logging
+from typing import Union
+from tkinter import Tk
+
+from models.board_model import BoardModel
 from undo_history.undo_history_manager import UndoHistoryManager
 from utils.constants import BOARD_SIZE
 from views.board_view import BoardView
 from controllers.cell_controller import CellController
-from typing import Union
-from tkinter import Tk
-import tkinter as tk
-import logging
 
 
 class BoardController:

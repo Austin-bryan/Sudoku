@@ -31,19 +31,23 @@ class TestBoardController(unittest.TestCase):
         NumberButton.show_number_buttons = self.show_number_buttons
 
     def test_initialization(self):
+        """ Tests that the board controller is initialized properly. """
         self.assertEqual(len(self.board_controller.cells), BOARD_SIZE)
         self.assertEqual(len(self.board_controller.cells[0]), BOARD_SIZE)
 
     def test_populate_board(self):
+        """ Tests board population is correct. """
         numbers = [[0] * BOARD_SIZE for _ in range(BOARD_SIZE)]
         numbers[0][0] = 5
         self.board_controller.populate_board(numbers)
         self.assertEqual(self.board_controller.model.get_cell_value(0, 0), 5)
 
     def test_cells_flat(self):
+        """ Tests that the flat cells will be 81 cells long. """
         self.assertEqual(len(self.board_controller.cells_flat), BOARD_SIZE ** 2)
 
     def test_clear_selected(self):
+        """ Tests that clearing the selected cells works. """
         cell_controller = self.board_controller.cells[0][0]
         cell_controller.model.set_given(5)
         self.board_controller.selected_cell = cell_controller
@@ -52,6 +56,7 @@ class TestBoardController(unittest.TestCase):
         self.assertEqual(cell_controller.model.value, 5)  # Given value should not be cleared
 
     def test_toggle_selected_cell(self):
+        """ Tests that the selected cell can have a number be toggled. """
         cell_controller = self.board_controller.cells[0][0]
         self.board_controller.selected_cell = cell_controller
         self.board_controller.toggle_selected_cell(5)
@@ -85,6 +90,7 @@ class TestBoardController(unittest.TestCase):
         self.assert_return_to_default()
 
     def test_can_select(self):
+        """ Makes sure can_select will allow or prevent selection. """
         cell_controller = self.board_controller.cells[0][0]
         cell_controller.model.is_selected = False
         self.board_controller.can_select = True

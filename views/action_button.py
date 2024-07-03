@@ -1,9 +1,8 @@
 import os
-import tkinter as tk
 from tkinter import *
 from utils.constants import *
 from PIL import Image, ImageTk
-from typing import Callable
+from typing import Callable, Union
 
 # Colors for different states
 BUTTON_DEFAULT_COLOR = '#333'
@@ -16,7 +15,7 @@ DEFAULT_WIDTH = 60
 
 class ActionButton(Canvas):
     """ Custom button used for app. """
-    def __init__(self, parent: tk.Frame, label: str, font_size: int = DEFAULT_FONT_SIZE,
+    def __init__(self, parent: Union[Tk, Frame], label: str, font_size: int = DEFAULT_FONT_SIZE,
                  width: int = DEFAULT_WIDTH, height: int = DEFAULT_WIDTH,
                  command: Callable[[Event], None] = None, image_path: str = None,
                  bg: str = BUTTON_DEFAULT_COLOR, **kwargs):

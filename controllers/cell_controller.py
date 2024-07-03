@@ -1,4 +1,5 @@
 from tkinter import Event
+from typing import TYPE_CHECKING
 
 from house_manager import HouseManager
 from models.board_model import BoardModel
@@ -10,7 +11,6 @@ from views.board_view import BoardView
 from views.cell_view import CellView
 from views.mode_button import ModeButton, Mode
 from views.number_button import NumberButton
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from controllers.board_controller import BoardController  # pragma: no cover
@@ -153,7 +153,7 @@ class CellController:
 
 class EventHandler:
     """ Handles the event binding for the cell controller. """
-    def __init__(self, cell_controller):
+    def __init__(self, cell_controller: CellController):
         self.cell_controller = cell_controller
         self.view = cell_controller.view
 

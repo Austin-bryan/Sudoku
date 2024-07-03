@@ -81,14 +81,17 @@ class TestCellModel(unittest.TestCase):
         self.assertFalse(self.cell_model.notes[2])
 
     def test_is_entry(self):
+        """ Makes sure is_entry is accurate. """
         self.cell_model.toggle_entry(1)
         self.assertTrue(self.cell_model.is_entry())
 
     def test_is_given(self):
+        """ Makes sure is_given is accurate. """
         self.cell_model.set_given(1)
         self.assertTrue(self.cell_model.is_given())
 
     def test_is_notes(self):
+        """ Makes sure is_notes is accurate. """
         self.cell_model.toggle_note(2)
         self.assertTrue(self.cell_model.is_notes())
 

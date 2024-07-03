@@ -19,6 +19,3 @@ class BoardView(tk.Frame):
         """
         self.cells[x][y] = cell_view
         cell_view.grid(row=x, column=y, padx=1, pady=1)
-
-    def get_frame(self):
-        return self.frame

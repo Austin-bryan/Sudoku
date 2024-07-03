@@ -43,6 +43,7 @@ class TestCellController(unittest.TestCase):
         NumberButton.show_number_buttons = self.show_number_buttons
 
     def test_initial_state(self):
+        """ Tests the initial state of the cell controller. """
         self.assertEqual(self.cell_controller.model.value, None)
         self.assertEqual(self.cell_controller.model.value_type, CellValueType.BLANK)
         self.assertFalse(self.cell_controller.model.in_conflict)
@@ -82,6 +83,7 @@ class TestCellController(unittest.TestCase):
         self.cell_controller.view.update_labels.assert_called()
 
     def test_toggle_given(self):
+        """ Tests that given values cannot be toggled or changed. """
         self.cell_controller.model.value = 1
         self.cell_controller.model.value_type = CellValueType.GIVEN
         self.cell_controller.toggle_number(5)
@@ -114,16 +116,19 @@ class TestCellController(unittest.TestCase):
         self.assertEqual(self.board_controller.selected_cell, self.board_controller.cells[1][0])
 
     def test_get_row(self):
+        """ Tests that get row returns the correct row. """
         row = self.cell_controller.get_row()
         expected_row = [self.board_controller.cells[0][i] for i in range(BOARD_SIZE) if i != 0]
         self.assert_matching_cells(row, expected_row)
 
     def test_get_column(self):
+        """ Tests that get column returns the correct column. """
         column = self.cell_controller.get_column()
         expected_column = [self.board_controller.cells[i][0] for i in range(BOARD_SIZE) if i != 0]
         self.assert_matching_cells(column, expected_column)
 
     def test_get_subgrid(self):
+        """ Tests that get subgrid returns the correct subgrid. """
         subgrid = self.cell_controller.get_subgrid()
         expected_subgrid = [
             self.cell_controllers[i][j]
@@ -134,6 +139,7 @@ class TestCellController(unittest.TestCase):
         self.assert_matching_cells(subgrid, expected_subgrid)
 
     def test_get_house(self):
+        """ Tests that get house returns the correct house. """
         house = self.cell_controller.get_house()
         expected_house = [
             self.board_controller.cells[0][i] for i in range(BOARD_SIZE) if i != 0] + [
@@ -145,26 +151,31 @@ class TestCellController(unittest.TestCase):
         self.assert_matching_cells(house, expected_house)
 
     def test_on_up(self):
+        """ Tests that on_up works properly. """
         with patch.object(self.cell_controller.selection_manager, 'move_selection') as mock_move:
             self.cell_controller.event_handler.on_up(Mock())
             mock_move.assert_called_once_with(-1, 0)
 
     def test_on_down(self):
+        """ Tests that on_down works properly. """
         with patch.object(self.cell_controller.selection_manager, 'move_selection') as mock_move:
             self.cell_controller.event_handler.on_down(Mock())
             mock_move.assert_called_once_with(1, 0)
 
     def test_on_left(self):
+        """ Tests that on_left works properly. """
         with patch.object(self.cell_controller.selection_manager, 'move_selection') as mock_move:
             self.cell_controller.event_handler.on_left(Mock())
             mock_move.assert_called_once_with(0, -1)
 
     def test_on_right(self):
+        """ Tests that on_right works properly. """
         with patch.object(self.cell_controller.selection_manager, 'move_selection') as mock_move:
             self.cell_controller.event_handler.on_right(Mock())
             mock_move.assert_called_once_with(0, 1)
 
     def test_on_key_press(self):
+        """ Tests that on_key_press works properly. """
         with patch.object(self.cell_controller, 'toggle_number') as mock_toggle:
             event = Mock()
             event.keysym = '1'
@@ -176,6 +187,7 @@ class TestCellController(unittest.TestCase):
         mock_toggle.assert_called_once()  # Ensure it was not called again
 
     def test_highlight_house(self):
+        """ Makes sure that highlight house correctly highlights. """
         self.cell_controller.get_house()[0].view.update_color = Mock()
         self.cell_controller.highlight_house()
         self.cell_controller.get_house()[0].view.update_color.assert_called_with(CELL_HIGHLIGHT_COLOR)
@@ -193,6 +205,7 @@ class TestCellController(unittest.TestCase):
         self.cell_controller.board_controller.model.notify.assert_called_once_with()
 
     def test_valid_coordinates(self):
+        """ Makes sure invalid coordinates correctly raises exception. """
         with self.assertRaises(ValueError):
             cell = CellController(self.board_controller, Mock(), Mock(), 123, 12)
 
@@ -222,6 +235,7 @@ class TestCellController(unittest.TestCase):
             self.assertTrue(self.board_controller.cells[x][y].model.has_note(4), f"Note cleared @ ({x}, {y})")
 
     def test_xy_set(self):
+        """ Tests that setting x and y changes the model x and y. """
         self.cell_controller.model.x = 3
         self.cell_controller.model.y = 3
 
@@ -232,6 +246,7 @@ class TestCellController(unittest.TestCase):
         self.assertEqual(self.cell_controller.model.y, 4)
 
     def test_event_handler(self):
+        """ Ensures clearing via event handler works properly. """
         self.cell_controller.clear = Mock()
         self.cell_controller.event_handler.clear()
         self.assertTrue(self.cell_controller.clear.called)
@@ -268,10 +283,12 @@ class TestCellController(unittest.TestCase):
     # Helper Methods
     #
     def assert_state(self, cell, state, color):
+        """ Asser the state is correct and that the background color is what it should be. """
         self.assertIsInstance(cell.view._state_context.state, state)
         self.assertEqual(cell.view.cget("bg"), color)
 
     def assert_matching_cells(self, a, b):
+        """ Asserts the two lists are equal to ensure matching cells are correct. """
         self.assertListEqual([(cell.model.x, cell.model.y) for cell in a],
                              [(cell.model.x, cell.model.y) for cell in b])
 
