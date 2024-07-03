@@ -2,6 +2,8 @@
 from tkinter import Tk
 from unittest.mock import Mock, MagicMock
 import time
+
+from models.cell_model import CellModel
 from models.cell_value_type import CellValueType
 from controllers.board_controller import BoardController
 from undo_history.undo_history_manager import UndoHistoryManager
@@ -113,6 +115,71 @@ class TestBacktrackingSolver(unittest.TestCase):
         self.solver._clear_number(0, 0)
         self.assertIsNone(self.board_controller.cells[0][0].model.value)
         self.board_controller.cells[0][0].view.update_value_label.assert_called()
+
+    def test_has_unique_solution(self):
+        """ Ensures the solver is able to detect a board with a unique solution. """
+        # Example board with a unique solution
+        unique_board_values = [
+            [5, 3, None, None, 7, None, None, None, None],
+            [6, None, None, 1, 9, 5, None, None, None],
+            [None, 9, 8, None, None, None, None, 6, None],
+            [8, None, None, None, 6, None, None, None, 3],
+            [4, None, None, 8, None, 3, None, None, 1],
+            [7, None, None, None, 2, None, None, None, 6],
+            [None, 6, None, None, None, None, 2, 8, None],
+            [None, None, None, 4, 1, 9, None, None, 5],
+            [None, None, None, None, 8, None, None, 7, 9]
+        ]
+
+        board_controller = self.create_board_controller(unique_board_values)
+        solver = BacktrackingSolver(board_controller)
+
+        self.assertTrue(solver.has_unique_solution(), "Expected the board to have a unique solution")
+
+    def test_has_non_unique_solution(self):
+        """ Ensures the solver is able to detect a board with a non-unique solution. """
+        # Example board with multiple solutions
+        non_unique_board_values = [
+            [5, 3, None, None, 7, None, None, None, None],
+            [6, None, None, 1, 9, 5, None, None, None],
+            [None, 9, 8, None, None, None, None, 6, None],
+            [8, None, None, None, 6, None, None, None, 3],
+            [4, None, None, 8, None, 3, None, None, 1],
+            [7, None, None, None, 2, None, None, None, 6],
+            [None, 6, None, None, None, None, 2, 8, None],
+            [None, None, None, 4, 1, 9, None, None, 5],
+            [None, None, None, None, 8, None, None, None, 9]
+        ]
+
+        board_controller = self.create_board_controller(non_unique_board_values)
+        solver = BacktrackingSolver(board_controller)
+
+        self.assertFalse(solver.has_unique_solution(), "Expected the board to have multiple solutions")
+
+    #
+    # Helper Methods
+    #
+
+    @staticmethod
+    def create_board_controller(board_values: list[list[int]]):
+        """
+        Given a 2d list, creates a mock board controller for testing purposes.
+        :return: The populated mock board controller.
+        """
+        board_controller = Mock(spec=BoardController)
+        board_controller.cells = []
+
+        for x in range(BOARD_SIZE):
+            row = []
+            for y in range(BOARD_SIZE):
+                cell_model = CellModel(x, y)
+                cell_model.value = board_values[x][y]
+                cell = Mock()
+                cell.model = cell_model
+                row.append(cell)
+            board_controller.cells.append(row)
+
+        return board_controller
 
 
 if __name__ == '__main__':

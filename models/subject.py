@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from observers.observer import Observer
+    from observers.observer import Observer  # pragma: no cover
 
 
 class Subject:

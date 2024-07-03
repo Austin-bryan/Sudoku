@@ -74,6 +74,17 @@ class TestUndoHistoryManager(unittest.TestCase):
         self.manager.redo()  # Should not change state
         self.assertEqual(self.manager.current_index, 0)
 
+    def test_clear_history(self):
+        command1 = MagicMock()
+        command2 = MagicMock()
+
+        self.manager.execute_command(command1)
+        self.manager.execute_command(command2)
+
+        self.manager.clear_history()
+        self.assertEqual(self.manager.current_index, -1)
+        self.assertEqual(self.manager.history, [])
+
 
 if __name__ == '__main__':
     unittest.main()

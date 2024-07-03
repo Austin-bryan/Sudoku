@@ -37,8 +37,8 @@ class BoardController:
                     # Create and add cell controller
                     cell_controller = CellController(self, self.view, self.model, x, y)
                     row_controllers.append(cell_controller)
-                except Exception as e:
-                    logging.error(f"Error initializing cell at ({x}, {y}): {e}")
+                except Exception as e:  # pragma: no cover
+                    logging.error(f"Error initializing cell at ({x}, {y}): {e}")  # pragma: no cover
             self.cells.append(row_controllers)
 
     def populate_board(self, numbers: list[int]):

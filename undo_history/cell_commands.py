@@ -5,7 +5,7 @@ from views.number_button import NumberButton
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from controllers.cell_controller import CellController
+    from controllers.cell_controller import CellController  # pragma: no cover
 
 
 class CellCommand(Command, ABC):

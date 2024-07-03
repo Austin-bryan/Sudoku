@@ -5,7 +5,7 @@ from tkinter import Frame
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from controllers.board_controller import BoardController
+    from controllers.board_controller import BoardController  # pragma: no cover
 
 
 class NumberButton(ToggleButton):

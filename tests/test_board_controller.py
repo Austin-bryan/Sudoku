@@ -1,4 +1,5 @@
 ﻿import unittest
+import logging
 from unittest.mock import Mock, patch
 
 from controllers.board_controller import BoardController
