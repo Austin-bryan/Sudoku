@@ -8,7 +8,7 @@ from observers.board_end_observer import BoardEndObserver
 from observers.board_start_observer import BoardStartObserver
 from observers.conflict_observer import ConflictObserver
 from observers.is_solved_observer import IsSolvedObserver
-from timer import Timer
+from utils.timer import Timer
 from undo_history.undo_history_manager import UndoHistoryManager
 from utils.backtracking_solver import BacktrackingSolver
 from utils.constants import BACKGROUND_COLOR, BOARD_SIZE

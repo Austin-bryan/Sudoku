@@ -1,8 +1,7 @@
 ﻿import unittest
 from unittest.mock import MagicMock
 import tkinter as tk
-from timer import Timer
-from utils.constants import BACKGROUND_COLOR
+from utils.timer import Timer
 
 
 class TestTimer(unittest.TestCase):

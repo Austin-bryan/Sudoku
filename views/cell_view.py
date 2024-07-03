@@ -1,9 +1,8 @@
 ﻿import tkinter as tk
 from abc import ABC, abstractmethod
 from tkinter import Canvas
-from typing import cast, Optional
+from typing import Optional
 
-from house_manager import HouseManager
 from models.cell_model import CellModel
 from observers.observer import Observer
 from utils.constants import SELECTION_COLOR, BACKGROUND_COLOR, SUBGRID_SIZE

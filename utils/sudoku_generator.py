@@ -3,9 +3,9 @@ import random
 from controllers.board_controller import BoardController
 from controllers.cell_controller import CellController
 from models.cell_value_type import CellValueType
-from utils.constants import BOARD_SIZE, SUBGRID_SIZE
+from utils.constants import BOARD_SIZE
 from utils.backtracking_solver import BacktrackingSolver
-from timer import Timer
+from utils.timer import Timer
 from utils.hint_manager import HintManager
 
 

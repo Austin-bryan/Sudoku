@@ -1,5 +1,5 @@
 ﻿from controllers.board_controller import BoardController
-from house_manager import HouseManager
+from utils.house_manager import HouseManager
 
 
 class MockBoard:

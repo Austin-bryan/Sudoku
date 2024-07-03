@@ -2,7 +2,7 @@
 from observers.board_start_observer import BoardStartObserver
 from observers.is_solved_observer import IsSolvedObserver
 from observers.observer import Observer
-from timer import Timer
+from utils.timer import Timer
 from views.number_button import NumberButton
 
 

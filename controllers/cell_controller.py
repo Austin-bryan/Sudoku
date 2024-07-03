@@ -1,7 +1,6 @@
 from tkinter import Event
-from typing import TYPE_CHECKING
 
-from house_manager import HouseManager
+from utils.house_manager import HouseManager
 from models.board_model import BoardModel
 from models.cell_model import CellModel
 from undo_history.cell_commands import *

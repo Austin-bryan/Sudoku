@@ -2,10 +2,9 @@
 import random
 
 from controllers.board_controller import BoardController
-from house_manager import HouseManager
 from models.cell_value_type import CellValueType
 from utils.Mocks import MockBoard
-from utils.constants import BOARD_SIZE, SUBGRID_SIZE
+from utils.constants import BOARD_SIZE
 from typing import Union
 
 

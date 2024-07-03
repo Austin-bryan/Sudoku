@@ -1,6 +1,6 @@
 ﻿from models.board_model import BoardModel
 from observers.observer import Observer
-from timer import Timer
+from utils.timer import Timer
 
 
 class BoardStartObserver(Observer):
