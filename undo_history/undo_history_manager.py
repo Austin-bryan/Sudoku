@@ -18,6 +18,7 @@ class UndoHistoryManager:
         the commands above the current index get cleared, preventing them from being redone.
         :param command: The new command to be executed.
         """
+
         command.execute()
         if self.current_index < len(self.history) - 1:
             self.history = self.history[:self.current_index + 1]
@@ -37,4 +38,6 @@ class UndoHistoryManager:
             self.history[self.current_index].redo()
 
     def clear_history(self):
+        """ Resets history to an empty state for the new game. """
         self.history.clear()
+        self.current_index = -1

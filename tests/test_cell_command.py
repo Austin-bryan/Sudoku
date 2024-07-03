@@ -240,7 +240,8 @@ class TestCommandHighlighting(unittest.TestCase):
         # Ensure an empty board
         solver = BacktrackingSolver(self.board_controller)
         solver.has_unique_solution = Mock(return_value=True)
-        generator = SudokuGenerator(self.board_controller, target_count=81, solver=solver)
+        generator = SudokuGenerator(self.board_controller, hint_manager=Mock(), timer=Mock(), solver=solver,
+                                         target_count=81)
         generator.generate_board()
         self.conflict_observer = ConflictObserver(self.board_controller.model)
         self.show_number_buttons = NumberButton.show_number_buttons

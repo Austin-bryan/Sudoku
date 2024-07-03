@@ -61,7 +61,7 @@ class BacktrackingSolver:
                 continue
             self._place_number(x, y, num)
 
-            # Update GUI to show backtraking solving
+            # Update GUI to show backtracking solving
             if self.ui_display_mode:
                 self._adjust_update_frequency()  # Allows the display to update less and less often
                 # Only update the display sometimes

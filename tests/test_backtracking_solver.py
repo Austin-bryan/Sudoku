@@ -17,7 +17,8 @@ class TestBacktrackingSolver(unittest.TestCase):
         self.root = Tk()
         self.root.withdraw()
         self.board_controller = BoardController(self.root, UndoHistoryManager())
-        self.generator = SudokuGenerator(self.board_controller)
+        self.generator = SudokuGenerator(self.board_controller, hint_manager=Mock(), timer=Mock(), solver=Mock(),
+                                         target_count=50)
 
         self.board_controller.cells[0][0].view.update_value_label = Mock()
         self.board_controller.view.update = Mock()

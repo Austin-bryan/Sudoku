@@ -3,6 +3,8 @@ from undo_history.undo_history_manager import UndoHistoryManager
 from utils.constants import BOARD_SIZE
 from views.board_view import BoardView
 from controllers.cell_controller import CellController
+from typing import Union
+from tkinter import Tk
 import tkinter as tk
 import logging
 
@@ -10,7 +12,7 @@ import logging
 class BoardController:
     """ Controller for managing the board's logic and interaction between the model and view. """
 
-    def __init__(self, parent: tk.Frame, undo_history_manager: UndoHistoryManager):
+    def __init__(self, parent: Union[Tk, tk.Frame], undo_history_manager: UndoHistoryManager):
         """ Initialize the BoardController with a BoardModel, BoardView, and CellControllers. """
         self.model = BoardModel()
         self.view = BoardView(parent)

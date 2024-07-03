@@ -111,7 +111,6 @@ class TestBoardController(unittest.TestCase):
         cell.model.value_type = CellValueType.ENTRY
         cell.clear()
         cell.toggle_number(1)
-        print('val', cell.model.value)
 
 
 if __name__ == '__main__':

@@ -88,6 +88,7 @@ class SudokuApp:
         self.generator = SudokuGenerator(self.board_controller, self.hint_manager, self.timer, target_count)
         self.generator.generate_board()
         self.undo_history_manager.clear_history()
+        NumberButton.disable_all()
 
     def create_widgets(self):
         """ Create and configure the widgets for the Sudoku application. """

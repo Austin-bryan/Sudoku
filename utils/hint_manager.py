@@ -25,10 +25,15 @@ class HintManager:
         while True:
             if not self.removed_values_cache or i >= len(self.removed_values_cache):
                 return
-            cell, value = self.removed_values_cache[i]
+            cell, correct_value = self.removed_values_cache[i]
+
+            if cell.model.is_given():
+                i += 1
+                continue
 
             # Selects a cell either all notes, blank, or an incorrect entry
-            if cell.model.is_notes() or cell.model.is_blank() or (cell.model.is_entry() and cell.model.in_conflict):
+            if cell.model.is_notes() or cell.model.is_blank() or (cell.model.is_entry() and cell.model.in_conflict) or \
+                    (cell.model.is_entry() and cell.model.value != correct_value):
                 self.removed_values_cache.pop(i)
                 break
 
@@ -39,6 +44,7 @@ class HintManager:
         # Cache old mode to return to later
         old_mode = ModeButton.mode
         ModeButton.mode = Mode.ENTRY
-        cell.toggle_number(value)
+        cell.toggle_number(correct_value)
+        cell.select()
 
         ModeButton.mode = old_mode

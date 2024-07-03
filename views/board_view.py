@@ -1,11 +1,12 @@
 ﻿import tkinter as tk
+from typing import Union
 from utils.constants import BOARD_SIZE
 from views.cell_view import CellView
 
 
 class BoardView(tk.Frame):
     """ Handles the visual of the board. """
-    def __init__(self, parent: tk.Frame):
+    def __init__(self, parent: Union[tk, tk.Frame]):
         tk.Frame.__init__(self, parent)
         self.frame = tk.Frame(parent, bg='black')
         self.frame.grid(row=0, column=0, padx=5, pady=50)
